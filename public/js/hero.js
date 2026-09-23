@@ -25,7 +25,7 @@ export function Hero() {
     };
   }, []);
   return html`<div class=${'fh' + (busy ? ' busy' : '')}>
-    <iframe ref=${frame} class="fh-gl" src=${'/forest/3d.html?mode=hero&lang=' + LANG} title=${L('动态假设-证据森林三维视图', 'The hypothesis–evidence forest in 3D')}></iframe>
+    <iframe ref=${frame} class="fh-gl" src=${'forest/3d.html?mode=hero&lang=' + LANG} title=${L('动态假设-证据森林三维视图', 'The hypothesis–evidence forest in 3D')}></iframe>
     <div class="fh-shade" aria-hidden="true"></div>
 
     <nav class="fh-nav">

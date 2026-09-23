@@ -6,7 +6,7 @@ import { go } from '../app.js';
 
 function ForestView({ dim, q, onShell }) {
   useScreen(dim === '3d' ? 'forest3d' : 'forest2d', {}, onShell);
-  const src = `/forest/${dim}.html?mode=embed&lang=${LANG}`;
+  const src = `forest/${dim}.html?mode=embed&lang=${LANG}`;
   return html`<${Fragment}>
     <div class="toolbar">
       <div class="seg">
@@ -19,7 +19,7 @@ function ForestView({ dim, q, onShell }) {
         ? L('每个 idea 一棵树，高度 = 深度；共享假设位于各树之间', 'One tree per idea, height = depth; shared hypotheses sit between trees')
         : L('六个研究方向按扇区分布，跨方向的边汇向中心', 'Six research themes by sector; cross-theme edges bundle to the centre')}</span>
       <a class="btn sm" href="/panorama">${I('net', { s: 13 })}${L('本工作区的假设全景', 'This workspace’s panorama')}</a>
-      <a class="btn sm hide-s" href=${`/forest/${dim}.html?lang=${LANG}`} target="_blank" rel="noopener">${L('全屏打开', 'Open full screen')} ↗</a>
+      <a class="btn sm hide-s" href=${`forest/${dim}.html?lang=${LANG}`} target="_blank" rel="noopener">${L('全屏打开', 'Open full screen')} ↗</a>
     </div>
     <div class="forest-wrap">
       <iframe key=${src} src=${src} title=${L(dim === '3d' ? '三维假设森林' : '二维假设森林', dim === '3d' ? '3D hypothesis forest' : '2D hypothesis forest')}></iframe>

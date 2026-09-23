@@ -167,7 +167,7 @@ export function Paper({ q, onShell }) {
             <${Editable} value=${t(p)} multiline=${true} cls="" style=${{ lineHeight: 1.9, marginBottom: '11px', padding: '7px 9px', border: '1px solid transparent', borderRadius: '5px' }}
               onSave=${(v) => act('paper.save', { k: s.k, i, text: v })} />`)}
           ${s.fig && html`<div style="margin:11px 0;padding:11px;border:1px solid var(--line);border-radius:6px;background:#FAFBFC">
-            <img src=${'/assets/fig3-' + (t({ zh: 'zh', en: 'en' })) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;max-width:520px;display:block;margin:0 auto" />
+            <img src=${'assets/fig3-' + (t({ zh: 'zh', en: 'en' })) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;max-width:520px;display:block;margin:0 auto" />
             <div class="tiny mut" style="margin-top:8px">${L(`图 3：(a) 噪声尺度随 batch 满足 B^-0.50；(b) 修正项前后的有效步长，小 batch 区间平均 +${d.fig3.measured}%。来源 e_15`,
               `Figure 3: (a) noise scale follows B^-0.50; (b) effective step with and without the correction, +${d.fig3.measured}% on average in the small-batch range. Source: e_15`)}
               <a href="/figures" style="margin-left:6px">${L('图表工作台 →', 'Figure workbench →')}</a></div>
@@ -305,7 +305,7 @@ export function Figures({ q, onShell }) {
       <div class="col">
         <${Card} title=${L('图 3 · 噪声尺度与有效步长', 'Figure 3 · noise scale and effective step')}
           right=${html`<span class="chip mono">v${f.ver}</span>`} sub=${L(`已采纳 ${f.reviews.filter((r) => r.st === 'done').length} / ${f.reviews.length} 条审图意见`, `${f.reviews.filter((r) => r.st === 'done').length} / ${f.reviews.length} review comments applied`)}>
-          <img src=${'/assets/fig3-' + t({ zh: 'zh', en: 'en' }) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;display:block;border:1px solid var(--line);border-radius:5px" />
+          <img src=${'assets/fig3-' + t({ zh: 'zh', en: 'en' }) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;display:block;border:1px solid var(--line);border-radius:5px" />
           <div class="row" style="margin-top:9px">
             ${f.yZero && html`<span class="chip ok">${L('(b) y 轴已从 0 起', '(b) y-axis starts at 0')}</span>`}
             ${f.bandTo === 1024 && html`<span class="chip ok">${L('置信带截止 1024', 'band cut at 1024')}</span>`}

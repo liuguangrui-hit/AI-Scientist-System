@@ -5,3 +5,4 @@ data/sessions/
 .env.*
 *.pem
 *.key
+_site/

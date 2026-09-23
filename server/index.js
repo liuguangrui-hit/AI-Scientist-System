@@ -4,8 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { join, dirname, extname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as store from './store.js';
-import * as V from './views.js';
-import { apply } from './actions.js';
+import { SCREENS, buildView, act } from './api.js';
 import * as source from './source/index.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -13,9 +12,6 @@ const PUB = join(ROOT, 'public');
 const PORT = process.env.PORT || 8080;
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8' };
-
-// screens the SPA owns; anything else under / falls through to static or 404
-const SCREENS = new Set(['', 'home', 'main', 'survey', 'trends', 'sparks', 'digest', 'ideas', 'panorama', 'graph', 'tree', 'experiments', 'exptree', 'sweep', 'runs', 'review', 'paper', 'claims', 'figures', 'rebuttal', 'events', 'about', 'forest3d', 'forest2d']);
 
 const json = (res, code, body) => {
   const s = JSON.stringify(body);
@@ -30,33 +26,6 @@ function sidOf(req, res) {
   const sid = store.newSid();
   res.setHeader('set-cookie', `ais=${sid}; Path=/; Max-Age=${7 * 24 * 3600}; SameSite=Lax; HttpOnly`);
   return sid;
-}
-
-function buildView(ws, screen, q) {
-  const base = { shell: V.shell(ws) };
-  switch (screen) {
-    case 'home': return { ...base, home: V.home(ws) };
-    case 'main': return { ...base, main: V.main(ws) };
-    case 'survey': return { ...base, survey: V.survey(ws) };
-    case 'trends': return { ...base, trends: V.trends(ws) };
-    case 'sparks': return { ...base, sparks: V.sparks(ws) };
-    case 'digest': return { ...base, digest: V.digest(ws, q.id) };
-    case 'ideas': return { ...base, ideas: V.ideas(ws) };
-    case 'panorama': return { ...base, panorama: V.panorama(ws, q.h) };
-    case 'graph': return { ...base, graph: V.graph(ws, q.h) };
-    case 'tree': return { ...base, tree: V.tree(ws, q.idea, q.h) };
-    case 'experiments': return { ...base, experiments: V.experiments(ws, q.e) };
-    case 'exptree': return { ...base, exptree: V.exptree(ws, q.idea) };
-    case 'sweep': return { ...base, sweep: V.sweep(ws) };
-    case 'runs': return { ...base, runs: V.runs(ws) };
-    case 'review': return { ...base, review: V.review(ws, q.h) };
-    case 'paper': return { ...base, paper: V.paper(ws) };
-    case 'claims': return { ...base, claims: V.claims(ws, q.c) };
-    case 'figures': return { ...base, figures: V.figures(ws) };
-    case 'rebuttal': return { ...base, rebuttal: V.rebuttal(ws) };
-    case 'events': return { ...base, events: V.events(ws, q.kind) };
-    default: return base;
-  }
 }
 
 async function readBody(req, limit = 1e6) {
@@ -108,12 +77,9 @@ const server = createServer(async (req, res) => {
         const ws = store.get(sid);
         let body;
         try { body = JSON.parse(await readBody(req)); } catch { return json(res, 400, { error: 'bad json' }); }
-        const r = apply(ws, String(body.op || '').slice(0, 40), body.args || {}, body.lang === 'en' ? 'en' : 'zh');
+        const r = act(ws, body);
         store.save(sid, ws);
-        const screens = Array.isArray(body.then) ? body.then : [];
-        const views = {};
-        for (const s of screens) if (SCREENS.has(s)) Object.assign(views, buildView(ws, s, body.q || {}));
-        return json(res, r.ok ? 200 : 409, { ...r, views: { ...views, shell: V.shell(ws) } });
+        return json(res, r.ok ? 200 : 409, r.body);
       }
       if (path === '/api/reset' && req.method === 'POST') {
         store.reset(sid);

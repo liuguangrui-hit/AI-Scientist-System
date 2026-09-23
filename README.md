@@ -2,9 +2,9 @@
 
 [English](README.en.md) · 中文
 
-**[在线体验](https://ai-scientist-system.onrender.com/)** · [工作台](https://ai-scientist-system.onrender.com/main) · [假设全景](https://ai-scientist-system.onrender.com/panorama) · [三维森林](https://ai-scientist-system.onrender.com/forest3d)
+**[在线体验](https://liuguangrui.top/ai-scientist/)** · [工作台](https://liuguangrui.top/ai-scientist/main) · [假设全景](https://liuguangrui.top/ai-scientist/panorama) · [三维森林](https://liuguangrui.top/ai-scientist/forest3d)
 
-公开演示仅使用演示数据与模拟实验，每位访客拥有独立工作区。免费服务休眠后首次打开可能需要约一分钟，试玩记录可能重置。
+公开演示仅使用演示数据与模拟实验，整个系统在浏览器里运行，你的试玩记录只保存在自己的浏览器中。
 
 一个自动化科研系统的**可操作界面**：读文献、提假设、跑实验、裁定证据、写论文，
 整条链路在同一张假设网络上展开。前后端齐全，零依赖，`npm start` 就能跑。
@@ -144,13 +144,30 @@ API 只有两个端点：`GET /api/view?screen=<name>` 返回一屏需要的全�
 
 ## 部署
 
+### GitHub Pages（在线演示）
+
+在线演示是纯静态站点，发布在 `liuguangrui.top/ai-scientist/`（账号的 Pages 域名 + 仓库名）。
+推送到 `main` 后，[.github/workflows/pages.yml](.github/workflows/pages.yml) 先跑 `npm test`，
+再运行 `node tools/build-pages.mjs` 生成 `_site/` 并发布。
+
+静态站点没有服务器：构建时把 `server/` 里的纯逻辑模块（`api` `views` `actions` `engine` `seed` `input`）
+原样复制到 `js/engine/`，换上只含演示模式的数据源（[tools/pages/source.js](tools/pages/source.js)），
+由 [tools/pages/local.js](tools/pages/local.js) 在浏览器里调用——和服务器调用的是同一份代码，
+工作区存在访客自己浏览器的 localStorage 里。`index.html` 通过 `<base href>` 声明站点路径，
+`404.html` 是同一个页面，所以直接打开或刷新 `/ai-scientist/tree?idea=P-014` 这样的深层链接也能用。
+接真实项目目录只能用 Node 服务器。
+
+本地预览：`npm run build:pages` 后，把 `_site/` 放在任意静态服务器的 `/ai-scientist/` 路径下；
+或者 `PAGES_BASE=/ npm run build:pages` 生成放在根路径的版本。
+
+### Render（Node 服务器）
+
 仓库提供 [render.yaml](render.yaml)，用于 Render 免费 Node.js Web Service：
 `main` 分支，`npm install` 构建，`npm start` 启动，`/api/health` 健康检查。
 服务监听 `0.0.0.0:$PORT`，固定 `AIS_SOURCE=demo`，每位访客独立会话。
 公开演示只使用演示数据与模拟实验；不配置真实项目目录、模型密钥或真实实验执行器。
 
-在线服务是连接本 GitHub 仓库的 Render Blueprint：更新前运行 `npm test`，提交并推送到 `main`，
-每次推送都会自动部署；部署完成后检查 `/api/health`。
+以 Render Blueprint 连接本仓库后，每次推送到 `main` 都会自动部署；部署完成后检查 `/api/health`。
 免费服务无访问 15 分钟后休眠，下次访问冷启动约一分钟；休眠、重启或重新部署会重置试玩记录。
 每个工作区每月共享 750 免费实例小时，另有流量及构建额度；不要启用付费实例、磁盘或数据库。
 未添加付款方式时，额度耗尽会暂停服务或构建；已绑定付款方式的工作区可能产生超额费用。

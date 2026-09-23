@@ -1,6 +1,6 @@
 // The public homepage: one long scrolling page that explains the system,
 // then hands the visitor a live workbench.
-import { html, useState, useEffect, useRef, LANG, setLang, t, L, I, view } from './core.js';
+import { html, useState, useEffect, useRef, LANG, setLang, t, L, I, view, reset } from './core.js';
 
 function useReveal() {
   const ref = useRef(null);
@@ -63,7 +63,7 @@ export function Landing({ about }) {
       <div class="shot">
         <div class="shotframe">
           <div class="shotbar"><i></i><i></i><i></i><span class="u">app.ai-scientist · ${L('总览', 'overview')}</span></div>
-          <img src=${LANG === 'zh' ? '/assets/hero-zh.png' : '/assets/hero-en.png'} width="1060" height="662" alt=${L('总览界面：管线实时数字、共享假设关系、过去 24 小时与待裁定事项', 'Overview: live pipeline counts, shared hypotheses, the last 24 hours and what awaits a verdict')} />
+          <img src=${LANG === 'zh' ? 'assets/hero-zh.png' : 'assets/hero-en.png'} width="1060" height="662" alt=${L('总览界面：管线实时数字、共享假设关系、过去 24 小时与待裁定事项', 'Overview: live pipeline counts, shared hypotheses, the last 24 hours and what awaits a verdict')} />
         </div>
       </div>
     </header>
@@ -180,7 +180,7 @@ export function Landing({ about }) {
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('关于', 'About')}</div>
           <div>${L('演示数据 · 每个访客一份独立会话', 'Demo data · one private session per visitor')}</div>
           <div>${L('语言', 'Language')}: <a href="#" onClick=${(e) => { e.preventDefault(); setLang(LANG === 'zh' ? 'en' : 'zh'); }}>${LANG === 'zh' ? 'English' : '中文'}</a></div>
-          <div><a href="#" onClick=${async (e) => { e.preventDefault(); await fetch('/api/reset', { method: 'POST' }); location.reload(); }}>${L('重置我的会话数据', 'Reset my session data')}</a></div></div>
+          <div><a href="#" onClick=${async (e) => { e.preventDefault(); await reset(); location.reload(); }}>${L('重置我的会话数据', 'Reset my session data')}</a></div></div>
       </div>
     </footer>
   </div>`;

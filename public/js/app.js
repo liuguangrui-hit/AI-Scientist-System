@@ -1,13 +1,15 @@
 // Router + workbench shell.
-import { html, render, useState, useEffect, useRef, LANG, setLang, onLang, t, L, view, act, reset, onToast, I, clock, dur, useCallback } from './core.js';
+import { html, render, useState, useEffect, useRef, LANG, setLang, onLang, t, L, view, act, reset, onToast, I, clock, dur, useCallback, BASE, href, unbase } from './core.js';
 import { Landing } from './landing.js';
 import { Hero } from './hero.js';
 import { SCREENS } from './screens/index.js';
 
 // ---------------------------------------------------------------- router
+// Routes are written as root paths ('/home', '/tree?idea=P-014') everywhere in the
+// app; href()/unbase() map them onto BASE when the site lives under a sub-path.
 const subs = new Set();
-export function go(href, replace = false) {
-  const u = new URL(href, location.origin);
+export function go(to, replace = false) {
+  const u = new URL(href(to), location.origin);
   if (u.pathname + u.search === location.pathname + location.search) return;
   history[replace ? 'replaceState' : 'pushState']({}, '', u);
   subs.forEach((f) => f());
@@ -16,21 +18,34 @@ export function go(href, replace = false) {
 }
 addEventListener('popstate', () => subs.forEach((f) => f()));
 addEventListener('click', (e) => {
-  const a = e.target.closest?.('a[href^="/"]');
-  if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  const a = e.target.closest?.('a[href]');
+  if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || a.getAttribute('href')[0] === '#') return;
+  const u = new URL(a.href);
+  if (u.origin !== location.origin || !u.pathname.startsWith(BASE) || /\.\w+$/.test(u.pathname)) return;
   e.preventDefault();
-  go(a.getAttribute('href'));
+  go(unbase(u.pathname) + u.search);
 });
+// Under a sub-path, give every '/…' link its real address so that opening it in a
+// new tab, copying it or hovering it shows the right URL.
+if (BASE !== '/') {
+  const fix = (a) => { const h = a.getAttribute('href'); if (h && h[0] === '/' && !h.startsWith(BASE)) a.setAttribute('href', href(h)); };
+  new MutationObserver((rows) => {
+    for (const r of rows) {
+      if (r.type === 'attributes') { if (r.target.tagName === 'A') fix(r.target); continue; }
+      for (const n of r.addedNodes) if (n.nodeType === 1) { if (n.tagName === 'A') fix(n); n.querySelectorAll?.('a[href^="/"]').forEach(fix); }
+    }
+  }).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['href'] });
+}
 function useRoute() {
   const [, bump] = useState(0);
   useEffect(() => { const f = () => bump((x) => x + 1); subs.add(f); return () => subs.delete(f); }, []);
-  const p = location.pathname.replace(/^\/|\/$/g, '');
+  const p = unbase(location.pathname).replace(/^\/|\/$/g, '');
   return { screen: p || '', q: Object.fromEntries(new URLSearchParams(location.search)) };
 }
 export const qs = (patch) => {
   const u = new URL(location.href);
   for (const [k, v] of Object.entries(patch)) v == null ? u.searchParams.delete(k) : u.searchParams.set(k, v);
-  return u.pathname + (u.search || '');
+  return unbase(u.pathname) + (u.search || '');
 };
 
 // ---------------------------------------------------------------- data hook
@@ -197,8 +212,9 @@ function App() {
   useEffect(() => onLang(() => bump((x) => x + 1)), []);
   useEffect(() => { document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en'; }, []);
   useEffect(() => {
-    const titles = { '': 'AI Scientist', home: L('总览', 'Overview'), main: L('工作台', 'Workbench'), forest3d: L('森林 · 三维', 'Forest · 3D'), forest2d: L('森林 · 二维', 'Forest · 2D') };
-    document.title = (titles[screen] || screen.replace(/^\w/, (c) => c.toUpperCase())) + ' · AI Scientist' + (screen ? '' : L(' 工作台', ' Workbench'));
+    if (screen === '' || screen === 'about') return;   // the homepage and /about name themselves
+    const titles = { home: L('总览', 'Overview'), main: L('工作台', 'Workbench'), forest3d: L('森林 · 三维', 'Forest · 3D'), forest2d: L('森林 · 二维', 'Forest · 2D') };
+    document.title = (titles[screen] || screen.replace(/^\w/, (c) => c.toUpperCase())) + ' · AI Scientist';
   }, [screen, LANG]);
   return html`<${Fragment2}>
     ${screen === '' ? html`<${Hero} />` : screen === 'about' ? html`<${Landing} about />` : html`<${Workbench} screen=${screen} q=${q} />`}

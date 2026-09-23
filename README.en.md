@@ -2,9 +2,9 @@
 
 English · [中文](README.md)
 
-**[Live demo](https://ai-scientist-system.onrender.com/)** · [Workbench](https://ai-scientist-system.onrender.com/main) · [Hypothesis panorama](https://ai-scientist-system.onrender.com/panorama) · [3D forest](https://ai-scientist-system.onrender.com/forest3d)
+**[Live demo](https://liuguangrui.top/ai-scientist/)** · [Workbench](https://liuguangrui.top/ai-scientist/main) · [Hypothesis panorama](https://liuguangrui.top/ai-scientist/panorama) · [3D forest](https://liuguangrui.top/ai-scientist/forest3d)
 
-The public demo uses demo data and simulated experiments, with a private workspace per visitor. The free service may take about a minute to wake up, and trial data may reset.
+The public demo uses demo data and simulated experiments. The whole system runs in your browser, and whatever you try is kept only in your own browser.
 
 A **working interface** for an autonomous research system: read the literature, form
 hypotheses, run experiments, rule on the evidence, write the paper — the whole chain on one
@@ -155,15 +155,33 @@ lives on the server**, so the screens stay consistent with each other by constru
 
 ## Deploying
 
+### GitHub Pages (the live demo)
+
+The live demo is a static site at `liuguangrui.top/ai-scientist/` (the account's Pages domain plus
+the repository name). On every push to `main`, [.github/workflows/pages.yml](.github/workflows/pages.yml)
+runs `npm test`, then `node tools/build-pages.mjs` to produce `_site/`, and publishes it.
+
+There is no server on a static host. The build copies the pure modules from `server/` (`api`,
+`views`, `actions`, `engine`, `seed`, `input`) unchanged into `js/engine/`, swaps in a demo-only
+data source ([tools/pages/source.js](tools/pages/source.js)), and [tools/pages/local.js](tools/pages/local.js)
+calls them in the browser — the same code the server runs — with the workspace kept in the
+visitor's own localStorage. `index.html` names its path with `<base href>`, and `404.html` is the
+same page, so opening or reloading a deep link like `/ai-scientist/tree?idea=P-014` works.
+Connecting a real project directory still needs the Node server.
+
+To preview locally, `npm run build:pages` and serve `_site/` under `/ai-scientist/` from any static
+server, or `PAGES_BASE=/ npm run build:pages` for a copy that lives at a domain root.
+
+### Render (the Node server)
+
 The included [render.yaml](render.yaml) configures a free Render Node.js Web Service:
 branch `main`, build `npm install`, start `npm start`, and health check `/api/health`.
 The server binds to `0.0.0.0:$PORT` with `AIS_SOURCE=demo` and a private session per visitor.
 The public demo uses demo data and simulated experiments only. Do not configure real project
 directories, model API keys, or live experiment executors.
 
-The live service is a Render Blueprint connected to this GitHub repository. To update, run `npm test`,
-then commit and push to `main`: every push deploys automatically. Check `/api/health` once the deploy
-finishes.
+Connected as a Render Blueprint, every push to `main` deploys automatically; check `/api/health`
+once the deploy finishes.
 Free services sleep after 15 idle minutes and take about a minute to wake up. Sleep, restarts,
 and redeploys reset trial data. A workspace shares 750 free instance hours per month, with separate
 bandwidth and build allowances. Do not enable paid instances, disks, or databases.

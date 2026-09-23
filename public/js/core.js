@@ -21,8 +21,22 @@ export const t = (v) => (v == null ? '' : typeof v === 'string' ? v : (v[LANG] ?
 // L: literal pair written inline in the client
 export const L = (zh, en) => (LANG === 'zh' ? zh : en);
 
+// ---------------------------------------------------------------- where the site lives
+// BASE is the path the site is served under: '/' from the Node server, '/ai-scientist/'
+// on GitHub Pages (index.html sets <base href>). Inside the app every link is written
+// as a root path like '/home'; href() and the router add or strip BASE.
+export const BASE = new URL(document.baseURI).pathname.replace(/\/?$/, '/');
+export const href = (p) => (BASE === '/' || !p || p[0] !== '/' ? p : BASE + p.slice(1));
+export const unbase = (path) => (BASE !== '/' && path.startsWith(BASE) ? '/' + path.slice(BASE.length) : path);
+
+// On a static host there is no server: the same engine runs in the browser and
+// the workspace lives in localStorage (see js/local.js, emitted by tools/build-pages.mjs).
+const LOCAL = document.querySelector('meta[name="ais-mode"]')?.content === 'local';
+const local = LOCAL ? import('./local.js') : null;
+
 // ---------------------------------------------------------------- api
 export async function view(screen, q = {}) {
+  if (local) return (await local).view(screen, q);
   const u = new URL('/api/view', location.origin);
   u.searchParams.set('screen', screen);
   for (const [k, v] of Object.entries(q)) if (v != null) u.searchParams.set(k, v);
@@ -31,15 +45,22 @@ export async function view(screen, q = {}) {
   return r.json();
 }
 export async function act(op, args = {}, then = [], q = {}) {
-  const r = await fetch('/api/act', {
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ op, args, then, q, lang: LANG }),
-  });
-  const body = await r.json().catch(() => ({ ok: false, toast: { zh: '网络错误', en: 'Network error' } }));
+  let body;
+  if (local) body = (await local).act({ op, args, then, q, lang: LANG });
+  else {
+    const r = await fetch('/api/act', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ op, args, then, q, lang: LANG }),
+    });
+    body = await r.json().catch(() => ({ ok: false, toast: { zh: '网络错误', en: 'Network error' } }));
+  }
   toast(t(body.toast), !body.ok);
   return body;
 }
-export async function reset() { await fetch('/api/reset', { method: 'POST' }); }
+export async function reset() {
+  if (local) return (await local).reset();
+  await fetch('/api/reset', { method: 'POST' });
+}
 
 // ---------------------------------------------------------------- toasts
 let toastSub = null, toastId = 0;
