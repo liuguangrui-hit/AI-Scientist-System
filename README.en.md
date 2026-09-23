@@ -2,7 +2,7 @@
 
 English · [中文](README.md)
 
-**[Live demo](https://hypothesis-evidence-forest.onrender.com/)** · [Workbench](https://hypothesis-evidence-forest.onrender.com/main) · [Hypothesis panorama](https://hypothesis-evidence-forest.onrender.com/panorama) · [Large-scale structure visualisation](https://github.com/liuguangrui-hit/hypothesis-forest-3d)
+**[Live demo](https://ai-scientist-system.onrender.com/)** · [Workbench](https://ai-scientist-system.onrender.com/main) · [Hypothesis panorama](https://ai-scientist-system.onrender.com/panorama) · [3D forest](https://ai-scientist-system.onrender.com/forest3d)
 
 The public demo uses demo data and simulated experiments, with a private workspace per visitor. The free service may take about a minute to wake up, and trial data may reset.
 

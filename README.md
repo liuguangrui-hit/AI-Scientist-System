@@ -2,7 +2,7 @@
 
 [English](README.en.md) · 中文
 
-**[在线体验](https://hypothesis-evidence-forest.onrender.com/)** · [工作台](https://hypothesis-evidence-forest.onrender.com/main) · [假设全景](https://hypothesis-evidence-forest.onrender.com/panorama) · [大规模结构可视化](https://github.com/liuguangrui-hit/hypothesis-forest-3d)
+**[在线体验](https://ai-scientist-system.onrender.com/)** · [工作台](https://ai-scientist-system.onrender.com/main) · [假设全景](https://ai-scientist-system.onrender.com/panorama) · [三维森林](https://ai-scientist-system.onrender.com/forest3d)
 
 公开演示仅使用演示数据与模拟实验，每位访客拥有独立工作区。免费服务休眠后首次打开可能需要约一分钟，试玩记录可能重置。
 
