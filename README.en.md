@@ -66,9 +66,9 @@ Chinese and English switch live from the header — one site, not two.
 
 | Group | Screens |
 | --- | --- |
-| Entry | `/` long scrolling landing page · `/home` overview · `/main` workbench (global frontier) |
+| Entry | `/` 3D forest homepage · `/about` long scrolling landing page · `/home` overview · `/main` workbench (global frontier) |
 | Literature | `/survey` collection · `/trends` trend analysis · `/sparks` idea sparks · `/digest` paper detail |
-| Intake & hypotheses | `/ideas` intake · `/panorama` panorama · `/graph` shared hypotheses · `/tree` single-project tree |
+| Intake & hypotheses | `/ideas` intake · `/panorama` panorama · `/graph` shared hypotheses · `/tree` single-project tree · `/forest3d` `/forest2d` the forest at scale (3D / 2D) |
 | Experiments | `/experiments` single run · `/exptree` four-stage tree · `/sweep` sweep matrix · `/runs` compute & failures |
 | Verdicts & writing | `/review` verdict queue · `/paper` manuscript · `/claims` claims vs evidence · `/figures` figures · `/rebuttal` review & rebuttal |
 | Other | `/events` full event stream |
@@ -161,10 +161,9 @@ The server binds to `0.0.0.0:$PORT` with `AIS_SOURCE=demo` and a private session
 The public demo uses demo data and simulated experiments only. Do not configure real project
 directories, model API keys, or live experiment executors.
 
-The current live service was created from a public Git URL. To update, run `npm test`, commit and push
-normally to `main`, then choose **Manual Deploy → Deploy latest commit** on the Render service page.
-Wait for a successful deployment and check `/api/health`. If you later connect GitHub and enable
-automatic deployment, normal pushes to `main` will trigger updates.
+The live service is a Render Blueprint connected to this GitHub repository. To update, run `npm test`,
+then commit and push to `main`: every push deploys automatically. Check `/api/health` once the deploy
+finishes.
 Free services sleep after 15 idle minutes and take about a minute to wake up. Sleep, restarts,
 and redeploys reset trial data. A workspace shares 750 free instance hours per month, with separate
 bandwidth and build allowances. Do not enable paid instances, disks, or databases.
