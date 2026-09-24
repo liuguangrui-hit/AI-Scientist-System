@@ -22,11 +22,23 @@ export function Hero() {
   // On a phone the forest takes the space above the words instead of sitting under them.
   const [top] = useState(() => matchMedia('(max-width:760px)').matches);
   useEffect(() => {
-    const el = copy.current;
-    if (!el || !top) return;
-    const ro = new ResizeObserver(() => root.current?.style.setProperty('--copy-h', Math.ceil(el.getBoundingClientRect().height) + 'px'));
+    const el = copy.current, r = root.current;
+    if (!el || !r || !top) return;
+    // The words may take at most about half the screen, whatever the language or the
+    // phone's font size: past that, first the column notes go, then the forest line.
+    const fit = () => {
+      r.classList.remove('tight', 'tighter');
+      const h = () => el.getBoundingClientRect().height, max = innerHeight * 0.5;
+      if (h() > max) r.classList.add('tight');
+      if (h() > max) r.classList.add('tighter');
+      r.style.setProperty('--copy-h', Math.ceil(h()) + 'px');
+    };
+    fit();
+    const ro = new ResizeObserver(() => r.style.setProperty('--copy-h', Math.ceil(el.getBoundingClientRect().height) + 'px'));
     ro.observe(el);
-    return () => ro.disconnect();
+    addEventListener('resize', fit);
+    document.fonts?.ready.then(fit);
+    return () => { ro.disconnect(); removeEventListener('resize', fit); };
   }, [top]);
   useEffect(() => { try { localStorage.setItem(SEEN, '1'); } catch {} }, []);
   // Any sign of intent plays the rest of the entrance out at speed; Enter opens the system.
@@ -87,17 +99,17 @@ export function Hero() {
         <span class="fh-m">${L('动态假设-证据森林', 'A Dynamic Hypothesis–Evidence Forest')}</span>
       </h1>
       <p>${L('每个 idea 拆解为一棵由实验检验的假设树，共享假设把树连成森林。',
-        'Each idea becomes a tree of hypotheses tested by experiments. Shared hypotheses join the trees into a forest.')}</p>
+        'Each idea is a tree of hypotheses tested by experiments. Shared hypotheses join the trees into a forest.')}</p>
       <div class="fh-idea">
         <div class="fh-f">
           <div class="fh-fk">${FORK}${L('展开', 'Expand')}</div>
           <b>${L('苏格拉底式追问', 'Socratic questioning')}</b>
-          <span>${L('多 agent 层层追问，直至假设可检验', 'Agents keep asking until every hypothesis is testable')}</span>
+          <span>${L('多 agent 层层追问，直至假设可检验', 'Agents ask until each hypothesis is testable')}</span>
         </div>
         <div class="fh-f">
           <div class="fh-fk">${MERGE}${L('收敛', 'Converge')}</div>
           <b>${L('奥卡姆剃刀', "Occam's razor")}</b>
-          <span>${L('强化学习将具体假设抽象为普适假设', 'Reinforcement learning abstracts specific hypotheses into general ones')}</span>
+          <span>${L('强化学习将具体假设抽象为普适假设', 'RL abstracts specific hypotheses into general ones')}</span>
         </div>
       </div>
       <div class="fh-goal">

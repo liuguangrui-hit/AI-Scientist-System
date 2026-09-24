@@ -416,6 +416,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc);outline:none}
 .fh-nav,.fh-copy,.fh-foot{position:absolute;z-index:2;pointer-events:none}
 .fh-nav a,.fh-nav button,.fh-copy a{pointer-events:auto}
 .fh-nav{top:0;left:0;right:0;height:60px;padding:0 32px;display:flex;align-items:center;gap:26px;font-size:12.5px}
+.fh-nav>*{flex-shrink:0;white-space:nowrap}
+.fh-nav>.grow{flex-shrink:1}
 .fh-nav a{color:rgba(231,236,245,.5);transition:color .2s}
 .fh-nav a:hover{color:#fff}
 .fh-brand{display:flex;align-items:center;gap:8px;color:rgba(231,236,245,.78)!important;letter-spacing:.3px}
@@ -503,10 +505,15 @@ html[lang=en] .fh-goal b{letter-spacing:.01em}
   .fh-cta{margin-top:20px}
   .fh-foot{display:none}
 }
-@media (max-width:760px) and (max-height:700px){
-  .fh-f span{display:none}
-  .fh-copy p{margin-top:8px}
-  .fh-cta{margin-top:16px}
+@media (max-width:760px){
+  .fh.tight .fh-f span{display:none}
+  .fh.tighter .fh-copy>p{display:none}
+  .fh.tighter .fh-idea{margin-top:14px}
+  html[lang=en] .fh-m{font-size:23px}
+}
+@media (max-width:480px){
+  .fh-nav{gap:12px}
+  .fh-brand span{display:none}
 }
 
 /* ---------------------------------------------------------------- forest views inside the workbench */
