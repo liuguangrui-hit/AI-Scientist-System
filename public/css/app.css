@@ -457,7 +457,8 @@ html[lang=en] .fh-k{letter-spacing:.24em}
 .fh-k{animation:fhIn calc(1.4s*var(--s)) calc(1.5s*var(--s)) both}
 .fh-m{animation:fhIn calc(1.6s*var(--s)) calc(1.7s*var(--s)) both}
 .fh-copy p{animation:fhIn calc(1.4s*var(--s)) calc(2.1s*var(--s)) both}
-.fh-idea{animation:fhIn calc(1.4s*var(--s)) calc(2.5s*var(--s)) both}
+.fh-idea,.fh-goal{animation:fhIn calc(1.4s*var(--s)) calc(2.5s*var(--s)) both}
+.fh-goal{animation-delay:calc(2.75s*var(--s))}
 .fh-cta{animation:fhIn calc(1.4s*var(--s)) calc(2.9s*var(--s)) both}
 .fh-foot{animation:fhIn calc(1.4s*var(--s)) calc(3.3s*var(--s)) both}
 /* The two forces on the forest, side by side: what grows it and what keeps it small. */
@@ -469,6 +470,9 @@ html[lang=en] .fh-fk{letter-spacing:.12em;text-transform:uppercase;font-size:10p
 .fh-f b{display:block;margin-top:10px;font-size:15px;font-weight:400;letter-spacing:.08em;color:rgba(244,247,252,.92);text-shadow:0 0 20px rgba(125,162,255,.22)}
 html[lang=en] .fh-f b{letter-spacing:.01em}
 .fh-f span{display:block;margin-top:6px;text-wrap:balance;font-size:12px;line-height:1.7;color:rgba(154,166,191,.72)}
+.fh-goal{margin-top:20px;max-width:520px;padding-top:16px;border-top:1px solid rgba(125,162,255,.2);display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;row-gap:8px}
+.fh-goal b{font-size:15px;font-weight:400;letter-spacing:.08em;color:rgba(244,247,252,.94);text-shadow:0 0 22px rgba(125,162,255,.3)}
+html[lang=en] .fh-goal b{letter-spacing:.01em}
 .fh-nav .fh-enter{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 13px 0 15px;border-radius:999px;font-size:12px;letter-spacing:.04em;
   color:rgba(244,247,252,.9);background:rgba(125,162,255,.08);border:1px solid rgba(160,186,255,.3);backdrop-filter:blur(8px);
   transition:color .25s,background .25s,border-color .25s,box-shadow .25s}
@@ -476,7 +480,7 @@ html[lang=en] .fh-f b{letter-spacing:.01em}
 .fh-nav .fh-enter:hover{color:#fff;background:rgba(125,162,255,.2);border-color:rgba(190,208,255,.75);box-shadow:0 0 24px rgba(125,162,255,.3)}
 .fh-enter:hover span{transform:translateX(2px)}
 .fh-keys kbd{font:inherit;padding:0 5px;margin-right:4px;border:1px solid rgba(154,166,191,.28);border-radius:3px}
-@media (prefers-reduced-motion:reduce){.fh-nav,.fh-eye,.fh-k,.fh-m,.fh-copy p,.fh-idea,.fh-cta,.fh-foot{animation:none}}
+@media (prefers-reduced-motion:reduce){.fh-nav,.fh-eye,.fh-k,.fh-m,.fh-copy p,.fh-idea,.fh-goal,.fh-cta,.fh-foot{animation:none}}
 @media (max-width:760px){
   .fh-nav{padding:0 16px;height:52px;gap:16px}
   .fh-nav .fh-enter{height:28px;padding:0 11px 0 13px}

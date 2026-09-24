@@ -7,12 +7,13 @@ import { go } from './app.js';
 const SEEN = 'ais.hero';
 const seen = (() => { try { return !!localStorage.getItem(SEEN); } catch { return false; } })();
 
-// One node opening into three, and three closing into one.
+// One node opening into three, three closing into one, and the target both serve.
 const glyph = (d) => html`<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"
   dangerouslySetInnerHTML=${{ __html: d }}></svg>`;
 const FORK = glyph('<path d="M8 3.5 3 12.5M8 3.5v9M8 3.5l5 9"/><circle cx="8" cy="3" r="1.6" fill="currentColor" stroke="none"/><circle cx="3" cy="13" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="13" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.3" fill="currentColor" stroke="none"/>');
 const MERGE = glyph('<path d="M3 3.5 8 12.5M8 3.5v9M13 3.5l-5 9"/><circle cx="3" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="13" r="1.6" fill="currentColor" stroke="none"/>');
 
+const AIM = glyph('<circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>');
 export function Hero() {
   const frame = useRef(null);
   const root = useRef(null);
@@ -88,6 +89,10 @@ export function Hero() {
           <b>${L('奥卡姆剃刀', "Occam's razor")}</b>
           <span>${L('强化学习将具体假设抽象为普适假设', 'Reinforcement learning abstracts specific hypotheses into general ones')}</span>
         </div>
+      </div>
+      <div class="fh-goal">
+        <div class="fh-fk">${AIM}${L('整体目标', 'Objective')}</div>
+        <b>${L('以最精简的假设，解释最多的实验证据', 'The fewest hypotheses that explain the most experimental evidence')}</b>
       </div>
       <div class="fh-cta">
         <a class="fh-go" href="/home">${L('进入系统', 'Enter the system')}<span aria-hidden="true">→</span></a>
