@@ -629,15 +629,16 @@ function updateCamera(dt) {
   cam.dist += (cam.want.dist - cam.dist) * k * 0.9;
   cam.tx += (cam.want.tx - cam.tx) * k; cam.ty += (cam.want.ty - cam.ty) * k; cam.tz += (cam.want.tz - cam.tz) * k;
   // 竖屏（手机）视野窄：按宽高比把相机再往后拉，整片林子才装得进来
-  const reg = TOPFIT && window.__heroRegion || [0, 1], rt = reg[0], r = Math.max(0.25, reg[1] - reg[0]), Hr = H * r;
-  cam.eff = cam.dist * Math.max(1, Math.pow(1.35 / (W / Hr), 0.75)) * (TOPFIT && r < 0.4 ? Math.pow(0.4 / r, 0.5) : 1);
+  // 林子按不小于半屏的高度取景：文字区高、上方留白少时（例如地址栏在底部的浏览器）也不缩小，多出的部分漫出屏幕
+  const reg = TOPFIT && window.__heroRegion || [0, 1], rt = reg[0], r = Math.max(0.2, reg[1] - reg[0]), rs = TOPFIT ? Math.max(r, 0.5) : 1, Hr = H * rs;
+  cam.eff = cam.dist * Math.max(1, Math.pow(1.35 / (W / Hr), 0.75));
   const cp = Math.cos(cam.pitch);
   eye = [cam.tx + Math.cos(cam.yaw) * cp * cam.eff, cam.ty + Math.sin(cam.pitch) * cam.eff, cam.tz + Math.sin(cam.yaw) * cp * cam.eff];
   view = M.look(eye, [cam.tx, cam.ty, cam.tz], [0, 1, 0]);
   proj = M.persp(0.82, W / Hr, 4, 20000);
   // 首页背景：镜头平移（lens shift），把林子让到标题的右上方；旋转中心随之平移，拾取仍然准确
   // fit=top：先按上方区域做投影，再把整幅画面压进屏幕上部 r 的高度里
-  if (TOPFIT) { proj[5] *= r; proj[9] = r * -0.12 - (1 - 2 * rt - r); }
+  if (TOPFIT) { proj[5] *= rs; proj[9] = rs * -0.12 - (1 - 2 * rt - r); }
   if (HERO && !TOPFIT) { const wide = heroWide(); proj[8] = wide ? -0.34 : 0; proj[9] = wide ? -0.14 : -0.3; }
   vp = M.mul(proj, view);
 }
