@@ -488,7 +488,7 @@ function drawLabels() {
     const [x, y] = spinPt(sx(d.cx), sy(d.cy));
     if (x < -80 || x > W + 80 || y < -40 || y > H + 40) continue;
     const live = d.status === 'running';
-    mc.font = (live ? '600 ' : '400 ') + Math.max(9, Math.min(15, 11 * Math.sqrt(view.k))) + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
+    mc.font = (live ? '600 ' : '400 ') + (PHONE ? Math.max(7, Math.min(12, 8 * Math.sqrt(view.k))) : Math.max(9, Math.min(15, 11 * Math.sqrt(view.k)))) + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
     mc.fillStyle = P.hsl(d.hue, 75, 74, live ? 0.82 : 0.34);
     mc.fillText(d.name[LG], x, y - (d.rad || 30) - 6);
     if (view.k > 0.9) {
