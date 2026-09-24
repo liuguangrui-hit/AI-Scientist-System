@@ -275,8 +275,8 @@ function finishSurvey(ws, now) {
   ws.survey.records = j.records;
   ws.survey.fulltext = j.digests;
   for (const v of ws.survey.venues) if (v.status === 'ok') v.delta = Math.max(1, Math.round(v.delta * (0.6 + Math.random() * 0.8)));
-  pushEvent(ws, 'surveyor', b(`采集完成 · ${j.records} 题录 / ${j.digests} digest`, `Collection done · ${j.records} records / ${j.digests} digests`),
-    b('已达预算上限，游标已写回；TDSC 入口仍不可用', 'Budget reached, cursors written back; the TDSC entry is still unavailable'), 'collect', now);
+  pushEvent(ws, 'surveyor', b(`采集完成 · ${j.records} 条文献 / ${j.digests} digest`, `Collection done · ${j.records} records / ${j.digests} digests`),
+    b('已达预算上限，采集断点已保存；TDSC 入口仍不可用', 'Budget reached, cursors written back; the TDSC entry is still unavailable'), 'collect', now);
 }
 
 // ---------------------------------------------------------------- verdict application
@@ -317,7 +317,7 @@ export function applyVerdict(ws, hyp, verdict, now = Date.now(), reviewer = 'cla
   source.persist(ws, { kind: 'verdict', verdict: ws.verdicts[hyp] });
   ws.verdictHistory.unshift({ hyp, verdict, idea: affected[0] || '', at: now });
   pushEvent(ws, 'human', b(`${hyp} 裁定 · ${VERDICT_ZH[verdict]}`, `${hyp} verdict · ${VERDICT_EN[verdict]}`),
-    b(`影响 ${affected.join(' ') || '—'} · 冻结 ${frozen} · 撤下 ${withdrawn}`, `Affects ${affected.join(' ') || '—'} · froze ${frozen} · withdrew ${withdrawn}`), 'verdict', now, { hyp });
+    b(`影响 ${affected.join(' ') || '—'} · 冻结 ${frozen} · 撤回 ${withdrawn}`, `Affects ${affected.join(' ') || '—'} · froze ${frozen} · withdrew ${withdrawn}`), 'verdict', now, { hyp });
   ws.lastHuman = now;
   return { ok: true, frozen, reopened, withdrawn, before, verdict: ws.verdicts[hyp] };
 }
@@ -333,5 +333,5 @@ export function reviewerAdvice(ws, hyp) {
     `三次 PIVOT 只换了估计方法，没有换测量口径。${pos.map((e) => e.exp).join(' 与 ')} 显示断言在局部成立。建议改写 claim 缩小适用范围，而不是整体关闭。${roots.length ? `否则 ${roots.join(' ')} 整棵树需要重开。` : ''}`,
     `All PIVOTs changed the estimator but not the measurement protocol. ${pos.map((e) => e.exp).join(' and ')} show the claim holds locally. Narrow the claim rather than closing it.${roots.length ? ` Otherwise the whole ${roots.join(' ')} tree reopens.` : ''}`) };
   if (!pos.length && neg.length >= 3) return { action: 'close', why: b('全部证据为负，且无局部成立的迹象。', 'All evidence is negative with no sign of local validity.') };
-  return { action: 'return_active', why: b('证据不足以判定，附新方向后重回 frontier。', 'Evidence is not decisive; return it to the frontier with a new direction.') };
+  return { action: 'return_active', why: b('证据不足以判定，附新方向后重回可执行队列。', 'Evidence is not decisive; return it to the frontier with a new direction.') };
 }

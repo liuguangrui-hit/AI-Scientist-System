@@ -83,7 +83,7 @@ const NAV = [
   { k: 'home', icon: 'home', zh: '总览', en: 'Overview' },
   { k: 'main', icon: 'board', zh: '工作台', en: 'Workbench' },
   { k: 'survey', icon: 'book', zh: '文献调研', en: 'Literature', count: 'library', subs: [
-    { k: 'survey', zh: '采集管线', en: 'Collection' }, { k: 'trends', zh: '趋势分析', en: 'Trends' }, { k: 'sparks', zh: 'idea spark', en: 'Idea sparks' }, { k: 'digest', zh: '论文详情', en: 'Paper detail' }] },
+    { k: 'survey', zh: '文献采集', en: 'Collection' }, { k: 'trends', zh: '趋势分析', en: 'Trends' }, { k: 'sparks', zh: 'idea spark', en: 'Idea sparks' }, { k: 'digest', zh: '论文详情', en: 'Paper detail' }] },
   { k: 'ideas', icon: 'bulb', zh: 'Idea 立项', en: 'Idea intake', count: 'ideas' },
   { k: 'panorama', icon: 'net', zh: '假设网络', en: 'Hypotheses', count: 'hyps', subs: [
     { k: 'panorama', zh: '全景 · 全部 idea', en: 'Panorama · all ideas' }, { k: 'graph', zh: '共享关系 · 跨 idea', en: 'Shared · cross-idea' }, { k: 'tree', zh: '单 idea 树', en: 'Single-idea tree' },
@@ -117,7 +117,7 @@ function Side({ screen, counts, ideas, agents, open, onClose }) {
       </a>`)}
     <a class="nav sub" href="/ideas" style="color:var(--acc)">${L(`全部 ${ideas.length} 个 idea →`, `All ${ideas.length} ideas →`)}</a>
     <div class="binding">
-      <div class="t">${L('当前绑定', 'CURRENT BINDINGS')}</div>
+      <div class="t">${L('当前模型配置', 'CURRENT BINDINGS')}</div>
       ${['surveyor', 'executor', 'reviewer'].map((role) => html`
         <select value=${agents[role]} aria-label=${role} onChange=${async (e) => { await act('agent.bind', { role, model: e.target.value }); location.reload(); }}>
           ${['deepseek', 'codex', 'claude', 'gpt', 'gemini'].map((m) => html`<option value=${m}>${role} · ${m}</option>`)}

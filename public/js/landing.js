@@ -29,7 +29,7 @@ export function Landing({ about }) {
   const c = live?.shell?.counts;
   const stats = [
     [c ? c.library.toLocaleString() : '1,207', L('已建库文献', 'papers indexed')],
-    [c ? c.hyps : '56', L('在网假设', 'hypotheses live')],
+    [c ? c.hyps : '56', L('网络中的假设', 'hypotheses live')],
     [c ? c.running + c.queued : '7', L('运行中 / 排队实验', 'runs live & queued')],
     ['9h12m', L('最近一次无人值守运行', 'last unattended run')],
   ];
@@ -38,7 +38,7 @@ export function Landing({ about }) {
     <nav class="lnav">
       <a class="brand" href="/" style="color:#fff">${I('logo', { s: 21, c: '#fff', w: 1.8 })}<span style="font-size:15px;font-weight:600;color:#fff">AI Scientist</span></a>
       <div class="grow"></div>
-      <a href="#pipeline" class="hide-s">${L('管线', 'Pipeline')}</a>
+      <a href="#pipeline" class="hide-s">${L('研究流程', 'Pipeline')}</a>
       <a href="#network" class="hide-s">${L('假设网络', 'Network')}</a>
       <a href="#screens" class="hide-s">${L('全部界面', 'All screens')}</a>
       <a href="/panorama" class="hide-s">${L('假设图', 'Graph')}</a>
@@ -49,7 +49,7 @@ export function Landing({ about }) {
 
     <header class="hero" id="main">
       <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:#7DA2FF"></span>${L('自动化科研系统', 'Autonomous research system')}</span>
-      <h1>${L(html`从文献到论文<br/>科研链路<em>自主运行</em>`, html`From literature to manuscript<br/>the research chain, <em>run autonomously</em>`)}</h1>
+      <h1>${L(html`从文献到论文<br/>科研全流程<em>自主运行</em>`, html`From literature to manuscript<br/>the research chain, <em>run autonomously</em>`)}</h1>
       <p>${L('8 个课题并行推进，56 条假设共享同一网络。研究者只负责三项关键决策。',
         'Eight projects run in parallel over one shared network of 56 hypotheses. The researcher makes only three key decisions.')}</p>
       <div class="hbtns">
@@ -68,12 +68,12 @@ export function Landing({ about }) {
     </header>
 
     <${Section} id="pipeline" cls="">
-      <div class="eyebrow">${L('管线', 'Pipeline')}</div>
+      <div class="eyebrow">${L('研究流程', 'Pipeline')}</div>
       <h2>${L('从文献到论文', 'From literature to manuscript')}</h2>
-      <p class="lead">${L('每个环节都可以展开查看。从文献来源到每次实验写回的证据，都有据可查。',
+      <p class="lead">${L('每个环节都可以展开查看。从文献来源到每次实验写入的证据，都有据可查。',
         'Every stage can be opened and inspected. Each piece of evidence can be traced back to its run.')}</p>
       <div class="steps">
-        ${[[1, '采集', 'Collect', '按游标从 62 个来源增量采集，分三级处理至全文。', 'Incremental collection from 62 sources by cursor, processed in three levels up to full text.'],
+        ${[[1, '采集', 'Collect', '从 62 个来源增量采集，分三级处理至全文。', 'Incremental collection from 62 sources by cursor, processed in three levels up to full text.'],
           [2, '趋势', 'Trends', '聚类研究主题，识别空白与矛盾，由此生成 spark。', 'Topics are clustered and gaps are identified. Sparks come from these gaps.'],
           [3, '立项', 'Intake', '将研究主张展开为假设树，可复用的假设不重复验证。', 'A research claim is expanded into a hypothesis tree; reusable hypotheses are not re-verified.'],
           [4, '实验', 'Experiments', '四阶段实验树，保留失败节点以避免重复错误。', 'A four-stage experiment tree; failed nodes are retained to avoid repeating errors.'],
@@ -91,7 +91,7 @@ export function Landing({ about }) {
       <div class="feat">
         ${[['net', '共享与传播', 'Shared and propagated', '一次写入，所有引用方同步更新。假设被推翻时，影响按层级分别计算。', 'One write updates every citing project. If a hypothesis is overturned, the impact is computed per project.'],
           ['gavel', '裁定只写 verdicts/', 'Verdicts write only verdicts/', '节点状态由裁定结果决定。reviewer 不直接修改假设树。', 'Node state is derived from the verdict. The reviewer never edits the tree.'],
-          ['flask', '证据带方向', 'Evidence carries a sign', '每次实验写回一个带符号的增量。累积达到阈值后，假设转为 self_verified。', 'Each run writes back a signed delta. A hypothesis turns self_verified once the total crosses the threshold.']].map(([ic, zh, en, dzh, den]) => html`
+          ['flask', '证据带方向', 'Evidence carries a sign', '每次实验写入一个带符号的增量。累积达到阈值后，假设转为已验证。', 'Each run writes back a signed delta. A hypothesis turns self_verified once the total crosses the threshold.']].map(([ic, zh, en, dzh, den]) => html`
           <div class="f">${I(ic, { s: 20, c: 'var(--acc)' })}<h3>${L(zh, en)}</h3><p>${L(dzh, den)}</p></div>`)}
       </div>
       <div style="margin-top:34px" class="card">
@@ -124,12 +124,12 @@ export function Landing({ about }) {
     <${Section} id="screens" cls="alt">
       <div class="eyebrow">${L('全部界面', 'All screens')}</div>
       <h2>${L('18 个功能界面，均可交互操作', '18 screens, all interactive')}</h2>
-      <p class="lead">${L('每个界面都可以实际操作。实验完成后证据写回假设，裁定会冻结下游节点。',
+      <p class="lead">${L('每个界面都可以实际操作。实验完成后证据写入假设，裁定会冻结下游节点。',
         'Every screen is fully interactive. Finished runs write evidence back to hypotheses, and verdicts freeze downstream nodes.')}</p>
       <div class="screens">
-        ${[['home', '总览', 'Overview', '管线指标与待决事项', 'Live pipeline counts, the last 24 hours and pending decisions'],
-          ['main', '工作台 · 全局', 'Workbench · global', '全局 frontier 与执行槽位', 'Global frontier, execution slots and the activity stream'],
-          ['survey', '采集管线', 'Collection pipeline', '来源白名单与三级分级', 'Source whitelist, cursor budget, three grading levels'],
+        ${[['home', '总览', 'Overview', '流程指标与待决事项', 'Live pipeline counts, the last 24 hours and pending decisions'],
+          ['main', '工作台 · 全局', 'Workbench · global', '全局可执行假设与并发实验', 'Global frontier, execution slots and the activity stream'],
+          ['survey', '文献采集', 'Collection pipeline', '来源白名单与三级分级', 'Source whitelist, cursor budget, three grading levels'],
           ['trends', '趋势分析', 'Trend analysis', '主题聚类与研究空白', 'Monthly depth, clusters, term shifts, gaps and contradictions'],
           ['sparks', 'idea spark', 'Idea sparks', '四行格式与三道自检', 'Four-line format, three self-checks, state flow'],
           ['digest', '论文详情', 'Paper detail', '结构化摘要与衍生文本', 'meta.json, fixed digest fields, three derived texts'],
@@ -153,13 +153,13 @@ export function Landing({ about }) {
     <${Section} cls="" style=${{ background: 'var(--dark)' }}>
       <div class="dark" style="text-align:center">
         <h2 style="color:#fff">${L('数据来源', 'Data sources')}</h2>
-        <p class="lead" style="margin-inline:auto;text-align:center">${L('界面直接读取项目目录中的文件。题录在 index.jsonl，假设树在 tree.json，裁定在 verdicts/，事件在 events.jsonl，产物在 artifacts/。界面本身不保存状态。',
+        <p class="lead" style="margin-inline:auto;text-align:center">${L('界面直接读取项目目录中的文件。文献条目在 index.jsonl，假设树在 tree.json，裁定在 verdicts/，事件在 events.jsonl，产物在 artifacts/。界面本身不保存状态。',
           'The interface reads the files in the project directory. Records are in index.jsonl, hypothesis trees in tree.json, verdicts in verdicts/, events in events.jsonl and outputs in artifacts/. The interface keeps no state of its own.')}</p>
         <div class="mono" style="margin-top:26px;color:#7DA2FF;font-size:12.5px;line-height:2.1">
           index.jsonl · tree.json · verdicts/ · events.jsonl · artifacts/ · venues.yaml · topics.md
         </div>
         <div class="hbtns"><a class="hbtn" href="/home">${L('打开工作台', 'Open the workbench')}</a>
-          <a class="hbtn ghost" href="/survey">${L('从采集管线开始', 'Start at the collection pipeline')}</a></div>
+          <a class="hbtn ghost" href="/survey">${L('从文献采集开始', 'Start at the collection pipeline')}</a></div>
       </div>
     <//>
 

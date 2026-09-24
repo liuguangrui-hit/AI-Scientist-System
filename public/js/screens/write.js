@@ -6,7 +6,7 @@ const F = ({ children }) => children;
 
 const VERDICTS = [
   ['close', '判定不成立并关闭', 'Does not hold — close', '写 verdicts/ 并传播', 'writes verdicts/ and propagates'],
-  ['return_active', '退回 active', 'Return to active', '附新方向，重新进入 frontier', 'with a new direction, back to the frontier'],
+  ['return_active', '退回 active', 'Return to active', '附新方向，重新进入可执行队列', 'with a new direction, back to the frontier'],
   ['narrow_scope', '改写 claim 后重开', 'Rewrite the claim and reopen', '缩小到低秩情形', 'narrowed to the low-rank case'],
   ['downgrade', '降级为借用前提', 'Downgrade to a borrowed premise', '标注未验证', 'marked unverified'],
 ];
@@ -21,7 +21,7 @@ export function Review({ q, onShell }) {
     <span class="chip warn">${L('待裁定', 'Pending')} ${d.pending.length}</span>
     <span class="chip">${L('已裁定', 'Ruled')} ${d.done.length}</span>
     <div class="grow"></div>
-    <span class="tiny faint">${L(`升级阈值：|累积| ≥ ${d.threshold.score} 或 连续 PIVOT ≥ ${d.threshold.pivots}`, `Escalation: |total| ≥ ${d.threshold.score} or ${d.threshold.pivots} consecutive PIVOTs`)}</span>`}>
+    <span class="tiny faint">${L(`提交裁定的阈值：|累积| ≥ ${d.threshold.score} 或 连续 PIVOT ≥ ${d.threshold.pivots}`, `Escalation: |total| ≥ ${d.threshold.score} or ${d.threshold.pivots} consecutive PIVOTs`)}</span>`}>
     <div class="cols2b">
       <div class="col">
         <${Card} title=${L('裁定队列', 'Verdict queue')} sub=${L('executor 已停止展开', 'the executor has stopped expanding these')}>
@@ -38,7 +38,7 @@ export function Review({ q, onShell }) {
                 </div>
               </div>`)}
           </div>
-          <div class="ft">${L('其余节点未达升级阈值，由 executor 继续自动推进。', 'All other nodes are below the escalation threshold and continue under the executor.')}</div>
+          <div class="ft">${L('其余节点未达裁定阈值，由 executor 继续自动推进。', 'All other nodes are below the escalation threshold and continue under the executor.')}</div>
         <//>
         <${Card} title=${L('已裁定', 'Ruled')}>
           ${d.done.slice(0, 8).map((v) => html`
@@ -66,7 +66,7 @@ export function Review({ q, onShell }) {
             <div style=${{ padding: '11px', marginBottom: '8px', border: '1px solid var(--line)', borderRadius: '6px', borderLeft: '3px solid ' + ic(im.idea) }}>
               <div class="row"><span class="mono b">${im.idea}</span>
                 <span class="small mut">${im.role.kind === 'root' ? L('根前提 · 直接采纳', 'root premise · adopted as given')
-                  : im.role.leaf ? L('叶子 · 已自证', 'leaf · self-verified') : L(`第 ${im.role.depth} 层`, `layer ${im.role.depth}`)}</span>
+                  : im.role.leaf ? L('叶子 · 已验证', 'leaf · self-verified') : L(`第 ${im.role.depth} 层`, `layer ${im.role.depth}`)}</span>
                 <div class="grow"></div>
                 <span class=${'chip ' + (im.kind === 'global' ? 'bad' : im.kind === 'local' ? 'ok' : 'warn')}>
                   ${im.kind === 'global' ? L('全局失效 · 整个 idea 需重开', 'global failure · the project reopens')
@@ -75,7 +75,7 @@ export function Review({ q, onShell }) {
               <div class="mono tiny mut" style="margin-top:7px">${im.chain.join(' → ')}${im.kind === 'global' ? L(' → 全树', ' → whole tree') : ''}</div>
               <div class="tiny mut" style="margin-top:5px">${im.kind === 'global' ? L('全部节点重置为 untested · 已撰写章节需重写', 'every node returns to untested · written sections must be rewritten')
                 : im.kind === 'local' ? L('已有独立证据证明该点，无需动作', 'an independent run already proves this point; no action needed')
-                : L(`冻结下游节点 · 相关实验从队列撤下`, 'downstream nodes freeze · related runs leave the queue')}</div>
+                : L(`冻结下游节点 · 相关实验从队列撤回`, 'downstream nodes freeze · related runs leave the queue')}</div>
             </div>`)}
           <div class="row note">
             <span>${L(`合计：受影响 idea ${sel.totals.broken} / ${sel.totals.ideas} · 冻结节点 ${sel.totals.frozen} · 需重写章节 ${sel.totals.rewrite}`,
@@ -108,7 +108,7 @@ export function Review({ q, onShell }) {
             <a class="btn" href=${'/panorama?h=' + sel.id}>${L('在网络中查看', 'See it in the network')}</a>
             <a class="btn" href=${'/tree?idea=' + sel.ideas[0]?.idea + '&h=' + sel.id}>${L('查看单 idea 树', 'Single-idea tree')}</a>
           </div>
-          <div class="note" style="margin-top:10px">${L(`裁定后队列：+${sel.queueAfter.reopen} 节点回到 frontier · −${sel.queueAfter.withdraw} 实验从队列撤下 · ${sel.queueAfter.unaffected} 个 idea 不受影响`,
+          <div class="note" style="margin-top:10px">${L(`裁定后队列：+${sel.queueAfter.reopen} 节点回到可执行队列 · −${sel.queueAfter.withdraw} 实验从队列撤回 · ${sel.queueAfter.unaffected} 个 idea 不受影响`,
             `After the verdict: +${sel.queueAfter.reopen} nodes return to the frontier · −${sel.queueAfter.withdraw} runs leave the queue · ${sel.queueAfter.unaffected} project(s) unaffected`)}</div>
         <//>
       </div>` : html`<${Card} title=${L('没有待裁定的假设', 'Nothing awaits a verdict')}>
@@ -129,7 +129,7 @@ export function Paper({ q, onShell }) {
   const d = data.paper;
   const s = d.sections.find((x) => x.k === sel) || d.sections[0];
   if (!s) return html`<${Frame}><${Card} title=${L('论文正文', 'Manuscript')}>
-    <${Empty}>${L('暂无草稿。当某个 idea 的全部节点达到 self_verified 后，系统将依据假设树生成章节。',
+    <${Empty}>${L('暂无草稿。当某个 idea 的全部节点通过验证后，系统将依据假设树生成章节。',
       'No draft yet. When every node of an idea is self_verified, the sections are generated from its hypothesis tree.')}<//><//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip mono">${d.idea}</span><span class="small">${t(d.ideaTitle)}</span>
@@ -273,7 +273,7 @@ export function Claims({ q, onShell }) {
             <div class="note acc" style="line-height:1.8">${t({ zh: sel.soften.zh, en: sel.soften.en })}</div>
           <//>`}
         <//>`}
-        <${Card} title=${L('导出闸门', 'Export gate')}>
+        <${Card} title=${L('导出检查', 'Export gate')}>
           <div class="small mut">${L('导出前若仍有过度声称，导出会中止并列出相应条目。',
             'If any overclaim remains, export is halted and the claims are listed.')}</div>
           <div class="row" style="margin-top:9px">
@@ -438,10 +438,10 @@ export function Rebuttal({ q, onShell }) {
               ${k.auto && html`<span class="tag">${L('自动', 'auto')}</span>`}
             </div>`)}
           <div class="hr"></div>
-          <button class="btn acc" disabled=${!d.ready} onClick=${() => act('rebuttal.pack', {})}>${L('打包投稿版', 'Build the submission package')}</button>
+          <button class="btn acc" disabled=${!d.ready} onClick=${() => act('rebuttal.pack', {})}>${L('生成投稿版', 'Build the submission package')}</button>
           ${!d.ready && html`<div class="note warn" style="margin-top:9px">${L('两项未完成：图 4 须待 e_16 运行完成；过度声称须先行修改。导出时将自动执行匿名化脚本并生成 diff。',
             'Two items remain: Figure 4 awaits e_16, and overclaims must be resolved first. The anonymisation script runs at export and produces a diff.')}</div>`}
-          ${d.packed && html`<div class="note acc" style="margin-top:9px">${L(`投稿版已于 ${clock(d.packed)} 打包。`, `Package built at ${clock(d.packed)}.`)}</div>`}
+          ${d.packed && html`<div class="note acc" style="margin-top:9px">${L(`投稿版已于 ${clock(d.packed)} 生成。`, `Package built at ${clock(d.packed)}.`)}</div>`}
           <div class="row" style="margin-top:9px"><a class="btn sm" href="/paper">${L('返回正文', 'Back to the manuscript')}</a>
             <a class="btn sm" href="/claims">${L('核查过度声称', 'Check overclaims')}</a></div>
         <//>

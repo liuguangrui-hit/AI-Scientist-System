@@ -10,7 +10,7 @@ export function Ideas({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.ideas, c = d.cand;
   if (d.empty) return html`<${Frame}>
-    <${Card} title=${L('Idea 立项', 'Idea intake')} sub=${L(`进行中 ${d.counts.running} · 已收束 ${d.counts.done}`, `${d.counts.running} running · ${d.counts.done} wrapped up`)}>
+    <${Card} title=${L('Idea 立项', 'Idea intake')} sub=${L(`进行中 ${d.counts.running} · 已完成 ${d.counts.done}`, `${d.counts.running} running · ${d.counts.done} wrapped up`)}>
       <${Empty}>${L('当前没有待立项的候选。候选来自 spark：在趋势页由研究空白或矛盾生成 spark，选定后在此展开为假设树。',
         'No candidate is waiting. Candidates come from sparks: generate one from a gap or contradiction on the trends screen, select it, then expand it into a hypothesis tree here.')}<//>
       <div class="row" style="margin-top:11px"><a class="btn sm" href="/sparks">${L('查看 spark', 'Open sparks')}</a>
@@ -19,7 +19,7 @@ export function Ideas({ q, onShell }) {
   return html`<${Frame} tools=${html`
     <span class="chip">${L('候选', 'Candidates')} ${d.counts.candidates}</span>
     <span class="chip">${L('进行中', 'Running')} ${d.counts.running}</span>
-    <span class="chip">${L('已收束', 'Wrapped up')} ${d.counts.done}</span>
+    <span class="chip">${L('已完成', 'Wrapped up')} ${d.counts.done}</span>
     <div class="grow"></div>
     <a class="btn sm" href="/sparks">${L(`从 spark 立项 · ${d.sparksAvailable} 条 available`, `From a spark · ${d.sparksAvailable} available`)}</a>
     <button class="btn sm" onClick=${() => act('idea.pick', { dir: 'next' })}>${L('换一批候选', 'Another candidate')}</button>`}>
@@ -44,14 +44,14 @@ export function Ideas({ q, onShell }) {
               ${L('立项并展开为假设树', 'Launch and expand into a tree')}</button>
             <button class="btn sm" onClick=${() => act('idea.park', {})}>${L('存为候选', 'Save as candidate')}</button>
             <div class="grow"></div>
-            <span class="tiny faint">${L('立项后并行执行，与现有 idea 共用 executor 槽位', 'Once launched it runs in parallel, sharing the executor slots')}</span>`}>
+            <span class="tiny faint">${L('立项后并行执行，与现有 idea 共用 executor 的算力', 'Once launched it runs in parallel, sharing the executor slots')}</span>`}>
           <${Table}><tbody>
             ${c.plan.map((p, i) => html`<tr>
               <td style="width:52px" class="mono b">${p.hyp || L('新', 'new')}</td>
               <td>${t(p.hyp ? p.claim : p.claim)}
                 ${p.hyp && html`<div class="row" style="margin-top:4px">
                   ${(p.ideas || []).map((x) => html`<${IdeaTag} id=${x} />`)}
-                  ${p.verified ? html`<span class="chip ok">${L(`已自证 ${p.score > 0 ? '+' : ''}${p.score}`, `self_verified ${p.score > 0 ? '+' : ''}${p.score}`)}</span>`
+                  ${p.verified ? html`<span class="chip ok">${L(`已验证 ${p.score > 0 ? '+' : ''}${p.score}`, `self_verified ${p.score > 0 ? '+' : ''}${p.score}`)}</span>`
                     : html`<${St} s=${p.status} />`}
                 </div>`}</td>
               <td style="width:190px;text-align:right">
@@ -100,7 +100,7 @@ ${c.plan.filter((p) => p.mode !== 'skip').map((p, i, a) => `${i === a.length - 1
             'Where a hypothesis sits in a tree is decided by that project’s own argument, not by the hypothesis.')}</div>
         <//>
         <${Card} title=${L('已建库', 'Extracted so far')}>
-          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条在网假设', 'hypotheses in the network')}</span></div>
+          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条假设已在网络中', 'hypotheses in the network')}</span></div>
           <div class="row" style="margin-top:6px"><span class="num">${d.sharedCount}</span><span class="mut small">${L('条被 2 个以上 idea 引用', 'cited by 2+ projects')}</span></div>
         <//>
       </div>
@@ -366,8 +366,8 @@ function Graph({ d, color, hidden, labels, sel, onPick }) {
       ${mobile && html`<button class=${'btn xs' + (interact ? ' acc' : '')} aria-pressed=${interact} onClick=${() => { drag.current = null; setInteract(!interact); }}>${interact ? L('完成移动', 'Done moving') : L('移动图谱', 'Move graph')}</button>`}
       <button class="btn xs" onClick=${() => zoom(1.25)} aria-label="zoom out">−</button>
       <button class="btn xs" onClick=${() => zoom(0.8)} aria-label="zoom in">+</button>
-      <button class="btn xs" onClick=${fit}>${L('适配', 'Fit')}</button>
-      <button class="btn xs" onClick=${() => setPos({})}>${L('复位', 'Reset')}</button>
+      <button class="btn xs" onClick=${fit}>${L('适应窗口', 'Fit')}</button>
+      <button class="btn xs" onClick=${() => setPos({})}>${L('重置视图', 'Reset')}</button>
     </div>
   </div>`;
 }
@@ -439,7 +439,7 @@ export function GraphScreen({ q, onShell }) {
     ${d.ideas.map((i) => html`<${IdeaTag} id=${i.id} name=${i.name} on=${true} />`)}
     <span class="vr"></span><span class="chip acc">${L('仅显示共享假设', 'Shared hypotheses only')}</span>
     <div class="grow"></div>
-    <span class="chip">${L('一次实验平均服务', 'Ideas served per run')} ${d.perExp}</span>`}>
+    <span class="chip">${L('每次实验平均关联', 'Ideas served per run')} ${d.perExp}</span>`}>
     <div class="cols2b">
       <${Card} title=${L('共享假设清单', 'Shared hypotheses')} sub=${L(`被两个以上 idea 引用的 ${d.list.length} 条`, `${d.list.length} cited by two or more projects`)}>
         <div class="list" style="margin:-13px -14px">
@@ -468,7 +468,7 @@ export function GraphScreen({ q, onShell }) {
                 <div class="tiny mut" style="margin-top:5px">${p.role.role === 'borrowed_assumption'
                   ? (p.role.kind === 'root' ? L('直接采纳，不再分解 · 本 idea 的出发点', 'Adopted as given and never decomposed. This is the project’s starting point.')
                     : L('作为已验证前提引用，无需重新运行实验', 'Cited as a verified premise; no re-run needed'))
-                  : L('本 idea 自证', 'Proven inside this project')}</div>
+                  : L('由本 idea 验证', 'Proven inside this project')}</div>
                 <a class="btn xs" style="margin-top:9px" href=${'/tree?idea=' + p.idea + '&h=' + sel.id}>${L('在树中定位', 'Locate in the tree')}</a>
               </div>`)}
           </div>
@@ -524,7 +524,7 @@ export function Tree({ q, onShell }) {
         </div>` : html`<${Table}><thead><tr><th>k</th><th>id</th><th>${L('主张', 'Claim')}</th><th>${L('角色', 'Role')}</th><th>${L('状态', 'Status')}</th><th>${L('证据', 'Evidence')}</th><th>idea</th></tr></thead>
           <tbody>${rows.map((n) => html`<tr class="clickable" onClick=${() => go(qs({ h: n.hyp }))}>
             <td class="mono tiny">${n.k}</td><td class="mono b">${n.hyp}</td><td>${t(n.claim)}</td>
-            <td class="tiny mut">${n.role === 'borrowed_assumption' ? L('借用前提', 'borrowed') : L('自证', 'own')}</td>
+            <td class="tiny mut">${n.role === 'borrowed_assumption' ? L('借用前提', 'borrowed') : L('自行验证', 'own')}</td>
             <td><${St} s=${n.status} /></td><td><${Score} v=${n.score} /></td><td class="mono tiny">${n.refs}</td></tr>`)}</tbody><//>`}
       <//>
       <div class="col">

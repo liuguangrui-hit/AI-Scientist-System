@@ -15,7 +15,7 @@ export function Experiments({ q, onShell }) {
   if (d.empty) return html`<${Frame}><${Card} title=${L('实验', 'Experiments')}>
     <${Empty}>${L('暂无实验记录。真实项目从 experiments.jsonl 读取，排队的实验会写进 queue.jsonl。',
       'No runs yet. A real project reads experiments.jsonl, and queued runs are written to queue.jsonl.')}<//>
-    <div class="row" style="margin-top:11px"><a class="btn sm" href="/main">${L('前往 frontier 安排实验', 'Queue from the frontier')}</a></div><//><//>`;
+    <div class="row" style="margin-top:11px"><a class="btn sm" href="/main">${L('前往可执行假设安排实验', 'Queue from the frontier')}</a></div><//><//>`;
   const live = e.status === 'running';
   return html`<${Frame} tools=${html`
     <span class="chip">${L('运行中', 'Running')} ${d.counts.running}/${d.slots}</span>
@@ -48,7 +48,7 @@ export function Experiments({ q, onShell }) {
           <div class="row" style="margin-top:7px">
             ${e.places.map((p) => html`<span class="chip mono" style=${{ background: ic(p.idea) + '14', color: ic(p.idea) }}>
               ${p.idea} · ${p.role.kind === 'root' ? L('根', 'root') : p.role.leaf ? L('叶', 'leaf') : L(`第 ${p.role.depth} 层`, `L${p.role.depth}`)}</span>`)}
-            ${e.ideas.length > 1 && html`<span class="chip acc">${L(`服务 ${e.ideas.length} 个 idea`, `serves ${e.ideas.length} projects`)}</span>`}
+            ${e.ideas.length > 1 && html`<span class="chip acc">${L(`关联 ${e.ideas.length} 个 idea`, `serves ${e.ideas.length} projects`)}</span>`}
           </div>
         <//>
 
@@ -72,7 +72,7 @@ export function Experiments({ q, onShell }) {
             ${e.status === 'paused' && html`<button class="btn xs" onClick=${() => act('exp.control', { exp: e.id, cmd: 'resume' })}>${I('play', { s: 11 })}${L('继续', 'Resume')}</button>`}
             ${(live || e.status === 'paused') && html`<button class="btn xs bad" onClick=${() => act('exp.control', { exp: e.id, cmd: 'abort' })}>${L('中止', 'Abort')}</button>`}
           </div>`}>
-          ${e.status === 'queued' ? html`<${Empty}>${L('排队中，等待空闲槽位。', 'Queued, waiting for a free slot.')}<//>` : html`
+          ${e.status === 'queued' ? html`<${Empty}>${L('排队中，等待空闲资源。', 'Queued, waiting for a free slot.')}<//>` : html`
             <div ref=${logRef} class="mono tiny" style="max-height:186px;overflow-y:auto;background:#0F1419;color:#D7DDE5;border-radius:5px;padding:10px;line-height:1.9">
               ${e.stream.map((r) => html`<div style=${{ opacity: r.live ? 1 : .88 }}>
                 <span style="color:#6B7482">${hm(r.t)}</span>  ${r.en && L(r.text, r.en) || r.text}${r.live ? html`<span class="pulse"> ▌</span>` : ''}</div>`)}
@@ -101,7 +101,7 @@ export function Experiments({ q, onShell }) {
               </button>`)}
           </div>
           <div class="hr"></div>
-          <div class="row"><span class="tiny faint">${L('证据回写', 'Evidence write-back')}</span>
+          <div class="row"><span class="tiny faint">${L('证据写入', 'Evidence write-back')}</span>
             <span class="small">${e.hyp} · ${L('累积', 'total')} <b class="num">${e.hypScore > 0 ? '+' : ''}${e.hypScore}</b>
               ${e.status !== 'done' && html`<span class="mut">→ ${L('本次后', 'after this')} ${(e.hypScore + e.outcome.delta) > 0 ? '+' : ''}${Math.round((e.hypScore + e.outcome.delta) * 10) / 10}</span>`}</span></div>
           <div style="margin-top:8px"><${Meter} v=${e.hypScore} /></div>
@@ -114,8 +114,8 @@ export function Experiments({ q, onShell }) {
               <span style=${{ width: '3px', alignSelf: 'stretch', background: ic(p.idea), borderRadius: '2px' }}></span>
               <span class="mono b small">${p.idea}</span>
               <span class="small mut" style="flex:1 1 140px">${p.role.kind === 'root' ? L('根前提 · 直接采纳 · 不再分解', 'root premise · adopted as given · not decomposed')
-                : p.role.leaf ? L('叶节点 · 验证后本分支收束', 'leaf · verification closes this branch')
-                : L(`第 ${p.role.depth} 层 · 解锁下游节点 · 进入 frontier`, `layer ${p.role.depth} · unlocks downstream nodes · enters the frontier`)}</span>
+                : p.role.leaf ? L('叶节点 · 验证后本分支完成', 'leaf · verification closes this branch')
+                : L(`第 ${p.role.depth} 层 · 解锁下游节点 · 进入可执行队列`, `layer ${p.role.depth} · unlocks downstream nodes · enters the frontier`)}</span>
               <a class="btn xs" href=${'/tree?idea=' + p.idea + '&h=' + e.hyp}>${L('查看假设树', 'Tree')}</a>
             </div>`)}
         <//>
@@ -166,7 +166,7 @@ export function ExpTree({ q, onShell }) {
               </div>
             </div>`)}
         </div>
-        <div class="note" style="margin-top:12px">${L('只有代表节点的结果写回假设树。其余结果留在实验树中作为记录，不计入证据。',
+        <div class="note" style="margin-top:12px">${L('只有代表节点的结果写入假设树。其余结果留在实验树中作为记录，不计入证据。',
           'Only nodes marked as representative are written back to the hypothesis tree; the others are kept as a record and are not counted as evidence.')}</div>
       <//>
 
@@ -263,7 +263,7 @@ export function Sweep({ q, onShell }) {
             'Adjacent tiers should not be reported as stepwise gains; only the wide-range comparison is significant.')}</div>
         <//>
 
-        <${Card} title=${L('写回证据', 'Write back evidence')} sub=${L('整张矩阵只产生一条证据', 'the whole matrix yields exactly one piece of evidence')}>
+        <${Card} title=${L('写入证据', 'Write back evidence')} sub=${L('整张矩阵只产生一条证据', 'the whole matrix yields exactly one piece of evidence')}>
           <div class="note">${L('写入 H-11 的是一条结论：趋势成立，相邻档不可区分。不是 18 个单独数值。',
             'H-11 receives one conclusion, not 18 values. The trend holds, and adjacent tiers are indistinguishable.')}</div>
           <div class="row" style="margin-top:10px"><span class="mono b">${d.hyp}</span><${St} s=${d.hypStatus} />
@@ -346,7 +346,7 @@ export function Runs({ q, onShell }) {
               <div class="tl-track tl-axis">${tl.ticks.map((x) => html`<span class="mono tiny faint" style=${{ left: x.pct + '%' }}>${x.label}</span>`)}</div></div>
           </div>
           <div class="note" style="margin-top:9px">${d.stats.queued
-            ? L(`空闲率 ${tl.idle}%。另有 ${d.stats.queued} 个任务等待槽位，并行上限为 ${d.settings.parallel}。`,
+            ? L(`空闲率 ${tl.idle}%。另有 ${d.stats.queued} 个任务等待资源，并行上限为 ${d.settings.parallel}。`,
                 `${tl.idle}% idle. ${d.stats.queued} task(s) are waiting for a slot. The parallel cap is ${d.settings.parallel}.`)
             : L(`空闲率 ${tl.idle}%。队列已排空。`, `${tl.idle}% idle. The queue is empty.`)}</div>
         <//>

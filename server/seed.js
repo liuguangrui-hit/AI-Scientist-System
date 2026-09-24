@@ -214,14 +214,14 @@ export function makeWorkspace(now = Date.now()) {
   // ---- events
   ws.events = [];
   const ev = (agoMin, mod, zh, en, dzh, den, kind = 'info', extra = {}) => ws.events.push({ id: ws.events.length + 1, t: now - agoMin * MIN, mod, title: b(zh, en), detail: b(dzh, den), kind, ...extra });
-  ev(60 * 23, 'surveyor', '采集完成 · 200 题录 / 48 digest', 'Collection done · 200 records / 48 digests', '已达预算上限，游标已写回；TDSC 入口不可用，跳过 3 篇', 'Budget reached, cursors written back; TDSC entry unavailable, 3 papers skipped', 'collect');
+  ev(60 * 23, 'surveyor', '采集完成 · 200 条文献 / 48 digest', 'Collection done · 200 records / 48 digests', '已达预算上限，采集断点已保存；TDSC 入口不可用，跳过 3 篇', 'Budget reached, cursors written back; TDSC entry unavailable, 3 papers skipped', 'collect');
   ev(60 * 20, 'surveyor', '2026-09 期趋势综述 + 6 条 spark', '2026-09 trend review + 6 sparks', '3 个新簇；1 条 spark 已被展开为 idea', '3 new clusters; 1 spark expanded into an idea', 'collect');
   ev(60 * 17.5, 'executor', 'e_14 完成 · H-02 证据 +0.3', 'e_14 done · H-02 evidence +0.3', '同步更新 P-014 P-016 P-017', 'P-014 P-016 P-017 updated together', 'experiment', { hyp: 'H-02' });
   ev(60 * 16.8, 'reviewer', 'H-05 提交裁定', 'H-05 submitted for verdict', '连续 3 次 PIVOT 无改善', '3 consecutive PIVOTs, no improvement', 'verdict', { hyp: 'H-05' });
   ev(60 * 16.4, 'human', 'P-017 立项 · 复用 H-01 H-02 H-06', 'P-017 launched · reuses H-01 H-02 H-06', '仅新增 3 条自有假设', 'Only 3 own hypotheses added', 'idea');
   ev(60 * 16, 'executor', '归纳出 H-03', 'H-03 induced', '来自 P-014 的 1.2.2 与 P-016 的 2.1', 'From P-014 1.2.2 and P-016 2.1', 'hypothesis', { hyp: 'H-03' });
   ev(60 * 15, 'reviewer', 'reviewer 巡检 · 处理 1 项', 'Reviewer sweep · 1 item handled', 'H-07 退回 active', 'H-07 returned to active', 'verdict');
-  ev(60 * 14.5, 'executor', 'P-015 收束 · 生成论文草稿', 'P-015 wrapped up · draft generated', '9 节点全部 self_verified', 'All 9 nodes self_verified', 'paper');
+  ev(60 * 14.5, 'executor', 'P-015 完成 · 生成论文草稿', 'P-015 wrapped up · draft generated', '9 个节点全部通过验证', 'All 9 nodes self_verified', 'paper');
   ev(60 * 13.5, 'executor', 'e_10 完成 · H-06 证据 +0.4', 'e_10 done · H-06 evidence +0.4', 'P-017 第 1 层通过', 'P-017 layer 1 passed', 'experiment', { hyp: 'H-06' });
   ev(60 * 10, 'human', '批准 P-017 立项', 'Approved P-017 launch', '人工介入', 'Manual intervention', 'idea');
   ws.events.sort((a, c) => c.t - a.t);
@@ -432,7 +432,7 @@ function makePaper(now) {
       S('6', '结论', 'Conclusion', [], 'todo', [b('（待写）', '(to be written)')]),
     ],
     gaps: [
-      { id: 'gap1', done: false, title: b('batch = 2048 需补充两个种子', 'Batch = 2048 needs seeds 2 and 3'), body: b('当前拐点结论仅有单次运行支撑，补充运行后本段可改为结论性表述。', 'The inflection conclusion rests on a single run. After re-running, this paragraph can be stated conclusively.'), hyp: 'H-11', label: b('batch 2048 补两个种子', 'Batch 2048, two extra seeds'), btn: b('建成 e_21 并入队', 'Create e_21 and queue it') },
+      { id: 'gap1', done: false, title: b('batch = 2048 需补充两个种子', 'Batch = 2048 needs seeds 2 and 3'), body: b('当前拐点结论仅有单次运行支撑，补充运行后本段可改为结论性表述。', 'The inflection conclusion rests on a single run. After re-running, this paragraph can be stated conclusively.'), hyp: 'H-11', label: b('batch 2048 补两个种子', 'Batch 2048, two extra seeds'), btn: b('创建 e_21 并加入队列', 'Create e_21 and queue it') },
       { id: 'gap2', done: false, title: b('图 4 缺 baseline 曲线', 'Figure 4 lacks the baseline curve'), body: b('H-16 的共用 baseline 重测正在运行（e_16），完成后将自动生成图 4。', 'The shared-baseline re-run for H-16 is in progress (e_16); Figure 4 is generated automatically when it finishes.'), exp: 'e_16', btn: b('查看 e_16', 'Open e_16') },
     ],
     version: 1, savedAt: now,

@@ -94,17 +94,17 @@ export const sgn = (x) => (x > 0 ? '+' : '') + x;
 // ---------------------------------------------------------------- labels
 export const STATUS = {
   untested: ['未验证', 'untested'], active: ['进行中', 'active'], testing: ['实验中', 'testing'],
-  self_verified: ['已自证', 'self_verified'], pending_review: ['待裁定', 'pending_review'],
+  self_verified: ['已验证', 'self_verified'], pending_review: ['待裁定', 'pending_review'],
   closed: ['已关闭', 'closed'], narrow: ['已收窄', 'narrowed'], inductive_unverified: ['归纳生成', 'induced'],
   lit_supported: ['文献支撑', 'lit-supported'],
   running: ['运行中', 'running'], queued: ['排队', 'queued'], done: ['已完成', 'done'], failed: ['失败', 'failed'],
-  paused: ['已暂停', 'paused'], withdrawn: ['已撤下', 'withdrawn'], success: ['成功', 'success'], pruned: ['已剪枝', 'pruned'],
+  paused: ['已暂停', 'paused'], withdrawn: ['已撤回', 'withdrawn'], success: ['成功', 'success'], pruned: ['已剪枝', 'pruned'],
   available: ['available', 'available'], selected: ['selected', 'selected'], developed: ['developed', 'developed'],
   merged: ['merged', 'merged'], parked: ['parked', 'parked'], supported: ['已支撑', 'supported'],
   insufficient: ['证据不足', 'insufficient'], overclaim: ['过度声称', 'overclaim'], ok: ['证据充足', 'evidenced'],
   aligned: ['已对齐', 'aligned'], missing: ['缺证据', 'missing evidence'], affected: ['受裁定影响', 'verdict-affected'],
   todo: ['待写', 'to write'], figure: ['待补图', 'figure pending'], rescued: ['已恢复', 'recovered'], review: ['待复核', 'needs review'],
-  oom: ['OOM', 'OOM'], partial: ['缺种子', 'seed missing'], pending: ['待处理', 'pending'], broken: ['入口失效', 'entry broken'],
+  oom: ['OOM', 'OOM'], partial: ['缺随机种子', 'seed missing'], pending: ['待处理', 'pending'], broken: ['入口失效', 'entry broken'],
 };
 export const stLabel = (s) => (STATUS[s] ? L(STATUS[s][0], STATUS[s][1]) : s);
 export const ROLE = { own_to_prove: ['own_to_prove', 'own_to_prove'], borrowed_assumption: ['borrowed_assumption', 'borrowed_assumption'] };

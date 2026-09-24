@@ -7,7 +7,7 @@ export function Home({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.home, c = data.shell.counts;
   return html`<${Frame}>
-    <${Card} title=${L('管线', 'Pipeline')} sub=${L('从文献采集到论文成稿的完整流程，各环节均可展开查看', 'The full pipeline from literature collection to manuscript; every stage can be inspected')}
+    <${Card} title=${L('研究流程', 'Pipeline')} sub=${L('从文献采集到论文成稿的完整流程，各环节均可展开查看', 'The full pipeline from literature collection to manuscript; every stage can be inspected')}
       right=${html`<span class="mono tiny faint">${L('数据来自', 'from')} index.jsonl · tree.json · events.jsonl</span>`}>
       <div class="pipe">
         ${d.pipeline.map((p, i) => html`
@@ -138,7 +138,7 @@ function SharedMap({ star }) {
         <${MiniTree} nodes=${p.mini} rows=${rows} color=${ic(p.idea)} W=${cw || 200} />
         <div class="shmap-cap">
           <div class="row" style="gap:6px"><span class="dot" style=${{ background: ic(p.idea) }}></span><span class="mono b small" style="color:var(--ink)">${p.idea}</span><span class="small mut">${t(p.name)}</span></div>
-          <div class="tiny faint" style="margin-top:3px">${p.role.kind === 'root' ? L('根前提', 'root premise') : L(`第 ${p.role.depth} 层`, `layer ${p.role.depth}`)}${p.role.leaf && p.role.kind !== 'root' ? L(' · 叶子', ' · leaf') : ''} · ${p.role.role === 'borrowed_assumption' ? L('借用前提', 'borrowed premise') : L('本 idea 自证', 'proven here')}</div>
+          <div class="tiny faint" style="margin-top:3px">${p.role.kind === 'root' ? L('根前提', 'root premise') : L(`第 ${p.role.depth} 层`, `layer ${p.role.depth}`)}${p.role.leaf && p.role.kind !== 'root' ? L(' · 叶子', ' · leaf') : ''} · ${p.role.role === 'borrowed_assumption' ? L('借用前提', 'borrowed premise') : L('由本 idea 验证', 'proven here')}</div>
         </div>
       </a>`)}
     </div>
@@ -182,36 +182,36 @@ export function Main({ q, onShell }) {
   const d = data.main;
   const fr = [...d.frontier].sort((a, b) => sort === 'ideas' ? b.ideas.length - a.ideas.length : a.id.localeCompare(b.id));
   return html`<${Frame} tools=${html`
-    <span class="chip">${L('执行槽位', 'Slots')} ${d.running.length}/${d.slots}</span>
+    <span class="chip">${L('并发执行', 'Slots')} ${d.running.length}/${d.slots}</span>
     <span class="chip">${L('排队', 'Queued')} ${d.queued.length}</span>
     <div class="grow"></div>
     <a class="btn sm" href="/ideas">${I('plus', { s: 13 })}${L('新建 idea', 'New idea')}</a>`}>
     <div class="kpis">
       <${Kpi} k=${L('并行 idea', 'Parallel ideas')} v=${d.stats.parallel} s=${L(`${d.stats.candidates} 个待启动`, `${d.stats.candidates} to start`)} onClick=${() => go('/ideas')} />
-      <${Kpi} k=${L('全局 frontier', 'Global frontier')} v=${d.stats.frontier} s=${L('可立即执行', 'ready to run')} />
+      <${Kpi} k=${L('可执行假设', 'Global frontier')} v=${d.stats.frontier} s=${L('可立即执行', 'ready to run')} />
       <${Kpi} k=${L('运行中实验', 'Running')} v=${d.stats.running} s=${d.running.map((r) => r.id).join(' ')} onClick=${() => go('/experiments')} />
       <${Kpi} k=${L('待裁定', 'Pending verdicts')} v=${d.stats.pending} warn=${d.stats.pending > 0} s=${L('待处理', 'awaiting review')} onClick=${() => go('/review')} />
-      <${Kpi} k=${L('一次实验平均服务', 'Ideas served per run')} v=${d.stats.perExp} s=${L('个 idea', 'ideas')} />
+      <${Kpi} k=${L('每次实验平均关联', 'Ideas served per run')} v=${d.stats.perExp} s=${L('个 idea', 'ideas')} />
     </div>
 
     <div class="cols2" style="margin-top:12px">
-      <${Card} title=${L('全局 frontier', 'Global frontier')} sub=${L('依赖已满足的假设 · 跨全部 idea', 'Hypotheses whose dependencies are ready · across all projects')}
+      <${Card} title=${L('可执行假设', 'Global frontier')} sub=${L('依赖已满足的假设 · 跨全部 idea', 'Hypotheses whose dependencies are ready · across all projects')}
         right=${html`<div class="row"><span class="tiny faint">${L('排序', 'Sort')}</span>
           <div class="seg"><button class=${sort === 'ideas' ? 'on' : ''} onClick=${() => setSort('ideas')}>${L('覆盖 idea 数', 'Ideas covered')}</button>
           <button class=${sort === 'id' ? 'on' : ''} onClick=${() => setSort('id')}>ID</button></div></div>`}
         foot=${html`<button class="btn sm pri" onClick=${() => act('exp.runBatch', { hyps: fr.filter((f) => !f.queued).slice(0, 3).map((f) => f.id) })}>
             ${L('按优先级批量运行前 3 条', 'Queue the top 3 in order')}</button>
-          <span class="tiny faint">${L('优先处理服务多个 idea 的假设', 'Hypotheses serving multiple projects take priority')}</span>`}>
+          <span class="tiny faint">${L('优先处理关联多个 idea 的假设', 'Hypotheses serving multiple projects take priority')}</span>`}>
         <${Table} class="frontier-table"><tbody>
           ${fr.map((f) => html`<tr class="clickable" onClick=${() => go('/panorama?h=' + f.id)}>
             <td style="width:112px">${f.ideas.map((i) => html`<${IdeaTag} id=${i} />`)}</td>
             <td style="width:52px" class="mono b">${f.id}</td>
-            <td>${t(f.claim)}${f.ideas.length > 1 && html`<span class="chip acc" style="margin-left:7px">${L(`服务 ${f.ideas.length} 个 idea`, `serves ${f.ideas.length} ideas`)}</span>`}</td>
+            <td>${t(f.claim)}${f.ideas.length > 1 && html`<span class="chip acc" style="margin-left:7px">${L(`关联 ${f.ideas.length} 个 idea`, `serves ${f.ideas.length} ideas`)}</span>`}</td>
             <td style="width:88px"><${St} s=${f.needsDecompose ? 'untested' : f.status} label=${f.needsDecompose ? L('待拆解', 'to decompose') : f.rerun ? L('需重新运行', 'needs re-run') : undefined} /></td>
             <td style="width:92px;text-align:right" onClick=${(e) => e.stopPropagation()}>
               ${f.needsDecompose
                 ? html`<button class="btn xs" onClick=${() => act('hyp.decompose', { hyp: f.id })}>${L('拆解', 'Decompose')}</button>`
-                : f.queued ? html`<span class="chip">${L('已入队', 'queued')}</span>`
+                : f.queued ? html`<span class="chip">${L('已排队', 'queued')}</span>`
                 : html`<button class="btn xs acc" onClick=${() => act('exp.run', { hyp: f.id })}>${L('运行实验', 'Run')}</button>`}
             </td>
           </tr>`)}
@@ -219,7 +219,7 @@ export function Main({ q, onShell }) {
       <//>
 
       <div class="col">
-        <${Card} title=${L('执行槽位', 'Execution slots')} sub=${L(`${d.running.length} / ${d.slots} 占用 · 排队 ${d.queued.length}`, `${d.running.length} / ${d.slots} busy · ${d.queued.length} queued`)}
+        <${Card} title=${L('并发执行', 'Execution slots')} sub=${L(`${d.running.length} / ${d.slots} 运行中 · 排队 ${d.queued.length}`, `${d.running.length} / ${d.slots} busy · ${d.queued.length} queued`)}
           right=${html`<a href="/experiments">${L('实验详情 →', 'Experiments →')}</a>`}>
           <div class="col">
             ${d.running.map((r) => html`

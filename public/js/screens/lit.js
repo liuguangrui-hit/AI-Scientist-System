@@ -18,14 +18,14 @@ export function Survey({ q, onShell }) {
 
     <div class="kpis">
       <${Kpi} k=${L('来源白名单', 'Sources whitelisted')} v=${d.whitelist} s=${L(`core 全量 ${d.venues.filter((v) => v.scan === 'core').length} · watch ${d.venues.filter((v) => v.scan === 'watch').length}`, `${d.venues.filter((v) => v.scan === 'core').length} core · ${d.venues.filter((v) => v.scan === 'watch').length} watch`)} />
-      <${Kpi} k=${L('本轮新增', 'Added this round')} v=${d.thisRound} s=${L('题录 level 1', 'records, level 1')} />
+      <${Kpi} k=${L('本轮新增', 'Added this round')} v=${d.thisRound} s=${L('条目 level 1', 'records, level 1')} />
       <${Kpi} k=${L('全文下载', 'Full texts')} v=${d.fulltext + ' / ' + d.fulltextCap} s=${L('命中 track 优先', 'track hits first')} />
       <${Kpi} k=${L('跳过与异常', 'Skipped & failed')} v=${d.skipped} s=${L('全部记录，不静默重试', 'all logged, never retried silently')} />
-      <${Kpi} k=${L('文献库', 'Library')} v=${d.library.toLocaleString()} s=${L('累计题录', 'records total')} />
+      <${Kpi} k=${L('文献库', 'Library')} v=${d.library.toLocaleString()} s=${L('累计条目', 'records total')} />
     </div>
 
     ${job && html`<div class="card" style="margin-top:12px"><div class="bd">
-      <div class="row"><span class="spin"></span><span class="b">${L('正在按游标增量采集…', 'Collecting incrementally from the cursors…')}</span>
+      <div class="row"><span class="spin"></span><span class="b">${L('正在增量采集…', 'Collecting incrementally from the cursors…')}</span>
         <div class="grow"></div><span class="mono small">${dur(job.remainMs)}</span></div>
       <div style="margin-top:9px"><${Bar} v=${1 - job.remainMs / (job.endsAt - job.startedAt)} /></div>
     </div></div>`}
@@ -37,13 +37,13 @@ export function Survey({ q, onShell }) {
         <button class=${tab === 'cand' ? 'on' : ''} onClick=${() => setTab('cand')}>${L('候选 · 待确认', 'Candidates')} ${d.candidates.length}</button>
       </div>
       <div class="grow"></div>
-      <span class="tiny faint">${L('scan 字段决定扫法 · 点击行可切换', 'the scan field decides how a source is read · click a row to switch')}</span>
+      <span class="tiny faint">${L('scan 字段决定采集方式 · 点击行可切换', 'the scan field decides how a source is read · click a row to switch')}</span>
     </div>
 
     ${tab === 'venues' && html`<div class="card" style="border-radius:0 0 7px 7px"><div class="bd" style="padding:0">
       <${Table}><thead><tr>
         <th style="width:96px">id</th><th>${L('来源', 'Source')}</th><th style="width:118px">${L('类型 · 等级', 'Type · tier')}</th>
-        <th style="width:110px">${L('扫法', 'Scan')}</th><th style="width:170px">${L('入口 · 游标', 'Entry · cursor')}</th><th style="width:100px">${L('本轮', 'This round')}</th>
+        <th style="width:110px">${L('采集方式', 'Scan')}</th><th style="width:170px">${L('入口 · 采集断点', 'Entry · cursor')}</th><th style="width:100px">${L('本轮', 'This round')}</th>
       </tr></thead><tbody>
         ${d.venues.map((v) => html`<tr class="clickable" onClick=${() => act('survey.venue', { id: v.id, field: 'scan' })}>
           <td class="mono tiny">${v.id}</td>
@@ -63,7 +63,7 @@ export function Survey({ q, onShell }) {
         <div>
           ${[[L('枚举 / 关键词检索到', 'Enumerated / searched'), d.enumerated, L('core 全量枚举 + watch 按 seeds 检索', 'core enumerated in full + watch searched by seeds'), 1],
             [L('通过 topics.md 判定', 'Passed topics.md'), d.passedTopics, L('命中至少一个 track，可多标', 'matches at least one track; multiple allowed'), d.passedTopics / d.enumerated],
-            [L('level 1 · 入库题录 + 摘要原文', 'level 1 · record + abstract'), d.funnel.l1, L('达到预算上限即停止，游标已写回 state.json', 'stops at the budget cap; cursors written back to state.json'), d.funnel.l1 / d.enumerated],
+            [L('level 1 · 入库条目与摘要原文', 'level 1 · record + abstract'), d.funnel.l1, L('达到预算上限即停止，断点已保存至 state.json', 'stops at the budget cap; cursors written back to state.json'), d.funnel.l1 / d.enumerated],
             [L('level 2 · 下载全文 + digest', 'level 2 · full text + digest'), d.funnel.l2, L(`命中 track 的优先，${d.funnel.l2} / ${d.fulltextCap}`, `track hits first, ${d.funnel.l2} / ${d.fulltextCap}`), d.funnel.l2 / d.enumerated],
             [L('level 3 · brief_zh + full_zh', 'level 3 · brief + full translation'), d.funnel.l3, L('仅处理 queue_fulltext.txt 中列出的 id', 'only ids listed in queue_fulltext.txt'), d.funnel.l3 / d.enumerated]].map(([lab, n, note, w]) => html`
             <div style="margin-bottom:13px">
@@ -78,7 +78,7 @@ export function Survey({ q, onShell }) {
               ${Object.entries(d.state).map(([k, v]) => html`<div><span class="faint">${k}</span> ${v}</div>`)}
             </div></div>
           <div class="note warn" style="margin-top:11px">notes：${t(d.notes)}</div>
-          <div class="row" style="margin-top:11px"><span class="chip">${L('库存', 'Stock')} ${d.stock[0]} / ${d.stock[1]} / ${d.stock[2]}</span></div>
+          <div class="row" style="margin-top:11px"><span class="chip">${L('存量', 'Stock')} ${d.stock[0]} / ${d.stock[1]} / ${d.stock[2]}</span></div>
         </div>
       </div>
     </div></div>`}
@@ -121,10 +121,10 @@ export function Trends({ q, onShell }) {
     <span class="small mut hide-s">${L('触发：到期 · 且新增 core 172 篇 ≥ 阈值 150', 'Trigger: due · and 172 new core papers ≥ threshold 150')}</span>
     <div class="grow"></div><span class="tiny faint">${L('回看窗口 12 个月', '12-month look-back')}</span>`}>
     <div class="kpis">
-      <${Kpi} k=${L('本期新增题录', 'New records')} v="612" s=${L('入库 level 1', 'level 1')} />
+      <${Kpi} k=${L('本期新增条目', 'New records')} v="612" s=${L('入库 level 1', 'level 1')} />
       <${Kpi} k=${L('新增 digest', 'New digests')} v="148" s="level 2" />
       <${Kpi} k=${L('命中 track', 'Track hits')} v="268" s="191 / 52 / 25" />
-      <${Kpi} k=${L('进全文队列', 'To full-text queue')} v="12" s=${L('上限 15', 'cap 15')} />
+      <${Kpi} k=${L('进入全文队列', 'To full-text queue')} v="12" s=${L('上限 15', 'cap 15')} />
     </div>
     <div class="cols2" style="margin-top:12px">
       <div class="col">
@@ -263,7 +263,7 @@ export function Digest({ q, onShell }) {
   const d = data.digest, p = d.paper;
   const FIELDS = [['problem', '问题', 'Problem'], ['threat', '威胁模型', 'Threat model'], ['method', '方法', 'Method'], ['eval', '评测', 'Evaluation'], ['conclusion', '结论', 'Conclusion'], ['limits', '局限｜读者观察', 'Limitations / reader notes']];
   return html`<${Frame} tools=${html`
-    <a class="btn xs" href="/survey">${I('back', { s: 12 })}${L('采集管线', 'Collection')}</a>
+    <a class="btn xs" href="/survey">${I('back', { s: 12 })}${L('文献采集', 'Collection')}</a>
     <select style="width:auto;max-width:280px" value=${p.id} onChange=${(e) => go('/digest?id=' + e.target.value)}>
       ${d.all.map((x) => html`<option value=${x.id}>${x.id} · ${t(x.title).slice(0, 40)}</option>`)}
     </select>
@@ -291,7 +291,7 @@ export function Digest({ q, onShell }) {
         <//>
       </div>
       <div class="col">
-        <${Card} title="meta.json" sub=${L('题录与状态', 'record and state')}>
+        <${Card} title="meta.json" sub=${L('条目与状态', 'record and state')}>
           <${Table}><tbody>
             ${[['title', t(p.title)], ['authors', p.authors], ['venue', p.venue], ['year', p.year], ['doi', p.doi || 'null'], ['arxiv_id', p.arxiv || '—'],
               ['status', p.status], ['level', p.level], ['tracks', p.tracks.join(', ')]].map(([k, v]) => html`
@@ -300,7 +300,7 @@ export function Digest({ q, onShell }) {
           <div class="note" style="margin-top:10px">${L('include_reason：', 'include_reason: ')}${t(p.reason)}</div>
         <//>
         <${Card} title=${L('存储目录', 'Storage directory')} sub=${'sources/papers/' + p.id + '/'}>
-          ${[['meta.json', L('题录与状态', 'record and state'), true], ['raw.pdf', L(`原文 ${p.size}`, `source, ${p.size}`), true],
+          ${[['meta.json', L('条目与状态', 'record and state'), true], ['raw.pdf', L(`原文 ${p.size}`, `source, ${p.size}`), true],
             ['digest.md', L('结构化摘要', 'structured summary'), !!p.digest], ['brief_zh.md', p.brief ? L('已生成', 'generated') : L('未生成', 'not generated'), p.brief],
             ['full_zh.md', p.full ? L('已生成', 'generated') : L('未生成', 'not generated'), p.full]].map(([f, note, on]) => html`
             <div class="row" style=${{ padding: '5px 0', opacity: on ? 1 : .45 }}>

@@ -96,6 +96,6 @@ export const Meter = ({ v }) => {
       <div style=${{ position: 'absolute', left: '75%', top: '-3px', bottom: '-3px', width: '1px', background: 'var(--ok)', opacity: .6 }}></div>
       <div style=${{ position: 'absolute', left: (x * 100) + '%', top: '-3px', width: '3px', height: '14px', borderRadius: '2px', background: v > 0 ? 'var(--ok)' : v < 0 ? 'var(--bad)' : 'var(--ink)', transform: 'translateX(-1.5px)' }}></div>
     </div>
-    <div class="row tiny faint" style="justify-content:space-between;margin-top:4px"><span>−2.0</span><span>${L('阈值 +1.0 转 self_verified', 'threshold +1.0 → self_verified')}</span><span>+2.0</span></div>
+    <div class="row tiny faint" style="justify-content:space-between;margin-top:4px"><span>−2.0</span><span>${L('累积达到 +1.0 即转为已验证', 'threshold +1.0 → self_verified')}</span><span>+2.0</span></div>
   </div>`;
 };

@@ -6,7 +6,7 @@
     untested:             { rgb: [148, 163, 190], glow: 0.30, zh: '未验证',   en: 'untested' },
     active:               { rgb: [ 96, 165, 250], glow: 0.55, zh: '进行中',   en: 'active' },
     testing:              { rgb: [ 56, 189, 248], glow: 1.00, zh: '实验中',   en: 'testing' },
-    self_verified:        { rgb: [ 52, 211, 153], glow: 0.85, zh: '已自证',   en: 'self_verified' },
+    self_verified:        { rgb: [ 52, 211, 153], glow: 0.85, zh: '已验证',   en: 'self_verified' },
     pending_review:       { rgb: [251, 191,  36], glow: 0.95, zh: '待裁定',   en: 'pending_review' },
     closed:               { rgb: [ 94, 104, 128], glow: 0.14, zh: '已关闭',   en: 'closed' },
     inductive_unverified: { rgb: [167, 139, 250], glow: 0.60, zh: '归纳生成', en: 'induced' },
