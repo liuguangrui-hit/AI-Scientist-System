@@ -7,6 +7,12 @@ import { go } from './app.js';
 const SEEN = 'ais.hero';
 const seen = (() => { try { return !!localStorage.getItem(SEEN); } catch { return false; } })();
 
+// One node opening into three, and three closing into one.
+const glyph = (d) => html`<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"
+  dangerouslySetInnerHTML=${{ __html: d }}></svg>`;
+const FORK = glyph('<path d="M8 3.5 3 12.5M8 3.5v9M8 3.5l5 9"/><circle cx="8" cy="3" r="1.6" fill="currentColor" stroke="none"/><circle cx="3" cy="13" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="13" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.3" fill="currentColor" stroke="none"/>');
+const MERGE = glyph('<path d="M3 3.5 8 12.5M8 3.5v9M13 3.5l-5 9"/><circle cx="3" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="3" r="1.3" fill="currentColor" stroke="none"/><circle cx="8" cy="13" r="1.6" fill="currentColor" stroke="none"/>');
+
 export function Hero() {
   const frame = useRef(null);
   const root = useRef(null);
@@ -69,8 +75,20 @@ export function Hero() {
         <span class="fh-k">${L('AI 科学家', 'AI Scientist')}</span><span class="sr">${L('：', ': ')}</span>
         <span class="fh-m">${L('动态假设-证据森林', 'A Dynamic Hypothesis–Evidence Forest')}</span>
       </h1>
-      <p>${L('每棵树是一个研究 idea，每个节点是一条假设。共享假设把不同的树连在一起。',
-        'Each tree is a research idea. Each node is a hypothesis. Shared hypotheses connect the trees.')}</p>
+      <p>${L('每个 idea 拆解为一棵由实验检验的假设树，共享假设把树连成森林。',
+        'Each idea becomes a tree of hypotheses tested by experiments. Shared hypotheses join the trees into a forest.')}</p>
+      <div class="fh-idea">
+        <div class="fh-f">
+          <div class="fh-fk">${FORK}${L('展开', 'Expand')}</div>
+          <b>${L('苏格拉底式追问', 'Socratic questioning')}</b>
+          <span>${L('多 agent 层层追问，直至假设可检验', 'Agents keep asking until every hypothesis is testable')}</span>
+        </div>
+        <div class="fh-f">
+          <div class="fh-fk">${MERGE}${L('收敛', 'Converge')}</div>
+          <b>${L('奥卡姆剃刀', "Occam's razor")}</b>
+          <span>${L('强化学习将具体假设抽象为普适假设', 'Reinforcement learning abstracts specific hypotheses into general ones')}</span>
+        </div>
+      </div>
       <div class="fh-cta">
         <a class="fh-go" href="/home">${L('进入系统', 'Enter the system')}<span aria-hidden="true">→</span></a>
         <a class="fh-link" href="/about">${L('系统原理', 'How it works')}</a>
