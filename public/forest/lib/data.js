@@ -20,48 +20,55 @@
   }
 
   // ---------------------------------------------------------------- 六个研究方向
+  // 前四个属于 AI 安全，后两个属于 AI 科学家，与 conduct_survey 的 topics.md 对应
   const THEMES = [
-    { id: 'OPT', zh: '优化几何', en: 'Optimisation geometry', hue: 214 },
-    { id: 'GEN', zh: '泛化与容量', en: 'Generalisation & capacity', hue: 286 },
-    { id: 'SEC', zh: '对抗与安全', en: 'Adversarial & security', hue: 344 },
-    { id: 'SCL', zh: '规模律', en: 'Scaling laws', hue: 168 },
-    { id: 'REP', zh: '表征结构', en: 'Representation structure', hue: 38 },
-    { id: 'SYS', zh: '系统与通信', en: 'Systems & communication', hue: 192 },
+    { id: 'INJ', zh: '提示注入', en: 'Prompt injection', hue: 344 },
+    { id: 'JBK', zh: '越狱与对齐', en: 'Jailbreak & alignment', hue: 286 },
+    { id: 'PRV', zh: '隐私与投毒', en: 'Privacy & poisoning', hue: 38 },
+    { id: 'TRU', zh: '幻觉与可信', en: 'Hallucination & trust', hue: 214 },
+    { id: 'HYP', zh: '假设生成', en: 'Hypothesis generation', hue: 168 },
+    { id: 'EVA', zh: '自动实验与评审', en: 'Automated experiments & review', hue: 192 },
   ];
 
-  // 断言的构件：主语 + 关系 + 条件，拼出来的句子读着像真的
+  // 断言的构件：主语 + 关系 + 对象 + 形态 + 条件
   const SUBJ = {
-    OPT: ['梯度噪声尺度', '有效步长', '二阶修正项', 'Hessian 谱', '曲率各向异性', '步长调度', '动量累积', '损失面鞍点密度'],
-    GEN: ['泛化间隙', '隐式正则强度', '有效容量', '边界间隔', '过参数化收益', '记忆化比例', '早停点', '数据增强强度'],
-    SEC: ['注入成功率', '护栏覆盖面', '工具返回值信任度', '越狱链路长度', '检测漏报率', '扰动预算', '对抗鲁棒半径', '投毒样本占比'],
-    SCL: ['参数-数据最优比', '计算效率前沿', '涌现阈值', '损失幂律指数', '批量临界点', '词表规模收益', '推理时扩展收益', '蒸馏保真度'],
-    REP: ['特征线性可分性', '表征秩', '神经元多义性', '稀疏字典基数', '跨层相似度', '概念方向可迁移性', '探针准确率', '激活稀疏度'],
-    SYS: ['通信量', '梯度压缩率', '同步间隔', '陈旧度容忍', '拓扑直径', '带宽利用率', '流水线气泡', '重计算开销'],
+    INJ: ['注入成功率', '工具返回值信任度', '隔离标记强度', '指令服从率', '检测漏报率', '注入片段注意力', '多轮注入累积', '外泄成功率'],
+    JBK: ['越狱成功率', '护栏覆盖面', '拒答率', '越狱链路长度', '对齐税', '奖励误设程度', '过度拒答率', '红队发现率'],
+    PRV: ['成员推断优势', '投毒样本占比', '后门触发率', '训练数据提取率', '遗忘完整度', '水印检出率', '隐私预算', '窃取保真度'],
+    TRU: ['幻觉率', '引用准确率', '校准误差', '事实一致性', '不确定性质量', '自洽率', '检索命中率', '对抗鲁棒半径'],
+    HYP: ['假设新颖度', '可检验比例', '文献覆盖率', '假设复用率', '归纳正确率', '追问深度', '假设树规模', '抽象层级'],
+    EVA: ['实验复现率', '审稿一致性', '代码可运行率', '实验成本', '失败自愈率', '结论可追溯率', '意见采纳率', '基准污染度'],
   };
   const REL = ['随', '与', '在', '相对', '对'];
-  const OBJ = ['batch 大小', '模型宽度', '训练步数', '数据规模', '学习率', '秩 r', '深度', '温度', '序列长度', '并行度'];
+  const OBJ = ['模型规模', '上下文长度', '工具调用数', '追问轮数', '采样温度', '检索片段数', '训练数据规模', '会话轮数', '推理预算', 'agent 数量'];
   const SHAPE = ['呈幂律关系', '存在拐点', '单调下降', '先升后降', '趋于饱和', '近似线性', '出现相变', '方差显著增大', '与理论上界吻合', '不受影响'];
-  const COND = ['', '（小 batch 区间）', '（低秩子空间内）', '（固定算力预算下）', '（去掉正则项后）', '（跨三个数据集）', '（长序列条件下）', '（同种子重复）'];
+  const COND = ['', '（多轮会话中）', '（黑盒设定下）', '（固定推理预算下）', '（去掉安全对齐后）', '（跨三个基准）', '（长上下文条件下）', '（同种子重复）'];
 
   const EN_SUBJ = {
-    OPT: ['gradient noise scale', 'effective step', 'second-order correction', 'Hessian spectrum', 'curvature anisotropy', 'step schedule', 'momentum buildup', 'saddle density'],
-    GEN: ['generalisation gap', 'implicit regularisation', 'effective capacity', 'margin', 'overparameterisation gain', 'memorisation ratio', 'early-stop point', 'augmentation strength'],
-    SEC: ['injection success rate', 'guardrail coverage', 'tool-return trust', 'jailbreak chain length', 'detection miss rate', 'perturbation budget', 'robust radius', 'poisoned fraction'],
-    SCL: ['params-to-data ratio', 'compute-efficient frontier', 'emergence threshold', 'power-law exponent', 'critical batch size', 'vocabulary gain', 'test-time scaling gain', 'distillation fidelity'],
-    REP: ['feature linear separability', 'representation rank', 'neuron polysemanticity', 'dictionary size', 'cross-layer similarity', 'concept transferability', 'probe accuracy', 'activation sparsity'],
-    SYS: ['communication volume', 'compression rate', 'sync interval', 'staleness tolerance', 'topology diameter', 'bandwidth utilisation', 'pipeline bubble', 'recompute overhead'],
+    INJ: ['injection success rate', 'tool-return trust', 'delimiter strength', 'instruction-following rate', 'detection miss rate', 'attention on injected span', 'multi-turn accumulation', 'exfiltration success'],
+    JBK: ['jailbreak success rate', 'guardrail coverage', 'refusal rate', 'jailbreak chain length', 'alignment tax', 'reward misspecification', 'over-refusal rate', 'red-team discovery rate'],
+    PRV: ['membership-inference advantage', 'poisoned fraction', 'backdoor trigger rate', 'training-data extraction rate', 'unlearning completeness', 'watermark detection rate', 'privacy budget', 'stealing fidelity'],
+    TRU: ['hallucination rate', 'citation accuracy', 'calibration error', 'factual consistency', 'uncertainty quality', 'self-consistency', 'retrieval hit rate', 'robust radius'],
+    HYP: ['hypothesis novelty', 'testable fraction', 'literature coverage', 'hypothesis reuse', 'induction accuracy', 'questioning depth', 'tree size', 'abstraction level'],
+    EVA: ['reproduction rate', 'review agreement', 'code run rate', 'experiment cost', 'failure self-repair rate', 'claim traceability', 'comment adoption rate', 'benchmark contamination'],
   };
   const EN_SHAPE = ['follows a power law', 'has an elbow', 'decreases monotonically', 'rises then falls', 'saturates', 'is nearly linear', 'shows a phase transition', 'grows in variance', 'matches the theoretical bound', 'is unaffected'];
-  const EN_OBJ = ['batch size', 'model width', 'training steps', 'data scale', 'learning rate', 'rank r', 'depth', 'temperature', 'sequence length', 'parallelism'];
+  const EN_OBJ = ['model scale', 'context length', 'number of tool calls', 'questioning rounds', 'sampling temperature', 'retrieved chunks', 'training-data scale', 'session turns', 'inference budget', 'number of agents'];
 
-  const IDEA_ZH = ['几何修正', '早停准则', '梯度压缩', '低秩共用', '批量与泛化', '学习率调度', '自适应正则', '分布式同步', '注入面定位', '护栏迁移',
-    '规模外推', '涌现判据', '稀疏字典', '多义性消解', '探针校准', '蒸馏保真', '陈旧度补偿', '拓扑选择', '噪声几何', '容量度量',
-    '边界锐度', '记忆化边界', '扰动预算', '链路裁剪', '词表经济学', '推理时扩展', '激活稀疏', '跨层对齐', '流水线重排', '重计算权衡',
-    '临界批量', '二阶融合', '方差界', '通信-精度折中', '负结果早停', '复现基准', '温度标定', '长序列外推', '概念方向', '谱截断'];
-  const IDEA_EN = ['Geometric correction', 'Early-stop criterion', 'Gradient compression', 'Shared low-rank', 'Batch & generalisation', 'LR scheduling', 'Adaptive regularisation', 'Distributed sync', 'Injection surface', 'Guardrail transfer',
-    'Scaling extrapolation', 'Emergence criteria', 'Sparse dictionary', 'Polysemanticity', 'Probe calibration', 'Distillation fidelity', 'Staleness compensation', 'Topology choice', 'Noise geometry', 'Capacity measures',
-    'Boundary sharpness', 'Memorisation limits', 'Perturbation budget', 'Chain pruning', 'Vocabulary economics', 'Test-time scaling', 'Activation sparsity', 'Cross-layer alignment', 'Pipeline reordering', 'Recompute trade-off',
-    'Critical batch', 'Second-order fusion', 'Variance bounds', 'Comms-accuracy trade-off', 'Negative-result early stop', 'Reproduction benchmark', 'Temperature calibration', 'Long-context extrapolation', 'Concept directions', 'Spectral truncation'];
+  // idea i 属于方向 i % 6，所以名字按方向交错排列
+  const NAMES = {
+    INJ: [['返回值隔离', 'Tool-return isolation'], ['注入检测', 'Injection detection'], ['注入面定位', 'Injection surface'], ['多轮注入', 'Multi-turn injection'], ['外泄防护', 'Exfiltration defence'], ['工具链审计', 'Tool-chain audit'], ['检索投毒', 'Retrieval poisoning']],
+    JBK: [['越狱评测', 'Jailbreak evaluation'], ['护栏迁移', 'Guardrail transfer'], ['多轮越狱', 'Multi-turn jailbreak'], ['拒答校准', 'Refusal calibration'], ['对齐税度量', 'Alignment tax'], ['奖励误设', 'Reward misspecification'], ['红队自动化', 'Automated red-teaming']],
+    PRV: [['后门检测', 'Backdoor detection'], ['成员推断', 'Membership inference'], ['数据提取', 'Data extraction'], ['机器遗忘', 'Machine unlearning'], ['模型水印', 'Model watermarking'], ['隐私预算', 'Privacy budget'], ['模型窃取', 'Model stealing']],
+    TRU: [['幻觉检测', 'Hallucination detection'], ['引用核验', 'Citation checking'], ['置信校准', 'Confidence calibration'], ['事实一致', 'Factual consistency'], ['检索增强', 'Retrieval augmentation'], ['对抗鲁棒', 'Adversarial robustness'], ['不确定性', 'Uncertainty estimation']],
+    HYP: [['苏格拉底追问', 'Socratic questioning'], ['假设归纳', 'Hypothesis induction'], ['文献发现', 'Literature discovery'], ['新颖度评估', 'Novelty assessment'], ['可检验性', 'Testability'], ['假设抽象', 'Hypothesis abstraction']],
+    EVA: [['复现评测', 'Reproduction evaluation'], ['自动审稿', 'Automated review'], ['自动实验', 'Automated experiments'], ['失败自愈', 'Failure self-repair'], ['基准污染', 'Benchmark contamination'], ['负结果评测', 'Negative-result evaluation']],
+  };
+  const IDEA_ZH = [], IDEA_EN = [];
+  for (let r = 0; IDEA_ZH.length < 40; r++) for (const t of THEMES) {
+    const n = NAMES[t.id][r];
+    if (n && IDEA_ZH.length < 40) { IDEA_ZH.push(n[0]); IDEA_EN.push(n[1]); }
+  }
 
   // ---------------------------------------------------------------- 生成
   function build(opts) {

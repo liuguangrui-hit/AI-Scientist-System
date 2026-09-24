@@ -295,10 +295,10 @@ function stream(ws, e) {
   const bs = [32, 64, 128, 512, 1024, 2048];
   const noise = [4.21, 3.02, 2.06, 1.04, 0.74, null], eff = [0.38, 0.47, 0.61, 0.83, 0.91, null];
   const steps = Math.floor(p * 7);
-  for (let i = 0; i < Math.min(steps, 5); i++) rows.push({ t: t0 + i * (e.durMs / 7), text: `batch=${String(bs[i]).padEnd(4)} noise_scale=${String(noise[i]).padEnd(5)} eff_step=${eff[i]}` });
-  if (steps >= 4) rows.push({ t: t0 + 4.4 * (e.durMs / 7), text: `fit  noise_scale ∝ batch^-0.49  R²=0.981` });
-  if (steps >= 5) rows.push({ t: t0 + 4.6 * (e.durMs / 7), text: `断言方向与 ${e.hyp} 一致，等待 batch=2048 运行结束`, en: `direction matches ${e.hyp}; awaiting completion of batch=2048` });
-  if (e.status === 'running') rows.push({ t: Date.now(), text: `batch=${bs[Math.min(5, steps)]} 运行中 · step ${Math.round(p * 40)}k / 40k`, en: `batch=${bs[Math.min(5, steps)]} running · step ${Math.round(p * 40)}k / 40k`, live: true });
+  for (let i = 0; i < Math.min(steps, 5); i++) rows.push({ t: t0 + i * (e.durMs / 7), text: `n=${String(bs[i]).padEnd(4)} attn_injected=${String(noise[i]).padEnd(5)} block_rate=${eff[i]}` });
+  if (steps >= 4) rows.push({ t: t0 + 4.4 * (e.durMs / 7), text: `fit  attn_injected ∝ n^-0.49  R²=0.981` });
+  if (steps >= 5) rows.push({ t: t0 + 4.6 * (e.durMs / 7), text: `断言方向与 ${e.hyp} 一致，等待 n=2048 运行结束`, en: `direction matches ${e.hyp}; awaiting completion of n=2048` });
+  if (e.status === 'running') rows.push({ t: Date.now(), text: `n=${bs[Math.min(5, steps)]} 运行中 · 会话 ${Math.round(p * 1240)} / 1240`, en: `n=${bs[Math.min(5, steps)]} running · session ${Math.round(p * 1240)} / 1240`, live: true });
   if (e.status === 'done') rows.push({ t: e.finishedAt, text: `done · evidence ${e.outcome.delta > 0 ? '+' : ''}${e.outcome.delta}`, live: false });
   return rows;
 }

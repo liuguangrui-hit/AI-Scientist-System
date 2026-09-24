@@ -57,7 +57,7 @@ export function Experiments({ q, onShell }) {
             <button class="btn xs" onClick=${() => setEdit(!edit)}>${edit ? L('完成', 'Done') : L('修改配置', 'Edit config')}</button>
             <button class="btn xs" onClick=${() => act('exp.copy', { exp: e.id })}>${L('复制为新实验', 'Copy as new')}</button></div>`}>
           <${Table}><tbody>
-            ${[['model', L('模型', 'Model')], ['batch', 'batch'], ['seed', 'seed'], ['opt', L('优化器', 'Optimiser')], ['steps', L('步数', 'Steps')], ['measure', L('测量', 'Measure')]].map(([k, lab]) => html`
+            ${[['model', L('模型 / 基准', 'Model / benchmark')], ['batch', L('良性片段数 n', 'Benign chunks n')], ['seed', 'seed'], ['opt', L('防御配置', 'Defence')], ['steps', L('会话数', 'Sessions')], ['measure', L('测量', 'Measure')]].map(([k, lab]) => html`
               <tr><td class="tiny faint" style="width:78px">${lab}</td>
                 <td>${edit
                   ? html`<input type="text" value=${e.cfg[k]} onBlur=${(ev) => ev.target.value !== e.cfg[k] && act('exp.config', { exp: e.id, cfg: { [k]: ev.target.value } })} />`
@@ -78,7 +78,7 @@ export function Experiments({ q, onShell }) {
                 <span style="color:#6B7482">${hm(r.t)}</span>  ${r.en && L(r.text, r.en) || r.text}${r.live ? html`<span class="pulse"> ▌</span>` : ''}</div>`)}
             </div>`}
           ${e.status === 'running' && html`<div style="margin-top:9px"><${Bar} v=${e.prog} /></div>`}
-          ${e.table && html`<${Table} style="margin-top:11px"><thead><tr><th>batch</th><th>noise</th><th>eff_step</th><th></th></tr></thead><tbody>
+          ${e.table && html`<${Table} style="margin-top:11px"><thead><tr><th>n</th><th>attn</th><th>block_rate</th><th></th></tr></thead><tbody>
             ${e.table.map((r) => html`<tr>
               <td class="mono">${r.b}</td><td class="mono">${r.noise ?? '—'}</td><td class="mono">${r.eff ?? '—'}</td>
               <td class="tiny mut">${r.state === 'done' ? '' : r.state === 'running' ? L('运行中', 'running') : L('排队', 'queued')}</td></tr>`)}
@@ -212,22 +212,22 @@ export function Sweep({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.sweep;
   if (d.empty) return html`<${Frame}><${Card} title=${L('扫描矩阵', 'Sweep matrix')}>
-    <${Empty}>${L('暂无扫描矩阵。一次 batch × seed 的扫描完成后，整张矩阵只产生一条证据。',
-      'No sweep yet. Once a batch × seed sweep finishes, the whole matrix yields exactly one piece of evidence.')}<//><//><//>`;
+    <${Empty}>${L('暂无扫描矩阵。一次 n × seed 的扫描完成后，整张矩阵只产生一条证据。',
+      'No sweep yet. Once an n × seed sweep finishes, the whole matrix yields exactly one piece of evidence.')}<//><//><//>`;
   const vals = d.cells.map((c) => (d.metric === 'eff' ? c.eff : c.noise)).filter((v) => v != null);
   const lo = Math.min(...vals), hi = Math.max(...vals);
   const shade = (v) => v == null ? 'transparent' : `rgba(47,95,224,${0.08 + 0.62 * ((v - lo) / Math.max(1e-6, hi - lo))})`;
   return html`<${Frame} tools=${html`
     <span class="tiny faint">${L('指标', 'Metric')}</span>
-    <div class="seg"><button class=${d.metric === 'eff' ? 'on' : ''} onClick=${() => act('sweep.metric', { metric: 'eff' })}>${L('有效步长', 'Effective step')}</button>
-      <button class=${d.metric === 'noise' ? 'on' : ''} onClick=${() => act('sweep.metric', { metric: 'noise' })}>${L('噪声尺度', 'Noise scale')}</button></div>
+    <div class="seg"><button class=${d.metric === 'eff' ? 'on' : ''} onClick=${() => act('sweep.metric', { metric: 'eff' })}>${L('拦截率', 'Interception rate')}</button>
+      <button class=${d.metric === 'noise' ? 'on' : ''} onClick=${() => act('sweep.metric', { metric: 'noise' })}>${L('注入注意力', 'Attention on injection')}</button></div>
     <div class="seg"><button class=${d.mode === 'single' ? 'on' : ''} onClick=${() => act('sweep.mode', { mode: 'single' })}>${L('单元格=单次', 'Cell = single run')}</button>
       <button class=${d.mode === 'mean' ? 'on' : ''} onClick=${() => act('sweep.mode', { mode: 'mean' })}>${L('单元格=均值', 'Cell = mean')}</button></div>
     <div class="grow"></div>
     <span class="tiny faint">${L(`${d.cells.length} 格 · 配对 t 检验 α = ${d.alpha}`, `${d.cells.length} cells · paired t-test α = ${d.alpha}`)}</span>`}>
     <div class="cols2">
       <${Card} title=${L('运行矩阵', 'Run matrix')} sub=${L('每格对应一次运行，颜色深浅表示数值大小', 'one run per cell; shade = value')}>
-        <${Table}><thead><tr><th>batch</th><th>seed 0</th><th>seed 1</th><th>seed 2</th><th>${L('均值', 'Mean')}</th><th>${L('标准差', 'SD')}</th><th>${L('状态', 'State')}</th></tr></thead>
+        <${Table}><thead><tr><th>n</th><th>seed 0</th><th>seed 1</th><th>seed 2</th><th>${L('均值', 'Mean')}</th><th>${L('标准差', 'SD')}</th><th>${L('状态', 'State')}</th></tr></thead>
           <tbody>
             ${d.rows.map((r) => html`<tr>
               <td class="mono b">${r.b}</td>
@@ -242,8 +242,8 @@ export function Sweep({ q, onShell }) {
             </tr>`)}
           </tbody><//>
         <div class="note warn" style="margin-top:11px">${d.filled
-          ? L('batch = 2048 一行已补全，参与拟合。', 'The batch = 2048 row is now complete and included in the fit.')
-          : L('batch = 2048 三格均出现 OOM，已自动降至 1024 重试。缺失单元不参与拟合，也不计入证据。', 'All three cells at batch = 2048 ran out of memory and were retried at 1024. Missing cells are excluded from the fit and from the evidence.')}
+          ? L('n = 2048 一行已补全，参与拟合。', 'The n = 2048 row is now complete and included in the fit.')
+          : L('n = 2048 三格均出现 OOM，已自动降至 1024 重试。缺失单元不参与拟合，也不计入证据。', 'All three cells at n = 2048 ran out of memory and were retried at 1024. Missing cells are excluded from the fit and from the evidence.')}
           <a href="/runs" style="margin-left:6px">${L('查看失败详情 →', 'Failure details →')}</a></div>
       <//>
 
@@ -278,7 +278,7 @@ export function Sweep({ q, onShell }) {
 
         <${Card} title=${L('代表配置', 'Representative config')}>
           <${Table}><tbody>
-            ${[['batch', d.rep.b], ['seed', d.rep.s], ['lr', d.rep.lr], [L('运行 id', 'run id'), d.rep.run], [L('产物', 'Artifacts'), 'fig_3.png · metrics.csv']].map(([k, v]) => html`
+            ${[['n', d.rep.b], ['seed', d.rep.s], [L('配置', 'Config'), d.rep.lr], [L('运行 id', 'run id'), d.rep.run], [L('产物', 'Artifacts'), 'fig_3.png · metrics.csv']].map(([k, v]) => html`
               <tr><td class="tiny faint" style="width:70px">${k}</td><td class="mono small">${v}</td></tr>`)}
           </tbody><//>
           <div class="note" style="margin-top:9px">${L('图 3 采用该单元的结果。更换代表配置会重绘图 3，并把 4.2 节标为待更新。',

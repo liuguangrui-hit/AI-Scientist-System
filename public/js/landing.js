@@ -139,7 +139,7 @@ export function Landing({ about }) {
           ['tree', '单 idea 树', 'Single-idea tree', '节点编辑与依赖关系', 'Node editing, dependencies, evidence and verdicts'],
           ['experiments', '单次实验', 'Single experiment', '运行配置与执行决策', 'Config, live stream, PROCEED / REFINE / PIVOT'],
           ['exptree', '实验树 · 四阶段', 'Experiment tree', '初探 → 调参 → 主实验 → 消融', 'Probe → tune → main → ablation'],
-          ['sweep', '扫描矩阵', 'Sweep matrix', '方差分析与显著性检验', 'batch × seed, variance and significance'],
+          ['sweep', '扫描矩阵', 'Sweep matrix', '方差分析与显著性检验', 'n × seed, variance and significance'],
           ['runs', '算力与失败', 'Compute & failures', '占用时间线与失败处置', 'Occupancy timeline, failure classes and auto-handling'],
           ['review', '裁定队列', 'Verdict queue', '失效在各 idea 中的不同后果', 'How one failure plays out differently in three projects'],
           ['paper', '论文正文', 'Manuscript', '章节由假设树映射', 'Sections map from the tree; gaps are highlighted'],

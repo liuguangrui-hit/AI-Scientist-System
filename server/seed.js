@@ -11,91 +11,95 @@ export const COLORS = { 'P-014': '#2F5FE0', 'P-016': '#A21CAF', 'P-017': '#0F8F7
 const H = [];
 const h = (id, zh, en, status = 'untested', ev = [], extra = {}) => H.push({ id, claim: b(zh, en), status, ev, ...extra });
 
-h('H-01', '梯度噪声可用尺度参数刻画', 'Gradient noise can be characterised by a scale parameter', 'self_verified',
-  [['e_01', 'P-014', 0.8, '三档 batch 下尺度参数稳定', 'Scale parameter stable across three batch sizes'], ['e_02', 'P-016', 0.6, '换数据集后仍成立', 'Holds after switching dataset']]);
-h('H-02', '小 batch 下噪声尺度上升导致有效步长下降', 'Noise scale rises at small batch, shrinking the effective step', 'pending_review', [
-  ['e_04', 'P-014', -0.7, '小 batch 三档趋势相反，拟合不显著', 'Trend reverses across three small batches; fit not significant'],
-  ['e_09', 'P-016', -0.8, '换数据集后噪声尺度不随 batch 变化', 'Noise scale no longer varies with batch on another dataset'],
-  ['e_12', 'P-014', -1.2, '改用二阶估计仍未复现原趋势', 'Second-order estimate still fails to reproduce the trend'],
-  ['e_13', 'P-017', 0.3, '低秩子空间上局部成立', 'Holds locally in the low-rank subspace'],
-  ['e_14', 'P-016', 0.3, '窄区间内可重复，但外推失效', 'Repeatable in a narrow range; extrapolation fails']],
+// Three running ideas defend LLM agents against indirect prompt injection; the finished,
+// parked and candidate ones cover jailbreaks, automated review, backdoors, membership
+// inference and the reproducibility of AI-scientist output. H-02 is the contested premise
+// the three running trees share.
+h('H-01', '自动裁判的判定与人工标注一致', 'Automated judges agree with human labels', 'self_verified',
+  [['e_01', 'P-014', 0.8, '三个模型上与人工标注一致率 96%', '96% agreement with human labels on three models'], ['e_02', 'P-016', 0.6, '换基准后仍成立', 'Holds on another benchmark']]);
+h('H-02', 'agent 对工具返回值的信任高于用户输入', 'Agents trust tool returns more than user input', 'pending_review', [
+  ['e_04', 'P-014', -0.7, '三个开源模型上信任差异不显著', 'The trust gap is not significant on three open models'],
+  ['e_09', 'P-016', -0.8, '换到 InjecAgent 后差异消失', 'The gap disappears on InjecAgent'],
+  ['e_12', 'P-014', -1.2, '改用注意力归因仍未复现', 'Attention attribution still fails to reproduce it'],
+  ['e_13', 'P-017', 0.3, '检索场景下局部成立', 'Holds locally in retrieval settings'],
+  ['e_14', 'P-016', 0.3, '短返回值内可重复，长返回值失效', 'Repeatable for short returns; fails for long ones']],
   { decisions: ['REFINE', 'REFINE', 'PIVOT', 'PIVOT', 'PIVOT'], pivots: 3 });
-h('H-03', '二阶项在噪声下被系统性低估', 'Second-order terms are systematically underestimated under noise', 'inductive_unverified',
+h('H-03', '现有评测系统性低估多轮注入', 'Existing evaluations systematically underestimate multi-turn injection', 'inductive_unverified',
   [['ind', 'P-014', 0.6, '由 P-014 的 1.2.2 与 P-016 的 2.1 归纳', 'Induced from P-014 1.2.2 and P-016 2.1']], { induced: true });
-h('H-05', '修正后有效步长回升', 'Effective step recovers after the correction', 'pending_review', [
-  ['e_05', 'P-014', -0.4, '调 batch 后仍未回升', 'No recovery after tuning batch'],
-  ['e_06', 'P-014', -0.6, '缩小适用域后无改善', 'No improvement after narrowing the domain'],
-  ['e_07', 'P-014', -0.6, '换度量方式后无改善', 'No improvement after switching the metric']],
-  { decisions: ['REFINE', 'PIVOT', 'PIVOT', 'PIVOT'], pivots: 3, warrant: b('二阶项在噪声下被系统性低估，补偿该项即可恢复有效步长', 'Second-order terms are systematically underestimated under noise; compensating for them restores the effective step') });
-h('H-06', 'Hessian 谱在低秩子空间集中', 'The Hessian spectrum concentrates in a low-rank subspace', 'self_verified',
-  [['e_10', 'P-017', 0.4, '第 1 层通过', 'Layer 1 passed'], ['e_02b', 'P-017', 0.7, '前 8 个特征方向占 91% 能量', 'Top-8 directions carry 91% of the energy']]);
-h('H-07', '修正项在 batch ≤ 128 区间稳定生效', 'The correction holds steadily for batch ≤ 128', 'untested', [], { depends: ['H-05'] });
-h('H-09', '早停判据与压缩率共用同一上界', 'The early-stop criterion and compression rate share one bound', 'untested', [], { needsDecompose: true });
-h('H-11', '噪声尺度随 batch 减小呈 √ 关系', 'Noise scale follows a √ law as batch shrinks', 'untested', [
-  ['e_08', 'P-014', 0.2, '三档 batch 趋势一致', 'Trend consistent across three batch sizes'],
-  ['e_11', 'P-016', 0.2, '换数据集后方向不变', 'Direction unchanged on another dataset']]);
-h('H-12', '修正项可与梯度计算融合', 'The correction can be fused with the gradient computation', 'untested', [
-  ['e_03', 'P-014', 0.5, '融合实现不增加反向传播', 'Fused implementation adds no backward pass'],
-  ['e_17', 'P-014', 0.4, '有效步长回升 18.4%（旧口径）', 'Effective step +18.4% (old metric)']], { rerun: true });
-h('H-14', '压缩误差在低秩子空间上可界', 'Compression error is bounded in the low-rank subspace');
-h('H-16', '三个 idea 共用的 baseline 需在同一种子下重测', 'The baseline shared by three ideas must be re-measured under one seed set', 'untested', [], { rerun: true });
-h('H-18', '通信量下降不引入额外偏差', 'Reduced communication introduces no extra bias');
-h('H-19', '早停点与修正项的最优区间重合', 'The early-stop point and the correction’s optimal range coincide');
+h('H-05', '加隔离标记后多轮拦截率回升', 'Delimiters restore interception in multi-turn sessions', 'pending_review', [
+  ['e_05', 'P-014', -0.4, '调整标记模板后仍未回升', 'No recovery after changing the delimiter template'],
+  ['e_06', 'P-014', -0.6, '限定为两轮会话后无改善', 'No improvement after limiting sessions to two turns'],
+  ['e_07', 'P-014', -0.6, '换判定口径后无改善', 'No improvement after switching the judging criterion']],
+  { decisions: ['REFINE', 'PIVOT', 'PIVOT', 'PIVOT'], pivots: 3, warrant: b('现有评测低估多轮注入，在每轮返回值上重复标记即可恢复拦截率', 'Evaluations underestimate multi-turn injection; delimiting every turn’s return restores interception') });
+h('H-06', '投毒文档在嵌入空间集中于少数方向', 'Poisoned documents concentrate in a few embedding directions', 'self_verified',
+  [['e_10', 'P-017', 0.4, '第 1 层通过', 'Layer 1 passed'], ['e_02b', 'P-017', 0.7, '前 8 个主方向占 91% 方差', 'Top-8 directions carry 91% of the variance']]);
+h('H-07', '隔离标记在 n ≤ 128 区间稳定生效', 'Delimiters hold steadily for n ≤ 128', 'untested', [], { depends: ['H-05'] });
+h('H-09', '注入检测与投毒检测共用同一判据', 'Injection and poisoning detection share one criterion', 'untested', [], { needsDecompose: true });
+h('H-11', '注入片段注意力随良性片段数按 n^−1/2 衰减', 'Attention on the injected span decays as n^−1/2', 'untested', [
+  ['e_08', 'P-014', 0.2, '三档 n 趋势一致', 'Trend consistent across three tiers of n'],
+  ['e_11', 'P-016', 0.2, '换基准后方向不变', 'Direction unchanged on another benchmark']]);
+h('H-12', '隔离标记无需额外模型调用', 'Delimiting needs no extra model call', 'untested', [
+  ['e_03', 'P-014', 0.5, '标记在解码前完成，不增加调用', 'Applied before decoding; no extra call'],
+  ['e_17', 'P-014', 0.4, '拦截率提升 18.4%（旧口径）', 'Interception +18.4% (old metric)']], { rerun: true });
+h('H-14', '投影到主方向后检测误差有界', 'Detection error is bounded after projecting onto principal directions');
+h('H-16', '三个 idea 共用的攻击基线需在同一种子下重测', 'The attack baseline shared by three ideas must be re-measured under one seed set', 'untested', [], { rerun: true });
+h('H-18', '过滤投毒文档不降低检索召回', 'Filtering poisoned documents keeps retrieval recall');
+h('H-19', '检测阈值与标记强度的最优区间重合', 'The best ranges of detection threshold and delimiter strength coincide');
 // own nodes of the three running ideas
-h('H-30', '几何修正让小 batch 训练收敛更快', 'Geometric correction speeds up small-batch training');
-h('H-31', '修正后减少收敛步数', 'The correction reduces steps to converge');
-h('H-33', '修正开销可忽略', 'The correction’s overhead is negligible');
-h('H-34', '修正误差不会被放大', 'Correction error is not amplified');
-h('H-35', '共用上界可由 Hessian 迹估计', 'The shared bound can be estimated from the Hessian trace');
-h('H-36', '信噪比阈值可替代固定 patience', 'A signal-to-noise threshold can replace a fixed patience');
-h('H-38', '低秩子空间内的梯度压缩不损失收敛', 'Gradient compression in the low-rank subspace keeps convergence');
-h('H-32', '修正项对学习率不敏感', 'The correction is insensitive to the learning rate');
-h('H-37', '早停不损伤最终精度', 'Early stopping does not hurt final accuracy');
-h('H-39', '误差反馈在低秩投影下仍然收敛', 'Error feedback still converges under low-rank projection');
-h('H-40', '压缩率与收敛步数呈单调关系', 'Compression rate is monotone in steps to converge');
-h('H-04', '投影秩 r 存在拐点', 'The projection rank r has an elbow');
-h('H-08', '早停点对 seed 稳健', 'The early-stop point is robust to the seed');
-// P-011 learning-rate scheduling (7)
-h('H-41', '余弦调度优于阶梯调度', 'Cosine schedules beat step schedules', 'self_verified');
-h('H-42', 'warmup 长度与 batch 线性相关', 'Warmup length scales linearly with batch', 'self_verified');
-h('H-43', '周期重启在小数据集上无收益', 'Periodic restarts bring no gain on small datasets', 'closed');
-h('H-44', '调度对优化器类型不敏感', 'Schedules are insensitive to optimizer type', 'lit_supported');
-h('H-45', '末段线性衰减降低方差', 'Linear tail decay lowers variance', 'self_verified');
-h('H-10', '峰值学习率需随宽度缩放', 'Peak learning rate must scale with width');
-h('H-13', '调度可迁移到微调阶段', 'The schedule transfers to fine-tuning');
-// P-013 batch size & generalization (8)
-h('H-46', '大 batch 泛化差距源于尖锐极小值', 'The large-batch generalisation gap comes from sharp minima', 'closed');
-h('H-47', '线性缩放规则在 ≤ 4k 成立', 'The linear scaling rule holds up to 4k', 'self_verified');
-h('H-48', '梯度累积等价于大 batch', 'Gradient accumulation equals a large batch', 'self_verified');
-h('H-49', '标签噪声放大 batch 的影响', 'Label noise amplifies the effect of batch size');
-h('H-50', '小 batch 的隐式正则化可被显式项替代', 'Implicit regularisation of small batches can be replaced by an explicit term', 'lit_supported');
-h('H-51', '泛化差距随训练时长收敛', 'The generalisation gap closes with longer training');
-h('H-15', '数据增强缩小 batch 间差距', 'Augmentation narrows the gap between batch sizes', 'closed');
-h('H-17', 'BN 统计量是主要混杂因素', 'BatchNorm statistics are the main confounder');
-// P-015 adaptive regularisation (9, all verified)
-['权重衰减可按层自适应', '正则强度随训练进程衰减', 'dropout 率与层宽成反比', '自适应正则减少过拟合', '正则项梯度可闭式计算',
-  '自适应权重衰减不增加超参', '正则强度对 seed 稳健', '与 Adam 兼容', '在三个数据集上复现'].forEach((zh, i) => {
-  const en = ['Weight decay can adapt per layer', 'Regularisation strength decays with training', 'Dropout rate is inversely proportional to layer width', 'Adaptive regularisation reduces overfitting',
-    'The regulariser gradient has a closed form', 'Adaptive weight decay adds no hyper-parameters', 'Regularisation strength is robust to the seed', 'Compatible with Adam', 'Reproduced on three datasets'][i];
+h('H-30', '在工具返回值入口加隔离标记可阻断间接注入', 'Delimiting at the tool-return entry blocks indirect injection');
+h('H-31', '隔离标记降低攻击成功率', 'Delimiters lower the attack success rate');
+h('H-33', '标记开销可忽略', 'The delimiting overhead is negligible');
+h('H-34', '标记无法被攻击者伪造', 'Attackers cannot forge the delimiters');
+h('H-35', '共用判据可由注意力熵估计', 'The shared criterion can be estimated from attention entropy');
+h('H-36', '困惑度阈值可替代固定规则', 'A perplexity threshold can replace fixed rules');
+h('H-38', '沿嵌入主方向过滤可清除投毒文档', 'Filtering along principal embedding directions removes poisoned documents');
+h('H-32', '标记效果对提示模板不敏感', 'The effect is insensitive to the prompt template');
+h('H-37', '检测不降低正常任务成功率', 'Detection does not lower benign task success');
+h('H-39', '自适应攻击下过滤仍然有效', 'Filtering still works under adaptive attacks');
+h('H-40', '过滤比例与召回率呈单调关系', 'The filtering ratio is monotone in recall');
+h('H-04', '主方向数 r 存在拐点', 'The number of principal directions r has an elbow');
+h('H-08', '检测阈值对随机种子稳健', 'The detection threshold is robust to the seed');
+// P-011 jailbreak evaluation (7)
+h('H-41', '多轮越狱成功率高于单轮', 'Multi-turn jailbreaks succeed more often than single-turn ones', 'self_verified');
+h('H-42', '越狱成功率随会话轮数上升', 'Jailbreak success rises with session turns', 'self_verified');
+h('H-43', '角色扮演模板在新模型上仍然有效', 'Role-play templates still work on newer models', 'closed');
+h('H-44', '护栏效果对基座模型不敏感', 'Guardrail effect is insensitive to the base model', 'lit_supported');
+h('H-45', '拒答率与越狱成功率负相关', 'Refusal rate correlates negatively with jailbreak success', 'self_verified');
+h('H-10', '安全对齐强度需随模型规模调整', 'Alignment strength must scale with model size');
+h('H-13', '越狱链路可迁移到微调模型', 'Jailbreak chains transfer to fine-tuned models');
+// P-013 automated peer review (8)
+h('H-46', '自动审稿分数与人工评分一致', 'Automated review scores match human scores', 'closed');
+h('H-47', '多模型评审可降低单模型偏差', 'Multi-model review reduces single-model bias', 'self_verified');
+h('H-48', '自动评审能识别过度声称', 'Automated review detects overclaims', 'self_verified');
+h('H-49', '评审分数受写作风格影响', 'Review scores are swayed by writing style');
+h('H-50', '评审一致性随论文长度下降', 'Review agreement drops with paper length', 'lit_supported');
+h('H-51', '审稿意见可转化为补充实验', 'Review comments can be turned into extra experiments');
+h('H-15', '自动评审可替代人工审稿', 'Automated review can replace human review', 'closed');
+h('H-17', '评审模型与作者模型同源时分数偏高', 'Scores inflate when reviewer and author share a model family');
+// P-015 backdoor detection (9, all verified)
+['触发器在激活空间中可分', '后门神经元集中于少数层', '剪枝可移除后门', '检测不依赖干净数据', '检测对触发器形态稳健',
+  '误报率低于 1%', '检测结果对种子稳健', '适用于指令微调模型', '在三个基准上复现'].forEach((zh, i) => {
+  const en = ['Triggers are separable in activation space', 'Backdoor neurons concentrate in a few layers', 'Pruning removes the backdoor', 'Detection needs no clean data',
+    'Detection is robust to trigger form', 'False-positive rate below 1%', 'Results are robust to the seed', 'Works on instruction-tuned models', 'Reproduced on three benchmarks'][i];
   h('H-' + [52, 53, 54, 55, 56, 57, 58, 59, 20][i], zh, en, 'self_verified');
 });
-// P-019 distributed sync (5)
-h('H-24', '异步更新在延迟 < 3 步时无损', 'Asynchronous updates are lossless when staleness < 3', 'self_verified');
-h('H-25', '梯度陈旧度可用一阶补偿', 'Gradient staleness can be compensated to first order', 'self_verified');
-h('H-26', '局部 SGD 的同步间隔存在最优值', 'Local SGD has an optimal sync interval', 'closed');
-h('H-27', '通信拓扑对收敛影响小于带宽', 'Topology matters less than bandwidth');
-h('H-28', '慢节点可被丢弃而不偏置估计', 'Stragglers can be dropped without biasing the estimate');
-h('H-29', '环形归约在 64 卡内是最优拓扑', 'Ring all-reduce is optimal within 64 GPUs');
+// P-019 membership inference (6)
+h('H-24', '成员推断优势随训练轮数上升', 'Membership-inference advantage rises with training epochs', 'self_verified');
+h('H-25', '校准损失可提升推断准确率', 'Calibrated loss improves inference accuracy', 'self_verified');
+h('H-26', '大模型上的成员推断接近随机', 'Membership inference on large models is near chance', 'closed');
+h('H-27', '训练数据去重降低推断优势', 'Deduplicating training data lowers the advantage');
+h('H-28', '差分隐私训练可消除推断优势', 'Differentially private training removes the advantage');
+h('H-29', '参考模型攻击在 7B 以内最有效', 'Reference-model attacks work best up to 7B');
 
 const IDEAS = [
-  ['P-011', '学习率调度', 'Learning-rate scheduling', 'done'],
-  ['P-013', '批量与泛化', 'Batch size & generalisation', 'done'],
-  ['P-014', '几何修正', 'Geometric correction', 'running'],
-  ['P-015', '自适应正则', 'Adaptive regularisation', 'done'],
-  ['P-016', '早停准则', 'Early-stop criterion', 'running'],
-  ['P-017', '梯度压缩', 'Gradient compression', 'running'],
-  ['P-018', '低秩共用', 'Shared low-rank', 'candidate'],
-  ['P-019', '分布式同步', 'Distributed sync', 'parked'],
+  ['P-011', '越狱评测', 'Jailbreak evaluation', 'done'],
+  ['P-013', '自动审稿', 'Automated review', 'done'],
+  ['P-014', '返回值隔离', 'Tool-return isolation', 'running'],
+  ['P-015', '后门检测', 'Backdoor detection', 'done'],
+  ['P-016', '注入检测', 'Injection detection', 'running'],
+  ['P-017', '检索投毒', 'Retrieval poisoning', 'running'],
+  ['P-018', '复现评测', 'Reproduction evaluation', 'candidate'],
+  ['P-019', '成员推断', 'Membership inference', 'parked'],
 ];
 
 // tree nodes: [key, hyp, parentKey, role]
@@ -154,28 +158,28 @@ export function makeWorkspace(now = Date.now()) {
   ws.experiments = {};
   const mk = (e) => (ws.experiments[e.id] = e);
   EXP_DONE.forEach(([id, hyp, idea, delta], i) => mk({
-    id, hyp, idea, status: 'done', prog: 1, startedAt: now - (2600 - i * 140) * MIN, durMs: 10 * MIN, gpu: i % 4, cfg: cfgOf('ResNet-50 / CIFAR-100', '32 → 512', '0,1,2', 'SGD', '40k', 'noise / eff_step'),
+    id, hyp, idea, status: 'done', prog: 1, startedAt: now - (2600 - i * 140) * MIN, durMs: 10 * MIN, gpu: i % 4, cfg: cfgOf('Llama-3.1-8B / AgentDojo', '32 → 512', '0,1,2', 'delimiter', '1,240', 'attn / block_rate'),
     outcome: { delta, rec: delta >= 0 ? 'PROCEED' : 'PIVOT', conf: 0.7 }, decision: { kind: delta >= 0 ? 'PROCEED' : 'PIVOT', at: now - (2590 - i * 140) * MIN, auto: true }, hours: 3.2, cost: 56, label: b('已完成实验', 'Completed experiment'),
   }));
   mk({
     id: 'e_15', hyp: 'H-11', idea: 'P-014', node: 'n_142', status: 'running', prog: 0.62, startedAt: now - 3.7 * MIN, durMs: 6 * MIN, gpu: 0, hours: 6.4, cost: 112, vcpu: 36,
-    cfg: cfgOf('ResNet-50 / CIFAR-100', '32 → 2048 (7)', '0,1,2', 'SGD + correction', '40k · early-stop off', 'eff_step / noise_scale'),
-    outcome: { delta: 0.6, rec: 'PROCEED', conf: 0.72 }, label: b('n_142 更换数据集复核', 'n_142 dataset re-check'), sweep: true,
+    cfg: cfgOf('Llama-3.1-8B / InjecAgent', '32 → 2048 (7)', '0,1,2', 'delimiter · template B', '1,240', 'block_rate / attn_injected'),
+    outcome: { delta: 0.6, rec: 'PROCEED', conf: 0.72 }, label: b('n_142 更换基准复核', 'n_142 benchmark re-check'), sweep: true,
   });
   mk({
     id: 'e_16', hyp: 'H-16', idea: 'P-014', status: 'running', prog: 0.31, startedAt: now - 3.1 * MIN, durMs: 10 * MIN, gpu: 1, hours: 8.0, cost: 140, vcpu: 36,
-    cfg: cfgOf('ResNet-50 / CIFAR-100', '128', '0,1,2', 'SGD baseline', '40k', 'final acc'), outcome: { delta: 0.5, rec: 'PROCEED', conf: 0.81 }, label: b('共用 baseline 同种子重测', 'Shared baseline re-run, same seeds'),
+    cfg: cfgOf('Llama-3.1-8B / AgentDojo', '128', '0,1,2', 'no defence (baseline)', '1,240', 'ASR'), outcome: { delta: 0.5, rec: 'PROCEED', conf: 0.81 }, label: b('共用攻击基线同种子重测', 'Shared attack baseline re-run, same seeds'),
   });
   mk({
     id: 'e_18', hyp: 'H-14', idea: 'P-017', status: 'running', prog: 0.08, startedAt: now - 0.9 * MIN, durMs: 11 * MIN, gpu: 2, hours: 3.5, cost: 61, vcpu: 18,
-    cfg: cfgOf('ResNet-50 / CIFAR-100', '256', '0,1', 'SGD + rank-r projection', '30k', 'compression error'), outcome: { delta: 0.4, rec: 'PROCEED', conf: 0.66 }, label: b('低秩误差界', 'Low-rank error bound'),
+    cfg: cfgOf('Qwen2.5-7B / PoisonedRAG', '256', '0,1', 'PCA filter · r = 8', '800', 'detection error'), outcome: { delta: 0.4, rec: 'PROCEED', conf: 0.66 }, label: b('主方向误差界', 'Principal-direction error bound'),
   });
   const q = (id, hyp, idea, zh, en, d, rec) => mk({
-    id, hyp, idea, status: 'queued', prog: 0, durMs: 7 * MIN, hours: 3, cost: 52, cfg: cfgOf('ResNet-50 / CIFAR-100', '128', '0,1,2', 'SGD', '30k', 'eff_step'),
+    id, hyp, idea, status: 'queued', prog: 0, durMs: 7 * MIN, hours: 3, cost: 52, cfg: cfgOf('Llama-3.1-8B / AgentDojo', '128', '0,1,2', 'delimiter', '800', 'block_rate'),
     outcome: { delta: d, rec, conf: 0.6 }, label: b(zh, en), queuedAt: now - 30 * MIN,
   });
-  q('e_19', 'H-12', 'P-014', '修正项与梯度融合', 'Correction fused with gradients', 0.5, 'PROCEED');
-  q('e_20', 'H-18', 'P-017', '通信量不引入偏差', 'Communication adds no bias', 0.4, 'PROCEED');
+  q('e_19', 'H-12', 'P-014', '标记无需额外调用', 'Delimiting without extra calls', 0.5, 'PROCEED');
+  q('e_20', 'H-18', 'P-017', '过滤不降低召回', 'Filtering keeps recall', 0.4, 'PROCEED');
   q('e_22', 'H-30', 'P-014', '补两条近期基线对比', 'Head-to-head vs. two recent baselines', 0.5, 'PROCEED');
   q('e_23', 'H-33', 'P-014', 'profiler 实测开销', 'Profiler-measured overhead', 0.4, 'PROCEED');
   ws.experiments.e_22.fromComment = 'B1'; ws.experiments.e_23.fromComment = 'C1';
@@ -186,17 +190,17 @@ export function makeWorkspace(now = Date.now()) {
   // ---- runs history (timeline). start = ms before now, dur = ms
   const R = (id, gpu, agoH, durH, idea, zh, en, status = 'done', cost = 0) => ({ id, gpu, start: now - agoH * HOUR, dur: durH * HOUR, idea, label: b(zh, en), status, cost });
   ws.runs = [
-    R('run_2286', 0, 23.4, 4.2, 'P-014', '调参', 'tuning'), R('run_2291', 0, 17.6, 5.0, 'P-014', '7 档扫描', '7-batch sweep'), R('run_2302', 0, 11.7, 2.6, 'P-016', '判', 'verdict check'),
-    R('run_2288', 1, 23.3, 2.4, 'P-017', '', ''), R('run_2289', 1, 20.2, 1.8, 'P-014', '', '', 'failed'), R('run_2295', 1, 17.7, 5.6, 'P-016', '共享 baseline', 'shared baseline'),
-    R('run_2293', 2, 21.3, 4.0, 'P-018', '方差界初探', 'variance-bound probe', 'done'), R('run_2290', 2, 16.9, 1.8, 'P-016', '', '', 'failed'), R('run_2298', 2, 13.6, 6.0, 'P-014', '三种子重复', '3-seed repeat'),
-    R('run_2287', 3, 23.3, 3.6, 'P-016', '早停判', 'early-stop check'), R('run_2292', 3, 19.3, 2.0, 'P-014', '', '', 'failed'), R('run_2297', 3, 15.2, 5.6, 'P-017', '通信量测量', 'communication probe'),
-    R('run_2301', 3, 8.4, 2.0, 'P-014', 'H-52 方差界 · batch 2048', 'H-52 variance bound · batch 2048', 'failed', 35),
+    R('run_2286', 0, 23.4, 4.2, 'P-014', '调参', 'tuning'), R('run_2291', 0, 17.6, 5.0, 'P-014', '7 档扫描', '7-tier sweep'), R('run_2302', 0, 11.7, 2.6, 'P-016', '裁定核查', 'verdict check'),
+    R('run_2288', 1, 23.3, 2.4, 'P-017', '', ''), R('run_2289', 1, 20.2, 1.8, 'P-014', '', '', 'failed'), R('run_2295', 1, 17.7, 5.6, 'P-016', '共用攻击基线', 'shared attack baseline'),
+    R('run_2293', 2, 21.3, 4.0, 'P-018', '复现基准初探', 'reproduction-benchmark probe', 'done'), R('run_2290', 2, 16.9, 1.8, 'P-016', '', '', 'failed'), R('run_2298', 2, 13.6, 6.0, 'P-014', '三种子重复', '3-seed repeat'),
+    R('run_2287', 3, 23.3, 3.6, 'P-016', '检测判据核查', 'detection-criterion check'), R('run_2292', 3, 19.3, 2.0, 'P-014', '', '', 'failed'), R('run_2297', 3, 15.2, 5.6, 'P-017', '召回率测量', 'recall probe'),
+    R('run_2301', 3, 8.4, 2.0, 'P-014', 'H-11 扫描 · n = 2048', 'H-11 sweep · n = 2048', 'failed', 35),
   ];
   ws.failures = [
-    { id: 'f1', kind: 'oom', n: 3, rescued: 3, status: 'rescued', title: b('显存不足 OOM', 'Out of memory (OOM)'), cause: b('batch 2048 超出单卡显存容量，agent 提交前未估算显存需求。', 'Batch 2048 exceeds single-GPU memory; the agent submitted without estimating memory requirements.'), action: b('降到 1024 重试，并把上限写进该节点配置', 'Retry at 1024 and write the ceiling into the node config') },
-    { id: 'f2', kind: 'timeout', n: 2, rescued: 2, status: 'rescued', title: b('超时', 'Timeout'), cause: b('单次运行超过 6 小时上限被终止，日志停止于 22k / 40k 步。', 'A run exceeded the 6-hour limit and was terminated; the log ends at 22k / 40k steps.'), action: b('拆分为两段分别运行，每 5k 步保存检查点', 'Split into two segments and resume; checkpoint every 5k steps') },
+    { id: 'f1', kind: 'oom', n: 3, rescued: 3, status: 'rescued', title: b('显存不足 OOM', 'Out of memory (OOM)'), cause: b('n = 2048 时上下文超出单卡显存，agent 提交前未估算显存需求。', 'At n = 2048 the context exceeds single-GPU memory; the agent submitted without estimating memory requirements.'), action: b('降到 n = 1024 重试，并把上限写进该节点配置', 'Retry at n = 1024 and write the ceiling into the node config') },
+    { id: 'f2', kind: 'timeout', n: 2, rescued: 2, status: 'rescued', title: b('超时', 'Timeout'), cause: b('单次运行超过 6 小时上限被终止，日志停止于第 620 / 1,240 次会话。', 'A run exceeded the 6-hour limit and was terminated; the log ends at session 620 of 1,240.'), action: b('拆分为两段分别运行，每 100 次会话保存断点', 'Split into two segments and resume; checkpoint every 100 sessions') },
     { id: 'f3', kind: 'format', n: 1, rescued: 0, status: 'review', title: b('产物格式错误', 'Malformed artifact'), cause: b('metrics.csv 缺少 seed 列，下游绘图脚本无法读取。', 'metrics.csv lacks a seed column; the plotting script cannot read it.'), action: b('按 artifacts 规范重写并回填，已通知 executor', 'Rewrite per the artifacts spec and backfill; executor notified') },
-    { id: 'f4', kind: 'data', n: 1, rescued: 0, status: 'review', title: b('数据缺失', 'Missing data'), cause: b('tiny-imagenet 挂载路径在新节点上不存在。', 'The tiny-imagenet mount path does not exist on the new node.'), action: b('重新下载并缓存至共享存储，任务重新排队', 'Re-downloaded and cached on shared storage; task re-queued') },
+    { id: 'f4', kind: 'data', n: 1, rescued: 0, status: 'review', title: b('数据缺失', 'Missing data'), cause: b('AgentDojo 环境镜像在新节点上不存在。', 'The AgentDojo environment image does not exist on the new node.'), action: b('重新拉取并缓存至共享存储，任务重新排队', 'Re-pulled and cached on shared storage; task re-queued') },
   ];
   ws.spendByIdea = { 'P-014': 38.2, 'P-016': 23.4, 'P-017': 16.1, 'P-018': 6.3 };
   ws.failBurn = 7.1;
@@ -251,19 +255,19 @@ function makeExpTree(now) {
   return {
     budget: { used: 84, total: 120 }, parallel: 3, k: 3,
     nodes: [
-      n('n_101', 'new', 'success', 0.52, null, '初探：在三档 batch 上复现原始趋势', 'Probe: reproduce the baseline trend on three batch sizes', { stage: 'probe' }),
-      n('n_108', 'improve', 'success', 0.63, 'n_101', '初探：加入修正项，观察有效步长', 'Probe: add the correction and watch the effective step', { stage: 'probe' }),
-      n('n_112', 'fix', 'failed', null, 'n_108', '修复：显存溢出，batch 2048 超出单卡容量', 'Fix: batch 2048 exceeds single-GPU memory', { stage: 'probe', pruned: true }),
-      n('n_115', 'improve', 'success', 0.68, 'n_108', '调参：学习率 × 修正系数网格', 'Tune: learning-rate × correction grid', { stage: 'tune' }),
-      n('n_118', 'improve', 'pruned', 0.55, 'n_108', '调参：cosine 调度（不优于常数）', 'Tune: cosine schedule (no better than constant)', { stage: 'tune', pruned: true }),
-      n('n_124', 'improve', 'success', 0.81, 'n_115', '主实验：最优配置 lr=0.1, α=0.35', 'Main: best config lr=0.1, α=0.35', { stage: 'main', best: true }),
-      n('n_141', 'improve', 'success', 0.79, 'n_124', '7 档 batch 扫描', '7-batch sweep', { stage: 'main' }),
-      n('n_142', 'improve', 'running', null, 'n_124', '更换数据集复核。把 n_124 的最优配置迁移到第二个数据集，只换数据，不调超参数。', 'Dataset re-check: carry n_124’s best config to a second dataset beyond CIFAR-100, changing only the data.', {
-        stage: 'main', exp: 'e_15', change: 'dataset: cifar100 → tiny-imagenet', hyp: 'H-11',
+      n('n_101', 'new', 'success', 0.52, null, '初探：在三档 n 上复现攻击成功率', 'Probe: reproduce the attack success rate at three tiers of n', { stage: 'probe' }),
+      n('n_108', 'improve', 'success', 0.63, 'n_101', '初探：加入隔离标记，观察拦截率', 'Probe: add delimiters and watch the interception rate', { stage: 'probe' }),
+      n('n_112', 'fix', 'failed', null, 'n_108', '修复：n = 2048 时上下文超出单卡显存', 'Fix: the context at n = 2048 exceeds single-GPU memory', { stage: 'probe', pruned: true }),
+      n('n_115', 'improve', 'success', 0.68, 'n_108', '调参：标记模板 × 标记强度网格', 'Tune: delimiter template × strength grid', { stage: 'tune' }),
+      n('n_118', 'improve', 'pruned', 0.55, 'n_108', '调参：随机化标记（不优于固定标记）', 'Tune: randomised delimiters (no better than fixed)', { stage: 'tune', pruned: true }),
+      n('n_124', 'improve', 'success', 0.81, 'n_115', '主实验：最优配置 模板 B, α = 0.35', 'Main: best config template B, α = 0.35', { stage: 'main', best: true }),
+      n('n_141', 'improve', 'success', 0.79, 'n_124', '7 档 n 扫描', '7-tier sweep over n', { stage: 'main' }),
+      n('n_142', 'improve', 'running', null, 'n_124', '更换基准复核。把 n_124 的最优配置从 AgentDojo 迁移到 InjecAgent，只换基准，不调参数。', 'Benchmark re-check: carry n_124’s best config from AgentDojo to InjecAgent, changing only the benchmark.', {
+        stage: 'main', exp: 'e_15', change: 'benchmark: agentdojo → injecagent', hyp: 'H-11',
       }),
       n('n_145', 'improve', 'success', 0.74, 'n_124', '三种子重复', 'Three-seed repeat', { stage: 'main' }),
-      n('n_151', 'improve', 'queued', null, 'n_141', '消融：去掉修正项', 'Ablation: drop the correction', { stage: 'ablate', exp: 'e_19' }),
-      n('n_152', 'improve', 'success', 0.66, 'n_141', '消融：去掉融合，改独立反向传播', 'Ablation: replace fusion with a separate backward pass', { stage: 'ablate' }),
+      n('n_151', 'improve', 'queued', null, 'n_141', '消融：去掉隔离标记', 'Ablation: drop the delimiters', { stage: 'ablate', exp: 'e_19' }),
+      n('n_152', 'improve', 'success', 0.66, 'n_141', '消融：只保留分隔符，去掉模板', 'Ablation: keep the separator, drop the template', { stage: 'ablate' }),
       n('n_153', 'fix', 'failed', null, 'n_145', '修复：metrics.csv 缺少 seed 列', 'Fix: metrics.csv missing seed column', { stage: 'main', pruned: true }),
     ],
   };
@@ -279,7 +283,7 @@ function makeSweep() {
     const e = eff[bt][s];
     cells.push({ b: bt, s, eff: e, noise: noise[bt][s], state: e == null ? (bt === 2048 ? 'oom' : 'running') : 'done' });
   }
-  return { hyp: 'H-11', metric: 'eff', mode: 'single', alpha: 0.05, cells, cmp: [32, 512], cmp2: [32, 64], rep: { b: 128, s: 1, lr: '0.1 · cosine', run: 'run_2291' }, written: false, gpuh: 18.4, remain: 2.6, filled: false };
+  return { hyp: 'H-11', metric: 'eff', mode: 'single', alpha: 0.05, cells, cmp: [32, 512], cmp2: [32, 64], rep: { b: 128, s: 1, lr: 'template B · α = 0.35', run: 'run_2291' }, written: false, gpuh: 18.4, remain: 2.6, filled: false };
 }
 
 // ---------------------------------------------------------------- survey
@@ -386,24 +390,25 @@ function makeSparks(now) {
 // ---------------------------------------------------------------- idea lab (candidates)
 function makeIdeaLab() {
   const P = (id, zh, en, venue, ex, ids) => ({ id, title: b(zh, en), venue, extracted: ex, hyps: ids, selected: false });
+  const T = (t) => [t, t]; // paper titles stay in the original English
   const lit = [
-    P('l1', 'Gradient noise scale predicts critical batch size', 'Gradient noise scale predicts critical batch size', 'NeurIPS 2019', 2, ['H-02', 'H-11']),
-    P('l2', 'Low-rank structure of the Hessian in deep nets', 'Low-rank structure of the Hessian in deep nets', 'ICML 2020', 2, ['H-06', 'H-14']),
-    P('l3', 'Communication-efficient SGD with error feedback', 'Communication-efficient SGD with error feedback', 'ICLR 2021', 1, ['H-18']),
-    P('l4', 'Early stopping via gradient signal-to-noise ratio', 'Early stopping via gradient signal-to-noise ratio', 'TMLR 2024', 1, ['H-09']),
-    P('l5', 'Sharpness-aware minimization under small batches', 'Sharpness-aware minimization under small batches', 'arXiv 2026', null, []),
-    P('l6', 'Second-order corrections without Hessian products', 'Second-order corrections without Hessian products', 'arXiv 2026', null, []),
+    P('l1', ...T('Not What You’ve Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection'), 'AISec 2023', 2, ['H-02', 'H-11']),
+    P('l2', ...T('PoisonedRAG: Knowledge Corruption Attacks to Retrieval-Augmented Generation of Large Language Models'), 'USENIX Security 2025', 2, ['H-06', 'H-14']),
+    P('l3', ...T('Defending Against Indirect Prompt Injection Attacks With Spotlighting'), 'arXiv 2024', 1, ['H-12']),
+    P('l4', ...T('AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents'), 'NeurIPS 2024', 1, ['H-09']),
+    P('l5', ...T('The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery'), 'arXiv 2024', null, []),
+    P('l6', ...T('PaperBench: Evaluating AI’s Ability to Replicate AI Research'), 'ICML 2025', null, []),
   ];
   const plan = (rows) => rows.map(([hyp, mode, zh, en]) => ({ hyp, mode, claim: hyp ? null : b(zh, en) }));
   return {
     lit, cur: 0, launched: [],
     cands: [
-      { id: 'P-018', spark: 'SPARK-2026-09-003', name: b('低秩共用', 'Shared low-rank'), src: 'arXiv cs.LG + 12', claim: b('用低秩 Hessian 结构同时给出小 batch 修正项与早停判据。两者共用同一噪声尺度估计，无需额外反向传播。', 'Use low-rank Hessian structure to produce both a small-batch correction and an early-stop criterion from one shared noise-scale estimate, with no extra backward pass.'),
-        plan: plan([['H-01', 'reuse'], ['H-06', 'reuse'], ['H-09', 'reuse'], [null, 'new', '两个判据可共用同一次噪声估计', 'The two criteria can share a single noise estimate'], [null, 'new', '共用估计不引入额外偏差', 'The shared estimate adds no extra bias'], [null, 'new', '该组合在大 batch 下退化为原方法', 'In large batch the combination degenerates to the original method']]) },
-      { id: 'P-020', spark: 'SPARK-2026-09-004', name: b('负结果早停', 'Negative-result early stop'), src: 'arXiv cs.LG + 8', claim: b('把确认某类改动无效视为可提前终止的结论。用同一噪声估计判断何时停止扫描，节省评测成本。', 'Treat a confirmed ineffective change as a result that ends the sweep early. The shared noise estimate decides when to stop, which saves evaluation cost.'),
-        plan: plan([['H-01', 'reuse'], ['H-19', 'reuse'], ['H-36', 'reuse'], [null, 'new', '无效改动的上界可在 3 个种子内确认', 'The upper bound of an ineffective change can be confirmed within 3 seeds'], [null, 'new', '提前终止不放过有效改动', 'Early termination does not miss effective changes']]) },
-      { id: 'P-021', spark: 'SPARK-2026-09-005', name: b('通信与精度折中', 'Communication–accuracy trade-off'), src: 'ICLR + 5', claim: b('在低秩子空间内联合选择压缩率与同步间隔，使通信量下降的同时精度损失落在噪声范围内。', 'Jointly choose compression rate and sync interval in the low-rank subspace so that communication drops while the accuracy loss stays within the noise.'),
-        plan: plan([['H-06', 'reuse'], ['H-14', 'reuse'], ['H-18', 'reuse'], ['H-27', 'reuse'], [null, 'new', '联合选择优于分别选择', 'Joint selection beats separate selection'], [null, 'new', '折中点对 seed 稳健', 'The trade-off point is robust to the seed']]) },
+      { id: 'P-018', spark: 'SPARK-2026-09-003', name: b('复现评测', 'Reproduction evaluation'), src: 'arXiv cs.MA + 12', claim: b('在干净环境中重跑 AI 科学家的产出，度量可被第三方复现的比例，并自动归类失败原因。', 'Re-run AI-scientist outputs in clean environments, measure the share a third party can reproduce, and classify the causes of failure automatically.'),
+        plan: plan([['H-01', 'reuse'], ['H-47', 'reuse'], ['H-17', 'reuse'], [null, 'new', '复现结果须在干净环境中判定', 'Reproduction must be judged in a clean environment'], [null, 'new', '可复现比例随论文复杂度下降', 'The reproducible share falls with paper complexity'], [null, 'new', '失败原因可自动归类', 'Failure causes can be classified automatically']]) },
+      { id: 'P-020', spark: 'SPARK-2026-09-004', name: b('负结果评测', 'Negative-result evaluation'), src: 'arXiv cs.CR + 8', claim: b('把确认某类攻击无效视为可提前终止的结论，以上界覆盖代替穷举，降低评测成本。', 'Treat confirming that a class of attack fails as a result that ends the evaluation early, covering an upper bound instead of enumerating, which lowers evaluation cost.'),
+        plan: plan([['H-01', 'reuse'], ['H-08', 'reuse'], ['H-36', 'reuse'], [null, 'new', '无效攻击的上界可在 3 个种子内确认', 'The upper bound of an ineffective attack can be confirmed within 3 seeds'], [null, 'new', '提前终止不遗漏有效攻击', 'Early termination does not miss effective attacks']]) },
+      { id: 'P-021', spark: 'SPARK-2026-09-005', name: b('检测与可用性折中', 'Detection–utility trade-off'), src: 'USENIX Security + 5', claim: b('联合选择检测阈值与过滤比例，使拦截率提升的同时正常任务成功率的损失落在噪声范围内。', 'Jointly choose the detection threshold and filtering ratio so that interception rises while the loss in benign task success stays within the noise.'),
+        plan: plan([['H-06', 'reuse'], ['H-14', 'reuse'], ['H-18', 'reuse'], ['H-37', 'reuse'], [null, 'new', '联合选择优于分别选择', 'Joint selection beats separate selection'], [null, 'new', '折中点对随机种子稳健', 'The trade-off point is robust to the seed']]) },
     ],
   };
 }
@@ -412,28 +417,28 @@ function makeIdeaLab() {
 function makePaper(now) {
   const S = (k, zh, en, hyps, status, paras, extra = {}) => ({ k, title: b(zh, en), hyps, status, paras, stale: false, ...extra });
   return {
-    idea: 'P-014', ideaTitle: b('P-014 几何修正', 'P-014 Geometric correction'),
+    idea: 'P-014', ideaTitle: b('P-014 返回值隔离', 'P-014 Tool-return isolation'),
     sections: [
       S('1', '引言 · 问题与主张', 'Introduction · problem and claim', ['H-30'], 'ok', [
-        b('小 batch 训练在噪声下有效步长退化，本文提出一个几何修正项，并证明它可与梯度计算融合而不增加反向传播。', 'Small-batch training suffers a degraded effective step under noise. We propose a geometric correction term and show it fuses with the gradient computation without an extra backward pass.')]),
-      S('2', '相关工作', 'Related work', ['H-01'], 'aligned', [b('已有工作把噪声尺度视为标量，并借用其作为 batch 选择依据（借用前提 4 条）。', 'Prior work treats the noise scale as a scalar and uses it to choose batch sizes (4 borrowed premises).')]),
-      S('3', '方法 · 几何修正项', 'Method · geometric correction', ['H-11', 'H-12', 'H-16'], 'ok', [b('修正项可与梯度计算融合，不增加反向传播 [H-12, e_17, e_03]。', 'The correction term fuses with the gradient computation and adds no backward pass [H-12, e_17, e_03].'),
-        b('该修正对任何一阶优化器都成立。', 'The correction holds for any first-order optimiser.')]),
-      S('4.1', '实验设置', 'Experimental setup', ['H-16'], 'figure', [b('所有实验使用同一随机种子集合与同一 baseline。', 'All experiments use the same seed set and the same baseline.')]),
-      S('4.2', '有效步长随 batch 的变化', 'Effective step versus batch size', ['H-11', 'H-02'], 'missing', [
-        b('图 3(a) 给出六档 batch 下的噪声尺度测量，2048 档因显存不足未完成。拟合显示噪声尺度与 batch 大小近似满足 −0.49 次幂关系，95% 置信带覆盖 −1/2 [e_15]，与 H-11 的断言一致；该趋势在两个独立数据集上重复出现 [e_08, e_11]。',
-          'Fig. 3(a) shows the noise-scale measurement at six batch sizes; the 2048 tier did not finish because of insufficient memory. The fit shows the noise scale follows roughly a −0.49 power of batch size, with a 95% band covering −1/2 [e_15], consistent with H-11; the trend repeats on two independent datasets [e_08, e_11].'),
-        b('加入修正项后，有效步长在 batch ≤ 128 区间回升 18.4% [e_17]，且修正项与梯度计算可融合，不增加额外反向传播 [H-12, e_03]。', 'With the correction, the effective step recovers by 18.4% in the batch ≤ 128 range [e_17], and the correction fuses with the gradient computation, adding no extra backward pass [H-12, e_03].'),
-        b('在 batch = 2048 时趋势出现拐点，我们认为这是噪声尺度估计本身在大 batch 下方差增大所致。', 'At batch = 2048 the trend shows an inflection, which we attribute to the noise-scale estimate itself having higher variance at large batch.'),
-        b('该结论的适用范围取决于 H-02 的最终判定：若其被限定在低秩情形，本节结论需相应收窄。', 'The scope of this conclusion depends on the final verdict on H-02: if it is limited to the low-rank case, the conclusion here must narrow accordingly.')],
+        b('agent 把工具返回值直接读入上下文，使间接注入的成本几乎为零。本文在工具返回值入口加入隔离标记，并证明它无需额外的模型调用。', 'Agents read tool returns straight into their context, which makes indirect injection almost free. We add delimiters at the tool-return entry and show that they need no extra model call.')]),
+      S('2', '相关工作', 'Related work', ['H-01'], 'aligned', [b('已有工作用自动裁判统计攻击成功率，并把防御放在用户输入端（借用前提 4 条）。', 'Prior work measures attack success with automated judges and places defences at the user input (4 borrowed premises).')]),
+      S('3', '方法 · 隔离标记', 'Method · delimiting', ['H-11', 'H-12', 'H-16'], 'ok', [b('隔离标记在解码前完成，不增加模型调用 [H-12, e_17, e_03]。', 'Delimiting is applied before decoding and adds no model call [H-12, e_17, e_03].'),
+        b('该方法对任何基座模型都成立。', 'The method holds for any base model.')]),
+      S('4.1', '实验设置', 'Experimental setup', ['H-16'], 'figure', [b('所有实验使用同一随机种子集合与同一攻击基线。', 'All experiments use the same seed set and the same attack baseline.')]),
+      S('4.2', '拦截率随良性片段数的变化', 'Interception rate versus the number of benign chunks', ['H-11', 'H-02'], 'missing', [
+        b('图 3(a) 给出六档良性片段数 n 下注入片段的注意力权重，2048 档因显存不足未完成。拟合显示注意力权重与 n 近似满足 −0.49 次幂关系，95% 置信带覆盖 −1/2 [e_15]，与 H-11 的断言一致；该趋势在两个独立基准上重复出现 [e_08, e_11]。',
+          'Fig. 3(a) shows the attention weight on the injected span at six values of the benign-chunk count n; the 2048 tier did not finish because of insufficient memory. The fit follows roughly a −0.49 power of n, with a 95% band covering −1/2 [e_15], consistent with H-11; the trend repeats on two independent benchmarks [e_08, e_11].'),
+        b('加入隔离标记后，拦截率在 n ≤ 128 区间提升 18.4% [e_17]，且标记在解码前完成，不增加模型调用 [H-12, e_03]。', 'With delimiters, the interception rate rises by 18.4% for n ≤ 128 [e_17], and delimiting happens before decoding, adding no model call [H-12, e_03].'),
+        b('在 n = 2048 时趋势出现拐点，我们认为这是长上下文下注意力归因本身方差增大所致。', 'At n = 2048 the trend shows an inflection, which we attribute to the higher variance of attention attribution itself in long contexts.'),
+        b('该结论的适用范围取决于 H-02 的最终判定：若其被限定在短返回值情形，本节结论需相应收窄。', 'The scope of this conclusion depends on the final verdict on H-02: if it is limited to short tool returns, the conclusion here must narrow accordingly.')],
         { fig: 'fig3' }),
-      S('4.3', '消融 · 去掉修正项', 'Ablation · removing the correction', ['H-12'], 'ok', [b('去除修正项后有效步长回落至基线。', 'Removing the correction drops the effective step back to the baseline.')]),
-      S('5', '讨论 · 适用边界', 'Discussion · scope of applicability', ['H-02'], 'affected', [b('本方法在小 batch 场景下普遍更优。', 'The method is generally better in small-batch settings.')]),
+      S('4.3', '消融 · 去掉隔离标记', 'Ablation · removing the delimiters', ['H-12'], 'ok', [b('去除隔离标记后拦截率回落至基线。', 'Removing the delimiters drops the interception rate back to the baseline.')]),
+      S('5', '讨论 · 适用边界', 'Discussion · scope of applicability', ['H-02'], 'affected', [b('本方法在短返回值场景下普遍更优。', 'The method is generally better when tool returns are short.')]),
       S('6', '结论', 'Conclusion', [], 'todo', [b('（待写）', '(to be written)')]),
     ],
     gaps: [
-      { id: 'gap1', done: false, title: b('batch = 2048 需补充两个种子', 'Batch = 2048 needs seeds 2 and 3'), body: b('当前拐点结论仅有单次运行支撑，补充运行后本段可改为结论性表述。', 'The inflection conclusion rests on a single run. After re-running, this paragraph can be stated conclusively.'), hyp: 'H-11', label: b('batch 2048 补两个种子', 'Batch 2048, two extra seeds'), btn: b('创建 e_21 并加入队列', 'Create e_21 and queue it') },
-      { id: 'gap2', done: false, title: b('图 4 缺 baseline 曲线', 'Figure 4 lacks the baseline curve'), body: b('H-16 的共用 baseline 重测正在运行（e_16），完成后将自动生成图 4。', 'The shared-baseline re-run for H-16 is in progress (e_16); Figure 4 is generated automatically when it finishes.'), exp: 'e_16', btn: b('查看 e_16', 'Open e_16') },
+      { id: 'gap1', done: false, title: b('n = 2048 需补充两个种子', 'n = 2048 needs seeds 2 and 3'), body: b('当前拐点结论仅有单次运行支撑，补充运行后本段可改为结论性表述。', 'The inflection conclusion rests on a single run. After re-running, this paragraph can be stated conclusively.'), hyp: 'H-11', label: b('n = 2048 补两个种子', 'n = 2048, two extra seeds'), btn: b('创建 e_21 并加入队列', 'Create e_21 and queue it') },
+      { id: 'gap2', done: false, title: b('图 4 缺攻击基线曲线', 'Figure 4 lacks the attack-baseline curve'), body: b('H-16 的共用攻击基线重测正在运行（e_16），完成后将自动生成图 4。', 'The shared attack-baseline re-run for H-16 is in progress (e_16); Figure 4 is generated automatically when it finishes.'), exp: 'e_16', btn: b('查看 e_16', 'Open e_16') },
     ],
     version: 1, savedAt: now,
   };
@@ -444,26 +449,26 @@ function makeClaims() {
   return {
     collapsed: 39,
     items: [
-      C('c1', '4.2', '噪声尺度与 batch 近似满足 −0.49 次幂关系', 'Noise scale follows roughly a −0.49 power of batch size', 'H-11', ['e_15', 'e_08'], 'supported'),
-      C('c2', '4.2', '该趋势在两个独立数据集上重复出现', 'The trend repeats on two independent datasets', 'H-11', ['e_08', 'e_11'], 'supported'),
-      C('c3', '4.2', '在 batch = 2048 时趋势出现拐点', 'At batch = 2048 the trend shows an inflection', null, [], 'insufficient', {
-        why: b('仅运行 1 个种子，且该档三格均出现 OOM', 'Only 1 seed was run, and all three cells at this tier hit OOM'), find: { zh: '在 batch = 2048 时趋势出现拐点，我们认为这是噪声尺度估计本身在大 batch 下方差增大所致。', en: 'At batch = 2048 the trend shows an inflection, which we attribute to the noise-scale estimate itself having higher variance at large batch.' },
+      C('c1', '4.2', '注入片段注意力与 n 近似满足 −0.49 次幂关系', 'Attention on the injected span follows roughly a −0.49 power of n', 'H-11', ['e_15', 'e_08'], 'supported'),
+      C('c2', '4.2', '该趋势在两个独立基准上重复出现', 'The trend repeats on two independent benchmarks', 'H-11', ['e_08', 'e_11'], 'supported'),
+      C('c3', '4.2', '在 n = 2048 时趋势出现拐点', 'At n = 2048 the trend shows an inflection', null, [], 'insufficient', {
+        why: b('仅运行 1 个种子，且该档三格均出现 OOM', 'Only 1 seed was run, and all three cells at this tier hit OOM'), find: { zh: '在 n = 2048 时趋势出现拐点，我们认为这是长上下文下注意力归因本身方差增大所致。', en: 'At n = 2048 the trend shows an inflection, which we attribute to the higher variance of attention attribution itself in long contexts.' },
         chain: [b('断言 → 没有绑定假设', 'Claim → no bound hypothesis'), b('最近的假设 H-11 · 只覆盖 32–1024', 'Nearest hypothesis H-11 · covers only 32–1024'), b('相关运行 run_2301 · OOM 未完成', 'Related run run_2301 · OOM, not finished')],
-        soften: { zh: '在 batch = 2048 时，单次运行出现拐点。受显存限制，该档未做重复，此处仅作为待验证的现象记录。', en: 'At batch = 2048 we observe an inflection in a single run; because of memory limits this tier was not repeated, so it is recorded here only as a phenomenon to be verified.' }, fixExp: { hyp: 'H-11', zh: 'batch 2048 补两个种子', en: 'Batch 2048, two extra seeds' } }),
-      C('c4', '3.1', '修正项可与梯度计算融合，不增加反向传播', 'The correction fuses with the gradient computation, adding no backward pass', 'H-12', ['e_17', 'e_03'], 'supported'),
-      C('c5', '3.1', '该修正对任何一阶优化器都成立', 'The correction holds for any first-order optimiser', 'H-12', ['e_17'], 'overclaim', {
-        why: b('仅在 SGD 与 Adam 上测试过，任何一词缺乏证据', 'Only tested on SGD and Adam. The word any is not supported'), find: { zh: '该修正对任何一阶优化器都成立。', en: 'The correction holds for any first-order optimiser.' },
-        chain: [b('断言 → 绑定 H-12', 'Claim → bound to H-12'), b('证据 e_17 · 仅 SGD / Adam', 'Evidence e_17 · SGD / Adam only'), b('任何一词超出证据范围', 'the word any exceeds the evidence')],
-        soften: { zh: '该修正在 SGD 与 Adam 上成立。', en: 'The correction holds on SGD and Adam.' } }),
-      C('c6', '4.3', '去除修正项后有效步长回落至基线', 'Removing the correction drops the effective step back to the baseline', 'H-12', ['e_19'], 'supported'),
-      C('c7', '5', '本方法在小 batch 场景下普遍更优', 'The method is generally better in small-batch settings', 'H-02', ['e_04'], 'overclaim', {
-        why: b('H-02 正在裁定，且 e_04 是反例证据', 'H-02 is under verdict and e_04 is counter-evidence'), find: { zh: '本方法在小 batch 场景下普遍更优。', en: 'The method is generally better in small-batch settings.' },
+        soften: { zh: '在 n = 2048 时，单次运行出现拐点。受显存限制，该档未做重复，此处仅作为待验证的现象记录。', en: 'At n = 2048 we observe an inflection in a single run; because of memory limits this tier was not repeated, so it is recorded here only as a phenomenon to be verified.' }, fixExp: { hyp: 'H-11', zh: 'n = 2048 补两个种子', en: 'n = 2048, two extra seeds' } }),
+      C('c4', '3.1', '隔离标记在解码前完成，不增加模型调用', 'Delimiting is applied before decoding and adds no model call', 'H-12', ['e_17', 'e_03'], 'supported'),
+      C('c5', '3.1', '该方法对任何基座模型都成立', 'The method holds for any base model', 'H-12', ['e_17'], 'overclaim', {
+        why: b('仅在 Llama-3.1 与 Qwen2.5 上测试过，任何一词缺乏证据', 'Only tested on Llama-3.1 and Qwen2.5. The word any is not supported'), find: { zh: '该方法对任何基座模型都成立。', en: 'The method holds for any base model.' },
+        chain: [b('断言 → 绑定 H-12', 'Claim → bound to H-12'), b('证据 e_17 · 仅 Llama-3.1 / Qwen2.5', 'Evidence e_17 · Llama-3.1 / Qwen2.5 only'), b('任何一词超出证据范围', 'the word any exceeds the evidence')],
+        soften: { zh: '该方法在 Llama-3.1 与 Qwen2.5 上成立。', en: 'The method holds on Llama-3.1 and Qwen2.5.' } }),
+      C('c6', '4.3', '去除隔离标记后拦截率回落至基线', 'Removing the delimiters drops the interception rate back to the baseline', 'H-12', ['e_19'], 'supported'),
+      C('c7', '5', '本方法在短返回值场景下普遍更优', 'The method is generally better when tool returns are short', 'H-02', ['e_04'], 'overclaim', {
+        why: b('H-02 正在裁定，且 e_04 是反例证据', 'H-02 is under verdict and e_04 is counter-evidence'), find: { zh: '本方法在短返回值场景下普遍更优。', en: 'The method is generally better when tool returns are short.' },
         chain: [b('断言 → 绑定 H-02', 'Claim → bound to H-02'), b('H-02 状态 pending_review', 'H-02 status pending_review'), b('e_04 −0.7 为反例', 'e_04 −0.7 is a counter-example')],
-        soften: { zh: '在 batch ≤ 128 的低秩情形下，本方法更优；更一般的小 batch 场景待 H-02 裁定。', en: 'In the low-rank case with batch ≤ 128 the method is better; more general small-batch settings await the verdict on H-02.' } }),
-      C('c8', '4.1', '所有实验使用同一随机种子集合与同一 baseline', 'All experiments use the same seed set and the same baseline', 'H-16', ['e_16'], 'insufficient', {
-        why: b('e_16 仍在运行，完成前不宜作此表述', 'e_16 is still running; this statement is premature until it completes'), find: { zh: '所有实验使用同一随机种子集合与同一 baseline。', en: 'All experiments use the same seed set and the same baseline.' },
+        soften: { zh: '在 n ≤ 128 的短返回值情形下，本方法更优；更一般的场景待 H-02 裁定。', en: 'For short returns with n ≤ 128 the method is better; more general settings await the verdict on H-02.' } }),
+      C('c8', '4.1', '所有实验使用同一随机种子集合与同一攻击基线', 'All experiments use the same seed set and the same attack baseline', 'H-16', ['e_16'], 'insufficient', {
+        why: b('e_16 仍在运行，完成前不宜作此表述', 'e_16 is still running; this statement is premature until it completes'), find: { zh: '所有实验使用同一随机种子集合与同一攻击基线。', en: 'All experiments use the same seed set and the same attack baseline.' },
         chain: [b('断言 → 绑定 H-16', 'Claim → bound to H-16'), b('证据 e_16 · 运行中', 'Evidence e_16 · running')],
-        soften: { zh: '实验使用共用 baseline；同种子重测正在进行（e_16）。', en: 'Experiments use a shared baseline; the same-seed re-run is in progress (e_16).' } }),
+        soften: { zh: '实验使用共用攻击基线；同种子重测正在进行（e_16）。', en: 'Experiments use a shared attack baseline; the same-seed re-run is in progress (e_16).' } }),
     ],
   };
 }
@@ -471,10 +476,10 @@ function makeClaims() {
 function makeFigures(now) {
   const F = (n, zh, en, status, src, ver) => ({ n, title: b(zh, en), status, src, ver });
   return {
-    items: [F(1, '方法示意', 'Method overview', 'done', 'draw.io · ' + 'hand-drawn', 'v2'), F(2, '噪声尺度分布', 'Noise-scale distribution', 'done', 'run_2286', 'v1'), F(3, '噪声尺度与有效步长', 'Noise scale and effective step', 'redraw', 'run_2291', 'v4'),
-      F(4, 'baseline 对照', 'Baseline comparison', 'waiting', 'e_16', '—'), F(5, '消融：去掉修正项', 'Ablation: correction removed', 'waiting', 'e_19', '—'), F(6, '开销分解', 'Overhead breakdown', 'done', 'run_2297', 'v1')],
+    items: [F(1, '方法示意', 'Method overview', 'done', 'draw.io · ' + 'hand-drawn', 'v2'), F(2, '注意力权重分布', 'Attention-weight distribution', 'done', 'run_2286', 'v1'), F(3, '注意力权重与拦截率', 'Attention weight and interception rate', 'redraw', 'run_2291', 'v4'),
+      F(4, '攻击基线对照', 'Attack-baseline comparison', 'waiting', 'e_16', '—'), F(5, '消融：去掉隔离标记', 'Ablation: delimiters removed', 'waiting', 'e_19', '—'), F(6, '开销分解', 'Overhead breakdown', 'done', 'run_2297', 'v1')],
     fig3: {
-      caption: b('图 3：(a) 梯度噪声尺度随 batch 满足 B^-0.50（3 个种子均值，阴影为 95% 置信带）；(b) 加入修正项前后的有效步长，小 batch 区间平均提升 17.6%。2048 档因显存不足未运行。', 'Figure 3: (a) Gradient noise scale follows B^-0.50 (mean of 3 seeds, shaded area is the 95% band); (b) effective step with and without the correction, +17.6% on average in the small-batch range. The 2048 tier was not run for lack of memory.'),
+      caption: b('图 3：(a) 注入片段注意力权重随良性片段数满足 n^-0.50（3 个种子均值，阴影为 95% 置信带）；(b) 加入隔离标记前后的拦截率，n ≤ 128 区间平均提升 17.6%。2048 档因显存不足未运行。', 'Figure 3: (a) attention weight on the injected span follows n^-0.50 (mean of 3 seeds, shaded area is the 95% band); (b) interception rate with and without delimiters, +17.6% on average for n ≤ 128. The 2048 tier was not run for lack of memory.'),
       captionEdited: false, measured: 17.6, ver: 4, yZero: false, bandTo: 2048, sameAxis: false,
       versions: [{ v: 'v4', at: now - 2 * HOUR, zh: '改成双栏 (a)(b)，加 95% 置信带与基线对比', en: 'Two-panel (a)(b), add 95% band and baseline comparison' }, { v: 'v2', at: now - 76 * HOUR, zh: '误差棒改成三种子极差', en: 'Error bars now show the 3-seed range' }, { v: 'v1', at: now - 119 * HOUR, zh: '首版，只有 4 档', en: 'First version, only 4 tiers' }],
       reviews: [
@@ -490,18 +495,18 @@ function makeRebuttal() {
   const R = (id, rv, kind, zh, en, fzh, fen, status, extra = {}) => ({ id, rv, kind, text: b(zh, en), fix: b(fzh, fen), status, ...extra });
   return {
     reviewers: [
-      { id: 'A', model: 'claude', score: 6, conf: 4, note: b('方法表述清晰，但大 batch 部分的结论超出数据范围', 'The method is clearly presented, but the large-batch conclusion extends beyond the data') },
-      { id: 'B', model: 'gpt', score: 5, conf: 3, note: b('缺少与两条近期基线的直接对比，创新性难以判断', 'No direct comparison with two recent baselines; novelty is hard to judge') },
+      { id: 'A', model: 'claude', score: 6, conf: 4, note: b('方法表述清晰，但长上下文部分的结论超出数据范围', 'The method is clearly presented, but the long-context conclusion extends beyond the data') },
+      { id: 'B', model: 'gpt', score: 5, conf: 3, note: b('缺少与 StruQ、SecAlign 两条近期防御的直接对比，创新性难以判断', 'No direct comparison with two recent defences, StruQ and SecAlign; novelty is hard to judge') },
       { id: 'C', model: 'deepseek', score: 7, conf: 4, note: b('消融实验充分；建议给出开销的实测值而非估计值', 'The ablation is thorough; the overhead should be reported as a measurement rather than an estimate') },
     ],
     prevMean: 5.0, collapsed: 8,
     comments: [
-      R('B1', 'B', 'exp', '实验不足', 'Insufficient experiments', '缺与 Chen 2025 / Park 2026 两条基线的直接对比，无法判断提升幅度。', 'No direct comparison with the Chen 2025 / Park 2026 baselines, so the size of the gain cannot be judged.', '补充 e_22：在相同设置下运行两条基线', 'Add e_22: run both baselines under the same setting', 'pending', { exp: 'e_22' }),
+      R('B1', 'B', 'exp', '实验不足', 'Insufficient experiments', '缺与 StruQ / SecAlign 两条防御的直接对比，无法判断提升幅度。', 'No direct comparison with the StruQ / SecAlign defences, so the size of the gain cannot be judged.', '补充 e_22：在相同设置下运行两条基线', 'Add e_22: run both baselines under the same setting', 'pending', { exp: 'e_22' }),
       R('A1', 'A', 'scope', '超出范围', 'Out of scope', '4.2 节第 3 段用单次运行下结论，2048 档未重复。', 'Section 4.2 paragraph 3 draws a conclusion from a single run; the 2048 tier is not repeated.', '已改成推测语气并标注单次运行', 'Rewritten as a tentative statement and marked as a single run', 'done'),
-      R('C1', 'C', 'measure', '测量口径', 'Measurement basis', '开销 3% 是估计值还是实测？', 'Is the 3% overhead an estimate or a measurement?', '补 e_23：用 profiler 实测三种 batch 下的开销', 'Add e_23: measure overhead with a profiler at three batch sizes', 'pending', { exp: 'e_23' }),
+      R('C1', 'C', 'measure', '测量口径', 'Measurement basis', '开销 3% 是估计值还是实测？', 'Is the 3% overhead an estimate or a measurement?', '补 e_23：用 profiler 实测三档 n 下的开销', 'Add e_23: measure overhead with a profiler at three tiers of n', 'pending', { exp: 'e_23' }),
       R('B2', 'B', 'related', '相关工作', 'Related work', '漏了工具链投毒方向的两篇近期工作。', 'Two recent works on tool-chain poisoning are missing.', '从文献库直接引 2 篇，已插入 2 节', 'Two papers cited from the library; added to Section 2', 'done'),
       R('A2', 'A', 'repro', '复现', 'Reproducibility', '没说随机种子与环境版本。', 'Random seeds and environment versions are not stated.', '附录 A 加环境表，种子写进表 2', 'Environment table added to Appendix A; seeds written into Table 2', 'done'),
-      R('C2', 'C', 'wording', '表述', 'Wording', '任何一阶优化器的说法与实验范围不符。', 'The phrase any first-order optimiser does not match the experiments.', '已改为在 SGD 与 Adam 上成立', 'Changed to state SGD and Adam only', 'done'),
+      R('C2', 'C', 'wording', '表述', 'Wording', '任何基座模型的说法与实验范围不符。', 'The phrase any base model does not match the experiments.', '已改为在 Llama-3.1 与 Qwen2.5 上成立', 'Changed to state Llama-3.1 and Qwen2.5 only', 'done'),
     ],
     repro: { code: 0.92, run: 0.85, match: 0.61, runs: 1, at: null },
     checklist: [

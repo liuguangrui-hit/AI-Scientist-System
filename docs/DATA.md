@@ -46,14 +46,14 @@ than breaking it; a malformed row is skipped and reported.
 {
   "settings": { "parallel": 3, "budget": 120, "gpus": 4 },
   "agents": { "surveyor": "deepseek", "executor": "codex", "reviewer": "claude" },
-  "ideas": [{ "id": "P-001", "name": "Geometric correction", "status": "running" }],
+  "ideas": [{ "id": "P-001", "name": "Tool-return isolation", "status": "running" }],
   "hypotheses": [{
     "id": "H-1",
-    "claim": "Gradient noise can be characterised by a scale parameter",
+    "claim": "Automated judges agree with human labels",
     "status": "self_verified",
     "depends": ["H-0"],
     "pivots": 0,
-    "evidence": [{ "exp": "x_01", "idea": "P-001", "delta": 1.2, "note": "stable across three batch sizes", "at": "2026-09-18T09:00:00Z" }]
+    "evidence": [{ "exp": "x_01", "idea": "P-001", "delta": 1.2, "note": "96% agreement on three models", "at": "2026-09-18T09:00:00Z" }]
   }],
   "trees": {
     "P-001": [{ "k": "1", "hyp": "H-1", "parent": null, "role": "own_to_prove" }]
@@ -78,8 +78,8 @@ than breaking it; a malformed row is skipped and reported.
 ```json
 {"id":"x_03","hyp":"H-2","idea":"P-002","status":"running","started_at":"2026-09-21T08:00:00Z",
  "duration_h":6,"progress":0.4,"cost":95,"gpu":0,
- "cfg":{"model":"ResNet-50 / CIFAR-100","batch":"32-512","seed":"0,1,2","opt":"SGD","steps":"40k","measure":"noise scale"},
- "outcome":{"delta":1.2,"rec":"PROCEED","conf":0.8},"label":"noise scale sweep"}
+ "cfg":{"model":"Llama-3.1-8B / AgentDojo","batch":"32-512","seed":"0,1,2","opt":"delimiter","steps":"1240","measure":"judge agreement"},
+ "outcome":{"delta":1.2,"rec":"PROCEED","conf":0.8},"label":"judge agreement check"}
 ```
 
 `status` is `queued` · `running` · `done` · `failed` · `paused` · `withdrawn`.
@@ -109,7 +109,7 @@ the file the workbench writes when you rule on something.
 
 ```json
 {"id":"arxiv-2601-00001","title":"…","authors":"A. Author, B. Author","venue":"NeurIPS","year":2019,
- "level":2,"tracks":["optimisation"],"keywords":["noise scale"],"fetched_at":"2026-09-14",
+ "level":2,"tracks":["security"],"keywords":["indirect prompt injection"],"fetched_at":"2026-09-14",
  "include_reason":"source of H-1",
  "digest":{"problem":"…","threat":"…","method":"…","eval":"…","conclusion":"…","limits":"…"}}
 ```
@@ -136,14 +136,14 @@ The digest fields are the fixed set the paper-detail screen shows.
 ### `paper/manuscript.json` and `paper/claims.json` — optional
 
 ```json
-{ "idea": "P-001", "title": "P-001 Geometric correction",
-  "sections": [{ "k": "4.2", "title": "Effective step versus batch size", "hyps": ["H-2"],
+{ "idea": "P-001", "title": "P-001 Tool-return isolation",
+  "sections": [{ "k": "4.2", "title": "Interception rate versus the number of benign chunks", "hyps": ["H-2"],
                  "status": "missing", "paras": ["…"] }] }
 ```
 
 ```json
-[{ "id": "c2", "sec": "2", "text": "The correction works for any optimiser", "hyp": "H-3",
-   "ev": [], "status": "overclaim", "why": "only tested on SGD", "soften": "The correction works on SGD." }]
+[{ "id": "c2", "sec": "2", "text": "The method holds for any base model", "hyp": "H-3",
+   "ev": [], "status": "overclaim", "why": "only tested on Llama-3.1", "soften": "The method holds on Llama-3.1." }]
 ```
 
 ## Languages

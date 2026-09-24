@@ -7,7 +7,7 @@ const F = ({ children }) => children;
 const VERDICTS = [
   ['close', '判定不成立并关闭', 'Does not hold — close', '写 verdicts/ 并传播', 'writes verdicts/ and propagates'],
   ['return_active', '退回 active', 'Return to active', '附新方向，重新进入可执行队列', 'with a new direction, back to the frontier'],
-  ['narrow_scope', '改写 claim 后重开', 'Rewrite the claim and reopen', '缩小到低秩情形', 'narrowed to the low-rank case'],
+  ['narrow_scope', '改写 claim 后重开', 'Rewrite the claim and reopen', '缩小到短返回值情形', 'narrowed to short tool returns'],
   ['downgrade', '降级为借用前提', 'Downgrade to a borrowed premise', '标注未验证', 'marked unverified'],
 ];
 
@@ -168,8 +168,8 @@ export function Paper({ q, onShell }) {
               onSave=${(v) => act('paper.save', { k: s.k, i, text: v })} />`)}
           ${s.fig && html`<div style="margin:11px 0;padding:11px;border:1px solid var(--line);border-radius:6px;background:#FAFBFC">
             <img src=${'assets/fig3-' + (t({ zh: 'zh', en: 'en' })) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;max-width:520px;display:block;margin:0 auto" />
-            <div class="tiny mut" style="margin-top:8px">${L(`图 3：(a) 噪声尺度随 batch 满足 B^-0.50；(b) 修正项前后的有效步长，小 batch 区间平均 +${d.fig3.measured}%。来源 e_15`,
-              `Figure 3: (a) noise scale follows B^-0.50; (b) effective step with and without the correction, +${d.fig3.measured}% on average in the small-batch range. Source: e_15`)}
+            <div class="tiny mut" style="margin-top:8px">${L(`图 3：(a) 注入片段注意力随良性片段数满足 n^-0.50；(b) 隔离标记前后的拦截率，n ≤ 128 区间平均 +${d.fig3.measured}%。来源 e_15`,
+              `Figure 3: (a) attention on the injected span follows n^-0.50; (b) interception rate with and without delimiters, +${d.fig3.measured}% on average for n ≤ 128. Source: e_15`)}
               <a href="/figures" style="margin-left:6px">${L('图表工作台 →', 'Figure workbench →')}</a></div>
           </div>`}
           <div class="ft" style="margin:11px -14px -13px">
@@ -303,7 +303,7 @@ export function Figures({ q, onShell }) {
     <span class="tiny faint">${L('审图由视觉模型基于渲染结果进行，而非审阅代码', 'the figure review looks at the rendered image, not the code')}</span>`}>
     <div class="cols2">
       <div class="col">
-        <${Card} title=${L('图 3 · 噪声尺度与有效步长', 'Figure 3 · noise scale and effective step')}
+        <${Card} title=${L('图 3 · 注意力权重与拦截率', 'Figure 3 · attention weight and interception rate')}
           right=${html`<span class="chip mono">v${f.ver}</span>`} sub=${L(`已采纳 ${f.reviews.filter((r) => r.st === 'done').length} / ${f.reviews.length} 条审图意见`, `${f.reviews.filter((r) => r.st === 'done').length} / ${f.reviews.length} review comments applied`)}>
           <img src=${'assets/fig3-' + t({ zh: 'zh', en: 'en' }) + '.png'} alt=${L('图 3', 'Figure 3')} style="width:100%;display:block;border:1px solid var(--line);border-radius:5px" />
           <div class="row" style="margin-top:9px">

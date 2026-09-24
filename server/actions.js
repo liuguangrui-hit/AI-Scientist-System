@@ -23,7 +23,7 @@ op('exp.run', (ws, { hyp, idea, label, cfg, node }) => {
   ws.experiments[id] = {
     id, hyp, idea: idea || ideas[0] || 'P-014', status: 'queued', prog: 0, queuedAt: Date.now(),
     durMs: (5 + Math.random() * 6) * MIN, hours: 3.2, cost: 56, vcpu: 36,
-    cfg: cfg || { model: 'ResNet-50 / CIFAR-100', batch: '128', seed: '0,1,2', opt: 'SGD', steps: '30k', measure: 'eff_step' },
+    cfg: cfg || { model: 'Llama-3.1-8B / AgentDojo', batch: '128', seed: '0,1,2', opt: 'delimiter', steps: '800', measure: 'block_rate' },
     outcome: { delta, rec: delta > 0 ? 'PROCEED' : 'PIVOT', conf: 0.65 },
     label: label || b('为该假设新排的实验', 'Newly queued for this hypothesis'), node: node || null,
   };
@@ -143,8 +143,8 @@ op('hyp.decompose', (ws, { hyp, idea }) => {
   const target = idea && ws.trees[idea] ? idea : E.activeIdeasOf(ws, hyp)[0];
   if (!target) return err('该假设不在任何进行中的 idea 里', 'This hypothesis is in no running idea');
   const parts = [
-    b('上界在固定秩下成立', 'The bound holds at a fixed rank'),
-    b('上界对秩的选择不敏感', 'The bound is insensitive to the rank choice'),
+    b('判据在固定主方向数下成立', 'The criterion holds at a fixed number of principal directions'),
+    b('判据对主方向数不敏感', 'The criterion is insensitive to the number of principal directions'),
   ];
   const made = parts.map((c) => OPS['hyp.addChild'](ws, { idea: target, parentHyp: hyp, claim: c }).hyp);
   h.needsDecompose = false;
@@ -366,7 +366,7 @@ op('sweep.fill', (ws, {}) => {
   s.filled = true;
   for (const c of s.cells) if (c.b === 2048) { c.state = 'done'; c.eff = 0.94 + c.s * 0.01; c.noise = 0.55 - c.s * 0.01; }
   ws.settings.gpuUsed = Math.round((ws.settings.gpuUsed + 11) * 10) / 10;
-  E.pushEvent(ws, 'human', b('补全 batch=2048 一行', 'Filled the batch=2048 row'), b('消耗 11 GPU·h', 'Spent 11 GPU·h'), 'experiment', Date.now());
+  E.pushEvent(ws, 'human', b('补全 n = 2048 一行', 'Filled the n = 2048 row'), b('消耗 11 GPU·h', 'Spent 11 GPU·h'), 'experiment', Date.now());
   return ok('已补全 2048 行，消耗 11 GPU·h', 'The 2048 row is filled; 11 GPU·h spent');
 });
 op('sweep.write', (ws, {}) => {

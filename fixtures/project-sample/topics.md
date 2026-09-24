@@ -1,3 +1,3 @@
-# optimisation
-Anything about how training converges.
-# generalisation
+# security
+The safety and security of AI systems themselves.
+# ai-scientist

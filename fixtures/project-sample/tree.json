@@ -2,21 +2,21 @@
   "settings": { "parallel": 2, "budget": 200, "gpus": 2 },
   "agents": { "surveyor": "deepseek", "executor": "codex", "reviewer": "claude" },
   "ideas": [
-    { "id": "P-001", "name": "Geometric correction", "status": "running" },
-    { "id": "P-002", "name": "Early-stop criterion", "status": "running" },
+    { "id": "P-001", "name": "Tool-return isolation", "status": "running" },
+    { "id": "P-002", "name": "Injection detection", "status": "running" },
     { "id": "P-003", "name": "Wrapped up last month", "status": "done" }
   ],
   "hypotheses": [
-    { "id": "H-1", "claim": "Gradient noise can be characterised by a scale parameter", "status": "self_verified",
-      "evidence": [{ "exp": "x_01", "idea": "P-001", "delta": 1.2, "note": "stable across three batch sizes", "at": "2026-09-18T09:00:00Z" }] },
-    { "id": "H-2", "claim": { "zh": "小 batch 下有效步长下降", "en": "The effective step shrinks at small batch" }, "status": "pending_review",
+    { "id": "H-1", "claim": "Automated judges agree with human labels", "status": "self_verified",
+      "evidence": [{ "exp": "x_01", "idea": "P-001", "delta": 1.2, "note": "96% agreement on three models", "at": "2026-09-18T09:00:00Z" }] },
+    { "id": "H-2", "claim": { "zh": "agent 对工具返回值的信任高于用户输入", "en": "Agents trust tool returns more than user input" }, "status": "pending_review",
       "pivots": 3, "depends": ["H-1"],
       "evidence": [
-        { "exp": "x_02", "idea": "P-001", "delta": -0.8, "note": "trend reverses", "at": "2026-09-19T10:00:00Z" },
-        { "exp": "x_03", "idea": "P-002", "delta": 0.3, "note": "holds in a narrow range", "at": "2026-09-19T14:00:00Z" }
+        { "exp": "x_02", "idea": "P-001", "delta": -0.8, "note": "gap not significant", "at": "2026-09-19T10:00:00Z" },
+        { "exp": "x_03", "idea": "P-002", "delta": 0.3, "note": "holds for short returns", "at": "2026-09-19T14:00:00Z" }
       ] },
-    { "id": "H-3", "claim": "A correction term restores the step", "status": "untested", "depends": ["H-2"] },
-    { "id": "H-4", "claim": "The criterion transfers across datasets", "status": "untested" }
+    { "id": "H-3", "claim": "Delimiters restore interception", "status": "untested", "depends": ["H-2"] },
+    { "id": "H-4", "claim": "The detector transfers across benchmarks", "status": "untested" }
   ],
   "trees": {
     "P-001": [

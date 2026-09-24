@@ -198,7 +198,7 @@ console.log('10. a real project directory loads and every screen renders from it
   ok('finished runs became history', ws.runs.length === 2);
   ok('papers loaded', Object.keys(ws.papers).length === 2);
   ok('venues parsed from yaml', ws.survey.venues.length === 3 && ws.survey.venues.find((v) => v.id === 'BROKEN').status === 'broken');
-  ok('topics parsed from markdown', ws.survey.topics.join(',') === 'optimisation,generalisation');
+  ok('topics parsed from markdown', ws.survey.topics.join(',') === 'security,ai-scientist');
   ok('events loaded', ws.events.length === 3 && ws.events[0].t > ws.events[2].t);
   ok('existing verdicts loaded', !!ws.verdicts['H-9']);
   ok('manuscript loaded', ws.paper.sections.length === 2);

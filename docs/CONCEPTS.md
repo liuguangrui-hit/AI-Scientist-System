@@ -153,7 +153,7 @@ probe  →  tune  →  main  →  ablation
   error is not repeated;
 - only a node marked **representative** writes back to the hypothesis tree; the rest stay as
   a record and never become evidence;
-- an entire batch × seed sweep matrix yields **exactly one piece of evidence** — the sentence
+- an entire tier × seed sweep matrix yields **exactly one piece of evidence** — the sentence
   "the trend holds, adjacent tiers are indistinguishable", not eighteen numbers.
 
 ---

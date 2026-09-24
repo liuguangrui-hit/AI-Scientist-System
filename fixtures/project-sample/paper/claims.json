@@ -1,5 +1,5 @@
 [
-  { "id": "c1", "sec": "1", "text": "Small-batch training degrades the effective step", "hyp": "H-1", "ev": ["x_01"], "status": "supported" },
-  { "id": "c2", "sec": "2", "text": "The correction works for any optimiser", "hyp": "H-3", "ev": [], "status": "overclaim",
-    "why": "only tested on SGD", "soften": "The correction works on SGD." }
+  { "id": "c1", "sec": "1", "text": "Agents read tool returns straight into their context", "hyp": "H-1", "ev": ["x_01"], "status": "supported" },
+  { "id": "c2", "sec": "2", "text": "The method holds for any base model", "hyp": "H-3", "ev": [], "status": "overclaim",
+    "why": "only tested on Llama-3.1", "soften": "The method holds on Llama-3.1." }
 ]
