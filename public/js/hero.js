@@ -21,24 +21,24 @@ export function Hero() {
   const [busy, setBusy] = useState(false);
   // On a phone the forest takes the space above the words instead of sitting under them.
   const [top] = useState(() => matchMedia('(max-width:760px)').matches);
+  // The canvas still fills the screen, so a drag on the words turns the forest too;
+  // the frame is told how much of the height above the words is its to draw in.
   useEffect(() => {
-    const el = copy.current, r = root.current;
+    const el = copy.current, r = root.current, f = frame.current;
     if (!el || !r || !top) return;
-    // The words may take at most about half the screen, whatever the language or the
-    // phone's font size: past that, first the column notes go, then the forest line.
     const fit = () => {
-      r.classList.remove('tight', 'tighter');
-      const h = () => el.getBoundingClientRect().height, max = innerHeight * 0.5;
-      if (h() > max) r.classList.add('tight');
-      if (h() > max) r.classList.add('tighter');
-      r.style.setProperty('--copy-h', Math.ceil(h()) + 'px');
+      const h = Math.ceil(el.getBoundingClientRect().height), bottom = el.getBoundingClientRect().bottom;
+      r.style.setProperty('--copy-h', h + 'px');
+      const nav = r.querySelector('.fh-nav')?.getBoundingClientRect().bottom || 52;
+      const region = [nav / innerHeight, (bottom - h + 20) / innerHeight];
+      try { if (f?.contentWindow) f.contentWindow.__heroRegion = region; } catch {}
     };
     fit();
-    const ro = new ResizeObserver(() => r.style.setProperty('--copy-h', Math.ceil(el.getBoundingClientRect().height) + 'px'));
+    const ro = new ResizeObserver(fit);
     ro.observe(el);
+    f?.addEventListener('load', fit);
     addEventListener('resize', fit);
-    document.fonts?.ready.then(fit);
-    return () => { ro.disconnect(); removeEventListener('resize', fit); };
+    return () => { ro.disconnect(); f?.removeEventListener('load', fit); removeEventListener('resize', fit); };
   }, [top]);
   useEffect(() => { try { localStorage.setItem(SEEN, '1'); } catch {} }, []);
   // Any sign of intent plays the rest of the entrance out at speed; Enter opens the system.

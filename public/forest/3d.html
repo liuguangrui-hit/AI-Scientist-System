@@ -125,7 +125,8 @@ const LG = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'z
 const HERO = document.body.classList.contains('hero');
 // 首页上林子要让出标题的位置：横屏退远一点、让到右侧，竖屏靠近一点、让到上方（竖屏本身已按宽高比拉远）
 const heroWide = () => innerWidth >= innerHeight * 1.05;
-// 手机首页：林子只占文字上方那块（fit=top），画面居中，不再让位
+// 手机首页（fit=top）：画布铺满全屏，好让文字区也能拖动旋转；但林子只画在文字上方那块，
+// 那块的上下边（占屏幕高度的比例 [top, bottom]）由首页写进 window.__heroRegion
 const TOPFIT = HERO && new URLSearchParams(location.search).get('fit') === 'top';
 const heroDist = () => (!HERO ? 1 : TOPFIT ? 0.74 : heroWide() ? 1.18 : 0.72);
 const cv = document.getElementById('gl'), ov = document.getElementById('ov');
@@ -610,13 +611,15 @@ function updateCamera(dt) {
   cam.dist += (cam.want.dist - cam.dist) * k * 0.9;
   cam.tx += (cam.want.tx - cam.tx) * k; cam.ty += (cam.want.ty - cam.ty) * k; cam.tz += (cam.want.tz - cam.tz) * k;
   // 竖屏（手机）视野窄：按宽高比把相机再往后拉，整片林子才装得进来
-  cam.eff = cam.dist * Math.max(1, Math.pow(1.35 / (W / H), 0.75));
+  const reg = TOPFIT && window.__heroRegion || [0, 1], rt = reg[0], r = Math.max(0.25, reg[1] - reg[0]), Hr = H * r;
+  cam.eff = cam.dist * Math.max(1, Math.pow(1.35 / (W / Hr), 0.75)) * (TOPFIT && r < 0.5 ? Math.pow(0.5 / r, 0.7) : 1);
   const cp = Math.cos(cam.pitch);
   eye = [cam.tx + Math.cos(cam.yaw) * cp * cam.eff, cam.ty + Math.sin(cam.pitch) * cam.eff, cam.tz + Math.sin(cam.yaw) * cp * cam.eff];
   view = M.look(eye, [cam.tx, cam.ty, cam.tz], [0, 1, 0]);
-  proj = M.persp(0.82, W / H, 4, 20000);
+  proj = M.persp(0.82, W / Hr, 4, 20000);
   // 首页背景：镜头平移（lens shift），把林子让到标题的右上方；旋转中心随之平移，拾取仍然准确
-  if (TOPFIT) proj[9] = -0.3;
+  // fit=top：先按上方区域做投影，再把整幅画面压进屏幕上部 r 的高度里
+  if (TOPFIT) { proj[5] *= r; proj[9] = r * -0.12 - (1 - 2 * rt - r); }
   if (HERO && !TOPFIT) { const wide = heroWide(); proj[8] = wide ? -0.34 : 0; proj[9] = wide ? -0.14 : -0.3; }
   vp = M.mul(proj, view);
 }

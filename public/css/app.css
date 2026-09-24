@@ -486,9 +486,13 @@ html[lang=en] .fh-goal b{letter-spacing:.01em}
 @media (max-width:760px){
   .fh-nav{padding:0 16px;height:52px;gap:16px}
   .fh-nav .fh-enter{height:28px;padding:0 11px 0 13px}
-  /* the forest fills the space between the nav and the words, overlapping them only by a fade */
-  .fh-gl{top:44px;bottom:auto;height:max(240px,calc(100% - 44px - var(--copy-h,60%) - env(safe-area-inset-bottom,0px) - 24px + 56px))}
-  .fh-shade{background:linear-gradient(0deg,rgba(2,4,10,1) calc(var(--copy-h,60%) + 36px),rgba(2,4,10,0) calc(var(--copy-h,60%) + 110px)),linear-gradient(180deg,rgba(2,4,10,.7),rgba(2,4,10,0) 90px)}
+  /* The forest is drawn above the words (3d.html fit=top) but the canvas fills the screen,
+     so a drag anywhere, words included, turns it. While a finger is down the words fade
+     and the shade lifts, so the whole forest shows; they return on release. */
+  .fh-shade{transition:opacity .35s ease;background:linear-gradient(0deg,rgba(2,4,10,.96) var(--copy-h,60%),rgba(2,4,10,0) calc(var(--copy-h,60%) + 90px)),linear-gradient(180deg,rgba(2,4,10,.7),rgba(2,4,10,0) 90px)}
+  .fh-copy{transition:opacity .35s ease}
+  .fh.busy .fh-copy{opacity:.1}
+  .fh.busy .fh-shade{opacity:.25}
   .fh-copy{left:20px;right:20px;bottom:calc(24px + env(safe-area-inset-bottom,0px))}
   .fh-eye{display:none}
   .fh h1{margin-top:0}
@@ -506,9 +510,6 @@ html[lang=en] .fh-goal b{letter-spacing:.01em}
   .fh-foot{display:none}
 }
 @media (max-width:760px){
-  .fh.tight .fh-f span{display:none}
-  .fh.tighter .fh-copy>p{display:none}
-  .fh.tighter .fh-idea{margin-top:14px}
   html[lang=en] .fh-m{font-size:23px}
 }
 @media (max-width:480px){
