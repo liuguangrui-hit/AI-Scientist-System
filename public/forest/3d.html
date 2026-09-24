@@ -113,6 +113,22 @@ body.embed #title{display:none}
   <button class="b" id="bReseed">重新生成</button>
 </div>
 
+<script>
+// 页面外壳默认中文；lang=en 时整体换成英文（数据本身自带双语）
+if (new URLSearchParams(location.search).get('lang') === 'en') {
+  document.documentElement.lang = 'en';
+  document.title = 'Hypothesis–Evidence Forest · 3D';
+  const set = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
+  set('#nogl', 'This device does not support WebGL2.<br><a href="2d.html?lang=en">Open the 2D view →</a>');
+  set('#hud h1', 'Dynamic Hypothesis–Evidence Forest');
+  set('#hud .sub', 'Each idea is a tree of hypotheses, and height is node depth.<br>Shared hypotheses sit between the trees that cite them.');
+  set('.mousekeys', '<kbd>Drag a node</kbd> keeps inertia · <kbd>Drag background</kbd> rotates (with inertia)<br><kbd>Right-drag / ⇧drag</kbd> pan · <kbd>Scroll</kbd> zoom · <kbd>Double-click</kbd> reset<br><kbd>Space</kbd> freeze · <kbd>A</kbd> spin · <kbd>E</kbd> evidence flow · <kbd>B</kbd> bloom');
+  set('.touchkeys', '<kbd>Drag a node</kbd> keeps inertia · <kbd>Drag empty space</kbd> rotates · <kbd>Two fingers</kbd> zoom and pan · <kbd>Tap a node</kbd> shows its evidence');
+  set('#title', 'Dynamic Hypothesis–Evidence Forest · <b>3D</b> · <a href="2d.html?lang=en">2D view →</a>');
+  for (const [id, t] of [['bLegend', 'Legend'], ['bFreeze', 'Freeze'], ['bSpin', 'Spin'], ['bEv', 'Evidence flow'], ['bVine', 'Cross-tree links'], ['bBloom', 'Bloom'], ['bLabel', 'Labels'], ['bReseed', 'Regenerate']]) set('#' + id, t);
+  const lab = document.querySelector('#rScale')?.parentElement; if (lab) lab.firstChild.textContent = 'Scale ';
+}
+</script>
 <script src="lib/data.js"></script>
 <script src="lib/palette.js"></script>
 <script src="lib/sim.js"></script>
@@ -128,7 +144,9 @@ const heroWide = () => innerWidth >= innerHeight * 1.05;
 // 手机首页（fit=top）：画布铺满全屏，好让文字区也能拖动旋转；但林子只画在文字上方那块，
 // 那块的上下边（占屏幕高度的比例 [top, bottom]）由首页写进 window.__heroRegion
 const TOPFIT = HERO && new URLSearchParams(location.search).get('fit') === 'top';
-const heroDist = () => (!HERO ? 1 : TOPFIT ? 0.74 : heroWide() ? 1.18 : 0.72);
+const heroDist = () => (!HERO ? 1 : TOPFIT ? 0.96 : heroWide() ? 1.18 : 0.72);
+// 手机上画面窄，平视时树名挤成一排；抬高视角斜着往下看，林子在纵向铺开
+const VIEW_PITCH = TOPFIT ? 0.8 : 0.40;
 const cv = document.getElementById('gl'), ov = document.getElementById('ov');
 const gl = cv.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
 const oc = ov.getContext('2d');
@@ -429,7 +447,7 @@ function seedWorld(seed, count) {
   grow = { t0: performance.now(), delay, end: last + GROW.dur };
   sparks = []; rings = []; hover = -1; selected = -1;
   // 开场：从高处俯冲下来，停在略高于树梢的位置
-  cam.dist = ring * (QUICK ? 2.9 : 4.2); cam.want.dist = ring * 2.45 * heroDist(); cam.want.ty = 110; cam.want.pitch = 0.40; cam.pitch = QUICK ? 0.62 : 1.1; cam.vpitch = -0.004;
+  cam.dist = ring * (QUICK ? 2.9 : 4.2); cam.want.dist = ring * 2.45 * heroDist(); cam.want.ty = 110; cam.want.pitch = VIEW_PITCH; cam.pitch = QUICK ? VIEW_PITCH + 0.22 : 1.1; cam.vpitch = -0.004;
   drawHud();
   window.__forest3 = { sim, F, cam, project: (x, y, z) => project(x, y, z), ray: (x, y) => ray(x, y), M, get vp() { return vp; }, get eye() { return eye; }, get shown() { return VP; } };
 }
@@ -731,26 +749,41 @@ function drawOverlay() {
   screen = screen && screen.length === N ? screen : new Array(N);
   for (let i = 0; i < N; i++) screen[i] = project(VP[i * 3], VP[i * 3 + 1], VP[i * 3 + 2]);
   oc.textAlign = 'center';
+  // 标签避让：先放林子名，再按由近到远放树名；和已放的标签重叠的树名淡出，转开后再淡入
+  const placed = [];
+  const free = (x, y, w, h) => !placed.some((r) => x < r[0] + r[2] && x + w > r[0] && y < r[1] + r[3] && y + h > r[1]);
   for (const g of groves) {
     const p = project(g.gx ?? g.x, 0, g.gz ?? g.z);
     if (!p) continue;
-    const s = Math.max(0.5, Math.min(1.4, 1500 / p[2]));
-    oc.font = '600 ' + Math.round(13 * s) + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
+    const s = Math.max(0.5, Math.min(1.4, 1500 / p[2])), fs = Math.round(13 * s);
+    oc.font = '600 ' + fs + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
     oc.fillStyle = P.hsl(g.hue, 80, 76, 0.55);
     oc.fillText(g.name, p[0], p[1] + 26 * s);
+    const w = oc.measureText(g.name).width;
+    placed.push([p[0] - w / 2 - 4, p[1] + 26 * s - fs, w + 8, fs * 1.3]);
   }
+  const cand = [];
   for (const d of F.ideas) {
     const root = d.nodes[0] && index.get(d.nodes[0].hyp);
     if (root == null) continue;
+    const live = d.status === 'running';
+    if (!opts.labels && !live) { d.la = 0; continue; }
     let top = 0;                                             // 树梢高度
     for (let i = 0; i < N; i++) if (clusterOf[i] === d.idx) top = Math.max(top, VP[i * 3 + 1]);
     const p = project(d.cx ?? d.ax, top + 22, d.cz ?? d.az);
-    if (!p) continue;
-    const live = d.status === 'running';
-    if (!opts.labels && !live) continue;
-    const s = Math.max(0.55, Math.min(1.25, 1300 / p[2]));
-    oc.font = (live ? '600 ' : '400 ') + Math.round(11 * s) + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
-    oc.fillStyle = P.hsl(d.hue, 70, 80, live ? 0.78 : 0.4);
+    if (!p) { d.la = 0; continue; }
+    cand.push({ d, p, live });
+  }
+  cand.sort((a, c) => (c.live - a.live) || (a.p[2] - c.p[2]));
+  for (const { d, p, live } of cand) {
+    const s = Math.max(0.55, Math.min(1.25, 1300 / p[2])), fs = Math.round(11 * s);
+    oc.font = (live ? '600 ' : '400 ') + fs + "px 'IBM Plex Sans','Noto Sans SC',sans-serif";
+    const w = oc.measureText(d.name[LG]).width, box = [p[0] - w / 2 - 3, p[1] - fs, w + 6, fs * 1.3];
+    const ok = free(...box);
+    if (ok) placed.push(box);
+    d.la = (d.la ?? 1) + ((ok ? 1 : 0) - (d.la ?? 1)) * 0.18;
+    if (d.la < 0.03) continue;
+    oc.fillStyle = P.hsl(d.hue, 70, 80, (live ? 0.78 : 0.4) * d.la);
     oc.fillText(d.name[LG], p[0], p[1]);
   }
 }
@@ -869,13 +902,13 @@ cv.addEventListener('wheel', (e) => {
   e.preventDefault();
   cam.want.dist = Math.max(160, Math.min(9000, cam.want.dist * (e.deltaY > 0 ? 1.12 : 0.89)));
 }, { passive: false });
-cv.addEventListener('dblclick', () => { selectNode(-1); cam.want.pitch = 0.40; cam.want.tx = 0; cam.want.ty = 110; cam.want.tz = 0; cam.want.dist = (300 + F.ideas.length * 9) * 2.45 * heroDist(); });
+cv.addEventListener('dblclick', () => { selectNode(-1); cam.want.pitch = VIEW_PITCH; cam.want.tx = 0; cam.want.ty = 110; cam.want.tz = 0; cam.want.dist = (300 + F.ideas.length * 9) * 2.45 * heroDist(); });
 
 const tip = document.getElementById('tip');
 function showTip(i, x, y) {
   if (i < 0) { tip.style.opacity = 0; return; }
   const h = F.hyps[i];
-  tip.innerHTML = '<div class="t">' + h.id + ' · ' + S[h.status][LG] + ' · ' + (h.score > 0 ? '+' : '') + h.score + (h.ideas.length > 1 ? ' · 共享 ×' + h.ideas.length : '') + '</div>' + h.claim[LG];
+  tip.innerHTML = '<div class="t">' + h.id + ' · ' + S[h.status][LG] + ' · ' + (h.score > 0 ? '+' : '') + h.score + (h.ideas.length > 1 ? (LG === 'en' ? ' · shared ×' : ' · 共享 ×') + h.ideas.length : '') + '</div>' + h.claim[LG];
   tip.style.opacity = 1; moveTip(x, y);
 }
 function moveTip(x, y) { tip.style.left = Math.min(W - 330, x + 16) + 'px'; tip.style.top = (y + 18) + 'px'; }
@@ -889,8 +922,8 @@ function selectNode(i) {
   inspectBody.innerHTML =
     '<div class="id" style="color:' + P.css(S[h.status].rgb) + '">' + h.id + ' · ' + S[h.status][LG] + '</div>' +
     '<div class="claim">' + h.claim[LG] + '</div>' +
-    '<div class="row"><span class="chip mono">累积 ' + (h.score > 0 ? '+' : '') + h.score + '</span><span class="chip">证据 ' + h.evidence.length + '</span>' +
-    (h.ideas.length > 1 ? '<span class="chip" style="background:rgba(255,236,190,.14);color:#FFE7B3">共享假设 · 被 ' + h.ideas.length + ' 个 idea 引用</span>' : '<span class="chip">树内第 ' + (h.depth || 0) + ' 层</span>') + '</div>' +
+    '<div class="row"><span class="chip mono">' + (LG === 'en' ? 'total ' : '累积 ') + (h.score > 0 ? '+' : '') + h.score + '</span><span class="chip">' + (LG === 'en' ? 'evidence ' : '证据 ') + h.evidence.length + '</span>' +
+    (h.ideas.length > 1 ? '<span class="chip" style="background:rgba(255,236,190,.14);color:#FFE7B3">' + (LG === 'en' ? 'shared · cited by ' + h.ideas.length + ' ideas' : '共享假设 · 被 ' + h.ideas.length + ' 个 idea 引用') + '</span>' : '<span class="chip">' + (LG === 'en' ? 'layer ' + (h.depth || 0) : '树内第 ' + (h.depth || 0) + ' 层') + '</span>') + '</div>' +
     '<div class="row">' + ideas.map((d) => '<span class="chip mono" style="color:' + P.hsl(d.hue, 70, 74) + '">' + d.id + ' ' + d.name[LG] + '</span>').join('') + '</div>' +
     (h.evidence.length ? '<div class="ev">' + h.evidence.slice(0, 14).map((e) =>
       '<div><span style="font-family:\'IBM Plex Mono\',monospace;color:#5C6883">' + e.id + '</span><span>' + e.idea + '</span><b style="color:' + (e.delta > 0 ? '#6EE7B7' : '#FB7185') + '">' + (e.delta > 0 ? '+' : '') + e.delta + '</b></div>').join('') + '</div>' : '');
@@ -899,7 +932,7 @@ function selectNode(i) {
 
 function drawHud() {
   const s = F.stats;
-  document.getElementById('stats').innerHTML = [[s.ideas, 'idea（树）'], [s.hyps, '假设'], [s.shared, '共享假设'], [s.edges, '边'], [s.evidence, '证据'], [s.pending, '待裁定']]
+  document.getElementById('stats').innerHTML = (LG === 'en' ? [[s.ideas, 'ideas (trees)'], [s.hyps, 'hypotheses'], [s.shared, 'shared'], [s.edges, 'edges'], [s.evidence, 'evidence'], [s.pending, 'pending verdict']] : [[s.ideas, 'idea（树）'], [s.hyps, '假设'], [s.shared, '共享假设'], [s.edges, '边'], [s.evidence, '证据'], [s.pending, '待裁定']])
     .map(([v, k]) => '<div class="stat"><b>' + v.toLocaleString() + '</b><span>' + k + '</span></div>').join('');
   const counts = {}; for (const h of F.hyps) counts[h.status] = (counts[h.status] || 0) + 1;
   document.getElementById('legend').innerHTML = Object.keys(S).map((k) =>
@@ -908,7 +941,7 @@ function drawHud() {
 
 document.getElementById('bLegend').addEventListener('click', (e) => { document.body.classList.toggle('legend'); e.currentTarget.classList.toggle('on'); });
 const bind = (id, fn) => { const el = document.getElementById(id); el.addEventListener('click', () => fn(el)); };
-bind('bFreeze', (el) => { opts.frozen = !opts.frozen; el.classList.toggle('on', opts.frozen); el.textContent = opts.frozen ? '继续' : '冻结'; });
+bind('bFreeze', (el) => { opts.frozen = !opts.frozen; el.classList.toggle('on', opts.frozen); el.textContent = LG === 'en' ? (opts.frozen ? 'Resume' : 'Freeze') : (opts.frozen ? '继续' : '冻结'); });
 bind('bSpin', (el) => { opts.spin = !opts.spin; el.classList.toggle('on', opts.spin); });
 bind('bEv', (el) => { opts.evidence = !opts.evidence; el.classList.toggle('on', opts.evidence); });
 bind('bVine', (el) => { opts.vines = !opts.vines; el.classList.toggle('on', opts.vines); });

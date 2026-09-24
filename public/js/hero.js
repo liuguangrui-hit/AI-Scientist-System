@@ -19,8 +19,8 @@ export function Hero() {
   const root = useRef(null);
   const copy = useRef(null);
   const [busy, setBusy] = useState(false);
-  // On a phone the forest takes the space above the words instead of sitting under them.
-  const [top] = useState(() => matchMedia('(max-width:760px)').matches);
+  // On a phone or an upright tablet the forest takes the space above the words instead of sitting under them.
+  const [top] = useState(() => matchMedia('(max-width:760px), (orientation:portrait)').matches);
   // The canvas still fills the screen, so a drag on the words turns the forest too;
   // the frame is told how much of the height above the words is its to draw in.
   useEffect(() => {
@@ -29,6 +29,7 @@ export function Hero() {
     const fit = () => {
       const h = Math.ceil(el.getBoundingClientRect().height), bottom = el.getBoundingClientRect().bottom;
       r.style.setProperty('--copy-h', h + 'px');
+      r.style.setProperty('--copy-b', Math.round(innerHeight - bottom) + 'px');
       const nav = r.querySelector('.fh-nav')?.getBoundingClientRect().bottom || 52;
       const region = [nav / innerHeight, (bottom - h + 20) / innerHeight];
       try { if (f?.contentWindow) f.contentWindow.__heroRegion = region; } catch {}
@@ -79,7 +80,7 @@ export function Hero() {
       if (win) on.forEach(([n, h]) => win.removeEventListener(n, h));
     };
   }, []);
-  return html`<div ref=${root} class=${'fh' + (seen ? ' quick' : '') + (busy ? ' busy' : '')}>
+  return html`<div ref=${root} class=${'fh' + (top ? ' top' : '') + (seen ? ' quick' : '') + (busy ? ' busy' : '')}>
     <iframe ref=${frame} class="fh-gl" src=${'forest/3d.html?mode=hero&lang=' + LANG + (seen ? '&quick' : '') + (top ? '&fit=top' : '')} title=${L('动态假设-证据森林三维视图', 'The hypothesis–evidence forest in 3D')}></iframe>
     <div class="fh-shade" aria-hidden="true"></div>
 

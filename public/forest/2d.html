@@ -111,6 +111,21 @@ body.embed #title{display:none}
   <button class="b" id="bReseed">重新生成</button>
 </div>
 
+<script>
+// 页面外壳默认中文；lang=en 时整体换成英文（数据本身自带双语）
+if (new URLSearchParams(location.search).get('lang') === 'en') {
+  document.documentElement.lang = 'en';
+  document.title = 'Hypothesis–Evidence Forest · 2D';
+  const set = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
+  set('#hud h1', 'Dynamic Hypothesis–Evidence Forest');
+  set('#hud .sub', 'Each tree is the argument of one idea.<br>Trees are joined by shared hypotheses.');
+  set('.mousekeys', '<kbd>Drag a node</kbd> keeps inertia · <kbd>Space</kbd> freeze<br><kbd>Scroll</kbd> zoom · <kbd>Drag background</kbd> pan · <kbd>Double-click</kbd> reset<br><kbd>L</kbd> labels · <kbd>E</kbd> evidence flow · <kbd>H</kbd> cluster outlines · <kbd>R</kbd> regenerate');
+  set('.touchkeys', '<kbd>Drag a node</kbd> keeps inertia · <kbd>Drag empty space</kbd> pans · <kbd>Two fingers</kbd> zoom · <kbd>Tap a node</kbd> shows its evidence');
+  set('#title', 'Dynamic Hypothesis–Evidence Forest · <b>2D</b> · <a href="3d.html?lang=en">3D view →</a>');
+  for (const [id, t] of [['bLegend', 'Legend'], ['bFreeze', 'Freeze'], ['bSpin', 'Spin'], ['bEv', 'Evidence flow'], ['bHull', 'Cluster outlines'], ['bLabel', 'Labels'], ['bReseed', 'Regenerate']]) set('#' + id, t);
+  const lab = document.querySelector('#rScale')?.parentElement; if (lab) lab.firstChild.textContent = 'Scale ';
+}
+</script>
 <script src="lib/data.js"></script>
 <script src="lib/palette.js"></script>
 <script src="lib/sim.js"></script>
@@ -732,9 +747,9 @@ function selectNode(i) {
   inspectBody.innerHTML =
     '<div class="id" style="color:' + P.css(S[h.status].rgb) + '">' + h.id + ' · ' + S[h.status][LG] + '</div>' +
     '<div class="claim">' + h.claim[LG] + '</div>' +
-    '<div class="row"><span class="chip mono">累积 ' + (h.score > 0 ? '+' : '') + h.score + '</span>' +
-      '<span class="chip">证据 ' + h.evidence.length + '</span>' +
-      (h.ideas.length > 1 ? '<span class="chip" style="background:rgba(125,162,255,.18);color:#AFC6FF">被 ' + h.ideas.length + ' 棵树共享</span>' : '') + '</div>' +
+    '<div class="row"><span class="chip mono">' + (LG === 'en' ? 'total ' : '累积 ') + (h.score > 0 ? '+' : '') + h.score + '</span>' +
+      '<span class="chip">' + (LG === 'en' ? 'evidence ' : '证据 ') + h.evidence.length + '</span>' +
+      (h.ideas.length > 1 ? '<span class="chip" style="background:rgba(125,162,255,.18);color:#AFC6FF">' + (LG === 'en' ? 'shared by ' + h.ideas.length + ' trees' : '被 ' + h.ideas.length + ' 棵树共享') + '</span>' : '') + '</div>' +
     '<div class="row">' + ideas.map((d) => '<span class="chip mono" style="color:' + P.hsl(d.hue, 70, 72) + '">' + d.id + ' ' + d.name[LG] + '</span>').join('') + '</div>' +
     (h.evidence.length ? '<div class="ev">' + h.evidence.slice(0, 14).map((e) =>
       '<div><span style="font-family:\'IBM Plex Mono\',monospace;color:#5C6883">' + e.id + '</span><span>' + e.idea + '</span>' +
@@ -746,9 +761,9 @@ function selectNode(i) {
 function drawHud() {
   const s = F.stats;
   document.getElementById('stats').innerHTML = [
-    [s.ideas, 'idea（树）'], [s.hyps, '假设（节点）'],
-    [s.shared, '被共享的假设'], [s.edges, '边'],
-    [s.evidence, '证据'], [s.maxShare, '最多被几棵树共用'],
+    [s.ideas, LG === 'en' ? 'ideas (trees)' : 'idea（树）'], [s.hyps, LG === 'en' ? 'hypotheses (nodes)' : '假设（节点）'],
+    [s.shared, LG === 'en' ? 'shared hypotheses' : '被共享的假设'], [s.edges, LG === 'en' ? 'edges' : '边'],
+    [s.evidence, LG === 'en' ? 'evidence' : '证据'], [s.maxShare, LG === 'en' ? 'max trees sharing one' : '最多被几棵树共用'],
   ].map(([v, k]) => '<div class="stat"><b>' + v.toLocaleString() + '</b><span>' + k + '</span></div>').join('');
   const counts = {};
   for (const h of F.hyps) counts[h.status] = (counts[h.status] || 0) + 1;
@@ -763,7 +778,7 @@ const bind = (id, fn, on) => {
   el.addEventListener('click', () => { fn(el); });
   if (on) el.classList.add('on');
 };
-bind('bFreeze', (el) => { opts.frozen = !opts.frozen; el.classList.toggle('on', opts.frozen); el.textContent = opts.frozen ? '继续' : '冻结'; });
+bind('bFreeze', (el) => { opts.frozen = !opts.frozen; el.classList.toggle('on', opts.frozen); el.textContent = LG === 'en' ? (opts.frozen ? 'Resume' : 'Freeze') : (opts.frozen ? '继续' : '冻结'); });
 bind('bEv', (el) => { opts.evidence = !opts.evidence; el.classList.toggle('on', opts.evidence); });
 bind('bHull', (el) => { opts.hulls = !opts.hulls; el.classList.toggle('on', opts.hulls); });
 bind('bLabel', (el) => { opts.labels = !opts.labels; el.classList.toggle('on', opts.labels); });

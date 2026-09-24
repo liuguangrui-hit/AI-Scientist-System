@@ -483,16 +483,17 @@ html[lang=en] .fh-goal b{letter-spacing:.01em}
 .fh-enter:hover span{transform:translateX(2px)}
 .fh-keys kbd{font:inherit;padding:0 5px;margin-right:4px;border:1px solid rgba(154,166,191,.28);border-radius:3px}
 @media (prefers-reduced-motion:reduce){.fh-nav,.fh-eye,.fh-k,.fh-m,.fh-copy p,.fh-idea,.fh-goal,.fh-cta,.fh-foot{animation:none}}
+/* Portrait screens (phones, tablets held upright): the forest is drawn above the words
+   (3d.html fit=top) but the canvas fills the screen, so a drag anywhere, words included,
+   turns it. While a finger is down the words fade and the shade lifts, so the whole
+   forest shows; they return on release. */
+.fh.top .fh-shade{transition:opacity .35s ease;background:linear-gradient(0deg,rgba(2,4,10,.96) calc(var(--copy-h,60%) + var(--copy-b,24px)),rgba(2,4,10,0) calc(var(--copy-h,60%) + var(--copy-b,24px) + 90px)),linear-gradient(180deg,rgba(2,4,10,.7),rgba(2,4,10,0) 90px)}
+.fh.top .fh-copy{transition:opacity .35s ease}
+.fh.top.busy .fh-copy{opacity:.1}
+.fh.top.busy .fh-shade{opacity:.25}
 @media (max-width:760px){
   .fh-nav{padding:0 16px;height:52px;gap:16px}
   .fh-nav .fh-enter{height:28px;padding:0 11px 0 13px}
-  /* The forest is drawn above the words (3d.html fit=top) but the canvas fills the screen,
-     so a drag anywhere, words included, turns it. While a finger is down the words fade
-     and the shade lifts, so the whole forest shows; they return on release. */
-  .fh-shade{transition:opacity .35s ease;background:linear-gradient(0deg,rgba(2,4,10,.96) var(--copy-h,60%),rgba(2,4,10,0) calc(var(--copy-h,60%) + 90px)),linear-gradient(180deg,rgba(2,4,10,.7),rgba(2,4,10,0) 90px)}
-  .fh-copy{transition:opacity .35s ease}
-  .fh.busy .fh-copy{opacity:.1}
-  .fh.busy .fh-shade{opacity:.25}
   .fh-copy{left:20px;right:20px;bottom:calc(24px + env(safe-area-inset-bottom,0px))}
   .fh-eye{display:none}
   .fh h1{margin-top:0}
