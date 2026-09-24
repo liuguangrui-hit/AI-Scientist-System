@@ -125,7 +125,9 @@ const LG = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'z
 const HERO = document.body.classList.contains('hero');
 // 首页上林子要让出标题的位置：横屏退远一点、让到右侧，竖屏靠近一点、让到上方（竖屏本身已按宽高比拉远）
 const heroWide = () => innerWidth >= innerHeight * 1.05;
-const heroDist = () => (!HERO ? 1 : heroWide() ? 1.18 : 0.72);
+// 手机首页：林子只占文字上方那块（fit=top），画面居中，不再让位
+const TOPFIT = HERO && new URLSearchParams(location.search).get('fit') === 'top';
+const heroDist = () => (!HERO ? 1 : TOPFIT ? 0.74 : heroWide() ? 1.18 : 0.72);
 const cv = document.getElementById('gl'), ov = document.getElementById('ov');
 const gl = cv.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
 const oc = ov.getContext('2d');
@@ -614,7 +616,8 @@ function updateCamera(dt) {
   view = M.look(eye, [cam.tx, cam.ty, cam.tz], [0, 1, 0]);
   proj = M.persp(0.82, W / H, 4, 20000);
   // 首页背景：镜头平移（lens shift），把林子让到标题的右上方；旋转中心随之平移，拾取仍然准确
-  if (HERO) { const wide = heroWide(); proj[8] = wide ? -0.34 : 0; proj[9] = wide ? -0.14 : -0.3; }
+  if (TOPFIT) proj[9] = -0.3;
+  if (HERO && !TOPFIT) { const wide = heroWide(); proj[8] = wide ? -0.34 : 0; proj[9] = wide ? -0.14 : -0.3; }
   vp = M.mul(proj, view);
 }
 function project(x, y, z) {

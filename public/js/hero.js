@@ -17,7 +17,17 @@ const AIM = glyph('<circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><ci
 export function Hero() {
   const frame = useRef(null);
   const root = useRef(null);
+  const copy = useRef(null);
   const [busy, setBusy] = useState(false);
+  // On a phone the forest takes the space above the words instead of sitting under them.
+  const [top] = useState(() => matchMedia('(max-width:760px)').matches);
+  useEffect(() => {
+    const el = copy.current;
+    if (!el || !top) return;
+    const ro = new ResizeObserver(() => root.current?.style.setProperty('--copy-h', Math.ceil(el.getBoundingClientRect().height) + 'px'));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [top]);
   useEffect(() => { try { localStorage.setItem(SEEN, '1'); } catch {} }, []);
   // Any sign of intent plays the rest of the entrance out at speed; Enter opens the system.
   // The forest frame is a separate window, so its input is forwarded here (see below).
@@ -58,7 +68,7 @@ export function Hero() {
     };
   }, []);
   return html`<div ref=${root} class=${'fh' + (seen ? ' quick' : '') + (busy ? ' busy' : '')}>
-    <iframe ref=${frame} class="fh-gl" src=${'forest/3d.html?mode=hero&lang=' + LANG + (seen ? '&quick' : '')} title=${L('动态假设-证据森林三维视图', 'The hypothesis–evidence forest in 3D')}></iframe>
+    <iframe ref=${frame} class="fh-gl" src=${'forest/3d.html?mode=hero&lang=' + LANG + (seen ? '&quick' : '') + (top ? '&fit=top' : '')} title=${L('动态假设-证据森林三维视图', 'The hypothesis–evidence forest in 3D')}></iframe>
     <div class="fh-shade" aria-hidden="true"></div>
 
     <nav class="fh-nav">
@@ -70,7 +80,7 @@ export function Hero() {
       <a class="fh-enter" href="/home">${L('进入系统', 'Enter')}<span aria-hidden="true">→</span></a>
     </nav>
 
-    <header class="fh-copy">
+    <header class="fh-copy" ref=${copy}>
       <div class="fh-eye">Dynamic Hypothesis–Evidence Forest</div>
       <h1>
         <span class="fh-k">${L('AI 科学家', 'AI Scientist')}</span><span class="sr">${L('：', ': ')}</span>
