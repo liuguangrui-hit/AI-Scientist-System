@@ -31,7 +31,7 @@ export function Hero() {
     <nav class="fh-nav">
       <a class="fh-brand" href="/">${I('logo', { s: 17, c: 'currentColor', w: 1.8 })}<span>AI Scientist</span></a>
       <div class="grow"></div>
-      <a href="/about" class="hide-s">${L('了解系统', 'About')}</a>
+      <a href="/about" class="hide-s">${L('系统介绍', 'About')}</a>
       <a href="/forest2d" class="hide-s">${L('二维森林', '2D forest')}</a>
       <button class="fh-lang" onClick=${() => setLang(LANG === 'zh' ? 'en' : 'zh')}>${LANG === 'zh' ? 'EN' : '中文'}</button>
     </nav>
@@ -42,17 +42,16 @@ export function Hero() {
         <span class="fh-k">${L('AI 科学家', 'AI Scientist')}</span><span class="sr">${L('：', ': ')}</span>
         <span class="fh-m">${L('动态假设-证据森林', 'A Dynamic Hypothesis–Evidence Forest')}</span>
       </h1>
-      <p>${L('每棵树是一个 idea，每个光点是一条假设。证据从地面升起，共享假设在树与树之间架桥。',
-        'Each tree is an idea, each point of light a hypothesis. Evidence rises from the ground; shared hypotheses bridge the trees.')}</p>
+      <p>${L('每棵树是一个研究 idea，每个节点是一条假设。共享假设把不同的树连在一起。',
+        'Each tree is a research idea. Each node is a hypothesis. Shared hypotheses connect the trees.')}</p>
       <div class="fh-cta">
         <a class="fh-go" href="/home">${L('进入系统', 'Enter the system')}<span aria-hidden="true">→</span></a>
-        <a class="fh-link" href="/about">${L('它如何工作', 'How it works')}</a>
+        <a class="fh-link" href="/about">${L('系统原理', 'How it works')}</a>
       </div>
     </header>
 
     <div class="fh-foot">
-      <div class="fh-keys">${L('拖动光点 · 拖动空白处环绕 · 滚轮远近 · 双击复位', 'Drag a light · drag empty space to orbit · scroll to zoom · double-click to reset')}</div>
-      <div>${L('演示数据', 'Demo data')}</div>
+      <div class="fh-keys">${L('拖动节点 · 拖动空白处旋转视角 · 滚轮缩放 · 双击复位', 'Drag a node · drag empty space to rotate · scroll to zoom · double-click to reset')}</div>
     </div>
   </div>`;
 }

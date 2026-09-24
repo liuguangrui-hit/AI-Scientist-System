@@ -31,7 +31,7 @@ op('exp.run', (ws, { hyp, idea, label, cfg, node }) => {
   source.persist(ws, { kind: 'queue', exp: ws.experiments[id] });
   E.pushEvent(ws, 'human', b(`${id} 入队 · ${hyp}`, `${id} queued · ${hyp}`), b(`服务 ${ideas.length || 1} 个 idea`, `Serves ${ideas.length || 1} idea(s)`), 'experiment', Date.now(), { hyp, exp: id });
   const st = ws.experiments[id].status;
-  return ok(st === 'running' ? `${id} 已开跑` : `${id} 已入队，等槽位`, st === 'running' ? `${id} started` : `${id} queued for a slot`, { exp: id });
+  return ok(st === 'running' ? `${id} 已开始运行` : `${id} 已入队，等待空闲槽位`, st === 'running' ? `${id} started` : `${id} queued for a slot`, { exp: id });
 });
 
 op('exp.runBatch', (ws, { hyps }) => {
@@ -47,7 +47,7 @@ op('exp.decide', (ws, { exp, kind }) => {
   const now = Date.now();
   if (kind === 'PROCEED') {
     if (e.status === 'running') E.finishExperiment(ws, e, now);
-    else if (e.status !== 'done') return err('实验还没有结果', 'The experiment has no result yet');
+    else if (e.status !== 'done') return err('实验尚无结果', 'The experiment has no result yet');
     const st = E.hypStatus(ws, e.hyp);
     return ok(`证据已写入 ${e.hyp}，累积 ${E.score(ws, e.hyp)}${st === 'self_verified' ? ' · 转 self_verified' : ''}`, `Evidence written to ${e.hyp}, total ${E.score(ws, e.hyp)}${st === 'self_verified' ? ' · now self_verified' : ''}`);
   }
@@ -55,11 +55,11 @@ op('exp.decide', (ws, { exp, kind }) => {
     e.status = 'queued'; e.prog = 0; e.queuedAt = now; e.outcome.delta = Math.round((e.outcome.delta + 0.1) * 10) / 10;
     h.decisions.push({ kind: 'REFINE', at: now });
     E.tick(ws);
-    return ok(`${exp} 改配置后重跑同一假设`, `${exp} re-queued with a changed config on the same hypothesis`);
+    return ok(`${exp} 修改配置后重新运行同一假设`, `${exp} re-queued with a changed config on the same hypothesis`);
   }
   if (kind === 'PIVOT') {
     e.status = 'done'; e.prog = 1; e.finishedAt = now; e.outcome.delta = -Math.abs(e.outcome.delta || 0.5);
-    h.evidence.push({ exp: e.id, idea: e.idea, delta: e.outcome.delta, note: b('换一条子假设，本支未复现', 'Pivoted to another sub-hypothesis; this branch did not reproduce'), at: now });
+    h.evidence.push({ exp: e.id, idea: e.idea, delta: e.outcome.delta, note: b('转向其他子假设，本分支未能复现', 'Pivoted to another sub-hypothesis; this branch did not reproduce'), at: now });
     h.pivots = (h.pivots || 0) + 1; h.decisions.push({ kind: 'PIVOT', at: now });
     const esc = E.maybeEscalate(ws, e.hyp, now);
     E.tick(ws);
@@ -82,7 +82,7 @@ op('exp.control', (ws, { exp, cmd }) => {
     if (e.status !== 'running') return err('不在运行中', 'Not running');
     e.status = 'paused'; e.pausedAt = now; e.remainMs = e.startedAt + e.durMs - now;
     E.tick(ws);
-    return ok(`${exp} 已暂停，槽位让给队列`, `${exp} paused; its slot goes back to the queue`);
+    return ok(`${exp} 已暂停，槽位已释放给队列`, `${exp} paused; its slot is released to the queue`);
   }
   if (cmd === 'resume') {
     if (e.status !== 'paused') return err('不在暂停中', 'Not paused');
@@ -94,7 +94,7 @@ op('exp.control', (ws, { exp, cmd }) => {
     ws.runs.unshift({ id: 'run_' + ws.seq.run++, gpu: e.gpu || 0, start: e.startedAt || now, dur: (now - (e.startedAt || now)), idea: e.idea, label: e.label, status: 'failed', cost: 0 });
     E.pushEvent(ws, 'human', b(`${exp} 被中止`, `${exp} aborted`), b('不写入证据', 'No evidence written'), 'experiment', now, { exp });
     E.tick(ws);
-    return ok(`${exp} 已中止，没有写入证据`, `${exp} aborted; no evidence written`);
+    return ok(`${exp} 已中止，未写入证据`, `${exp} aborted; no evidence written`);
   }
   return err('未知指令', 'Unknown command');
 });
@@ -104,8 +104,8 @@ op('exp.config', (ws, { exp, cfg }) => {
   if (!e) return err('实验不存在', 'No such experiment');
   e.cfg = { ...e.cfg, ...cfg };
   (ws.hyps[e.hyp].decisions ||= []).push({ kind: 'CONFIG', at: Date.now() });
-  E.pushEvent(ws, 'human', b(`${exp} 配置已改`, `${exp} config changed`), b(Object.entries(cfg).map(([k, v]) => `${k}: ${v}`).join(' · '), Object.entries(cfg).map(([k, v]) => `${k}: ${v}`).join(' · ')), 'experiment', Date.now(), { exp });
-  return ok('配置已改，并记入 decision_log', 'Config changed and written to decision_log');
+  E.pushEvent(ws, 'human', b(`${exp} 配置已修改`, `${exp} config changed`), b(Object.entries(cfg).map(([k, v]) => `${k}: ${v}`).join(' · '), Object.entries(cfg).map(([k, v]) => `${k}: ${v}`).join(' · ')), 'experiment', Date.now(), { exp });
+  return ok('配置已修改，并记入 decision_log', 'Config changed and written to decision_log');
 });
 
 op('exp.copy', (ws, { exp }) => {
@@ -179,7 +179,7 @@ op('hyp.dep', (ws, { hyp, on }) => {
 op('hyp.submit', (ws, { hyp }) => {
   const h = ws.hyps[hyp];
   if (!h) return err('未知假设', 'Unknown hypothesis');
-  if (h.status === 'pending_review') return err('已经在裁定队列里', 'Already in the verdict queue');
+  if (h.status === 'pending_review') return err('已在裁定队列中', 'Already in the verdict queue');
   h.status = 'pending_review'; h.submittedAt = Date.now();
   for (const x of Object.values(ws.experiments)) if (x.hyp === hyp && x.status === 'queued') x.status = 'withdrawn';
   E.pushEvent(ws, 'human', b(`${hyp} 提交裁定`, `${hyp} submitted for verdict`), b('由人工提交', 'Submitted manually'), 'verdict', Date.now(), { hyp });
@@ -196,13 +196,13 @@ op('verdict.apply', (ws, { hyp, verdict }) => {
     `${hyp} ruled: ${E.VERDICT_EN[verdict]} · froze ${r.frozen} nodes, withdrew ${r.withdrawn} experiments`);
 });
 
-op('decision.snooze', (ws, { id }) => { ws.snoozed[id] = Date.now(); return ok('已放到一边，稍后还会出现', 'Set aside; it will come back later'); });
+op('decision.snooze', (ws, { id }) => { ws.snoozed[id] = Date.now(); return ok('已暂缓，稍后将再次提示', 'Deferred; it will be shown again later'); });
 
 // ---------------------------------------------------------------- survey
 op('survey.collect', (ws, {}) => {
   if (ws.survey.job) return err('采集正在进行', 'A collection round is already running');
   ws.survey.job = { startedAt: Date.now(), endsAt: Date.now() + 25000, records: 120 + Math.floor(Math.random() * 120), digests: 30 + Math.floor(Math.random() * 30) };
-  E.pushEvent(ws, 'surveyor', b('开始一轮采集', 'Collection round started'), b('按 venues.yaml 的游标增量拉取', 'Incremental pull from the cursors in venues.yaml'), 'collect', Date.now());
+  E.pushEvent(ws, 'surveyor', b('开始一轮采集', 'Collection round started'), b('按 venues.yaml 中的游标增量采集', 'Incremental collection from the cursors in venues.yaml'), 'collect', Date.now());
   return ok('采集已启动，约 25 秒后写回游标', 'Collection started; cursors are written back in about 25 seconds');
 });
 
@@ -259,9 +259,9 @@ op('spark.gen', (ws, { gap }) => {
   ws.trendGaps[gap] = true;
   const n = ws.sparks.items.length + 1;
   const texts = {
-    g1: [b('注入点在工具返回值里，把防御放在用户输入端，是不是一开始就选错了位置？', 'If the injection point is in tool return values, was putting the defence at the user-input side wrong from the start?'), b('现有防御都假设注入来自用户输入端，agent 读工具输出这一侧几乎没人设防。', 'Existing defences assume injection comes from the user input side; almost nobody guards the side where an agent reads tool output.')],
-    g2: [b('同一基准上出现相反的规模—越狱关系时，被测量的到底是模型还是基准？', 'When one benchmark gives opposite scale–jailbreak relations, is the model or the benchmark being measured?'), b('两篇在同一基准上给出相反方向的结论。', 'Two papers reach opposite conclusions on the same benchmark.')],
-    g3: [b('自动科研系统的产出，第三方能复现的比例是多少？', 'What share of an automated-science system’s output can a third party reproduce?'), b('评测都在结果正确性上，没有一篇评测产出能否被复现。', 'Evaluations look only at correctness; none checks reproducibility.')],
+    g1: [b('若注入点位于工具返回值，将防御部署在用户输入端是否从一开始就选错了位置？', 'If the injection point lies in tool return values, was placing the defence at the user-input side misguided from the outset?'), b('现有防御均假设注入来自用户输入端，agent 读取工具输出的一侧几乎未设防护。', 'Existing defences assume injection originates from user input; the side where an agent reads tool output is largely unprotected.')],
+    g2: [b('同一基准上的规模与越狱关系出现相反结论时，测量的究竟是模型还是基准？', 'When one benchmark gives opposite results on scale and jailbreak success, is it measuring the model or the benchmark?'), b('两篇论文在同一基准上得出相反结论。', 'Two papers reach opposite conclusions on the same benchmark.')],
+    g3: [b('自动科研系统的产出中，可被第三方复现的比例是多少？', 'What share of an automated-science system’s output can a third party reproduce?'), b('现有评测均针对结果正确性，尚无工作评估产出的可复现性。', 'Evaluations look only at correctness; none checks reproducibility.')],
   }[gap] || [b('新的问题', 'A new question'), b('来自趋势页', 'From the trends screen')];
   const id = `SPARK-2026-09-0${String(ws.seq.spark + 1).padStart(2, '0')}`;
   ws.seq.spark++;
@@ -329,7 +329,7 @@ op('idea.park', (ws, {}) => { const c = ws.ideaLab.cands[ws.ideaLab.cur % ws.ide
 op('idea.lit', (ws, { id }) => { const p = ws.ideaLab.lit.find((x) => x.id === id); if (p) p.selected = !p.selected; return ok(p?.selected ? '已选入抽取集合' : '已移出抽取集合', p?.selected ? 'Added to the extraction set' : 'Removed from the extraction set'); });
 op('idea.extract', (ws, {}) => {
   const sel = ws.ideaLab.lit.filter((p) => p.selected && p.extracted == null);
-  if (!sel.length) return err('先勾选未抽取的文献', 'Select unextracted papers first');
+  if (!sel.length) return err('请先勾选尚未抽取的文献', 'Select unextracted papers first');
   const made = [];
   for (const p of sel) {
     const id = 'H-' + ws.seq.hyp++;
@@ -355,23 +355,23 @@ op('tree.prune', (ws, { node }) => {
   if (!n) return err('节点不存在', 'No such node');
   n.pruned = !n.pruned; n.status = n.pruned ? 'pruned' : 'success';
   if (n.pruned && n.exp && ws.experiments[n.exp]?.status === 'queued') ws.experiments[n.exp].status = 'withdrawn';
-  return ok(n.pruned ? `${node} 已剪掉，记录保留` : `${node} 已恢复`, n.pruned ? `${node} pruned; the record is kept` : `${node} restored`);
+  return ok(n.pruned ? `${node} 已剪枝，记录保留` : `${node} 已恢复`, n.pruned ? `${node} pruned; the record is kept` : `${node} restored`);
 });
 
 op('sweep.metric', (ws, { metric }) => { ws.sweep.metric = metric === 'noise' ? 'noise' : 'eff'; return ok('已切换指标', 'Metric switched'); });
 op('sweep.mode', (ws, { mode }) => { ws.sweep.mode = mode === 'mean' ? 'mean' : 'single'; return ok(mode === 'mean' ? '单元格显示均值' : '单元格显示单次', mode === 'mean' ? 'Cells show the mean' : 'Cells show single runs'); });
 op('sweep.fill', (ws, {}) => {
   const s = ws.sweep;
-  if (s.filled) return err('已经补过这一行', 'This row was already filled');
+  if (s.filled) return err('该行已补全', 'This row was already filled');
   s.filled = true;
   for (const c of s.cells) if (c.b === 2048) { c.state = 'done'; c.eff = 0.94 + c.s * 0.01; c.noise = 0.55 - c.s * 0.01; }
   ws.settings.gpuUsed = Math.round((ws.settings.gpuUsed + 11) * 10) / 10;
-  E.pushEvent(ws, 'human', b('补满 batch=2048 一行', 'Filled the batch=2048 row'), b('花掉 11 GPU·h', 'Spent 11 GPU·h'), 'experiment', Date.now());
-  return ok('已补满 2048 行，花掉 11 GPU·h', 'The 2048 row is filled; 11 GPU·h spent');
+  E.pushEvent(ws, 'human', b('补全 batch=2048 一行', 'Filled the batch=2048 row'), b('消耗 11 GPU·h', 'Spent 11 GPU·h'), 'experiment', Date.now());
+  return ok('已补全 2048 行，消耗 11 GPU·h', 'The 2048 row is filled; 11 GPU·h spent');
 });
 op('sweep.write', (ws, {}) => {
   const s = ws.sweep;
-  if (s.written) return err('这张矩阵已写过证据', 'This matrix already wrote its evidence');
+  if (s.written) return err('该矩阵已写入证据', 'This matrix already wrote its evidence');
   s.written = true;
   const h = ws.hyps[s.hyp];
   h.evidence.push({ exp: 'run_2291', idea: 'P-014', delta: 0.6, note: b('7 档拟合 R²=0.999，趋势成立但相邻档不可分', 'Seven-tier fit R²=0.999; the trend holds but adjacent tiers are indistinguishable'), at: Date.now() });
@@ -399,7 +399,7 @@ op('paper.regen', (ws, {}) => {
 op('paper.gap', (ws, { id }) => {
   const g = ws.paper.gaps.find((x) => x.id === id);
   if (!g) return err('缺口不存在', 'No such gap');
-  if (g.exp) return ok(`正在跑 ${g.exp}`, `${g.exp} is running`);
+  if (g.exp) return ok(`${g.exp} 运行中`, `${g.exp} is running`);
   const r = OPS['exp.run'](ws, { hyp: g.hyp, label: g.label });
   g.exp = r.exp;
   return ok(`${r.exp} 已入队，完成后本段可改为结论性表述`, `${r.exp} queued; the paragraph can be stated conclusively once it finishes`);
@@ -418,7 +418,7 @@ op('claim.fix', (ws, { id, how }) => {
     const sec = ws.paper.sections.find((s) => s.k === c.sec);
     if (sec && c.find) { const i = sec.paras.findIndex((p) => p.zh.includes(c.find.zh.slice(0, 12))); if (i >= 0) sec.paras[i] = b(c.soften.zh, c.soften.en); }
     c.text = b(c.soften.zh, c.soften.en);
-    return ok('已改成推测语气，正文同步更新', 'Softened; the manuscript is updated in place');
+    return ok('已改为推测性表述，正文同步更新', 'Softened; the manuscript is updated in place');
   }
   if (how === 'delete') {
     const sec = ws.paper.sections.find((s) => s.k === c.sec);
@@ -427,12 +427,12 @@ op('claim.fix', (ws, { id, how }) => {
     return ok('该句已从正文删除', 'The sentence was removed from the manuscript');
   }
   if (how === 'experiment') {
-    if (!c.fixExp) return err('这条断言没有可补的实验', 'No experiment to add for this claim');
+    if (!c.fixExp) return err('该断言没有可补充的实验', 'No experiment to add for this claim');
     const r = OPS['exp.run'](ws, { hyp: c.fixExp.hyp, label: b(c.fixExp.zh, c.fixExp.en) });
     c.ev = [...c.ev, r.exp];
     return ok(`${r.exp} 已入队，完成后这条断言自动转为已支撑`, `${r.exp} queued; this claim becomes supported when it finishes`);
   }
-  return err('未知修法', 'Unknown fix');
+  return err('未知修改方式', 'Unknown fix');
 });
 op('claim.batchSoften', (ws, {}) => {
   const over = ws.claims.items.filter((c) => c.status === 'overclaim');
@@ -473,12 +473,12 @@ op('fig.align', (ws, {}) => {
 op('rebuttal.comment', (ws, { id, act }) => {
   const c = ws.rebuttal.comments.find((x) => x.id === id);
   if (!c) return err('意见不存在', 'No such comment');
-  if (act === 'done') { c.status = 'done'; return ok('已标记为处理完', 'Marked as handled'); }
+  if (act === 'done') { c.status = 'done'; return ok('已标记为处理完成', 'Marked as handled'); }
   if (act === 'exp') {
     if (c.exp && ws.experiments[c.exp]) return ok(`${c.exp} 已在队列中`, `${c.exp} is already queued`);
     const r = OPS['exp.run'](ws, { hyp: 'H-30', label: c.fix });
     c.exp = r.exp;
-    return ok(`${r.exp} 已入队应对该意见`, `${r.exp} queued to answer this comment`);
+    return ok(`${r.exp} 已入队，用于回应该意见`, `${r.exp} queued to answer this comment`);
   }
   return err('未知动作', 'Unknown action');
 });
@@ -488,17 +488,17 @@ op('rebuttal.repro', (ws, {}) => {
   const fig4 = ws.figures.items[3];
   r.match = fig4.status === 'done' ? 0.88 : Math.min(0.75, r.match + 0.05);
   r.run = Math.min(0.95, r.run + 0.03);
-  return ok(`干净机器重跑完成 · 结果吻合 ${r.match}`, `Clean-machine re-run done · result match ${r.match}`);
+  return ok(`干净环境复现运行完成 · 结果吻合 ${r.match}`, `Clean-environment reproduction complete · result match ${r.match}`);
 });
 op('rebuttal.pack', (ws, {}) => {
   const over = ws.claims.items.filter((c) => c.status === 'overclaim');
-  if (over.length) return err(`导出停下：还有 ${over.length} 条过度声称`, `Export halted: ${over.length} overclaims remain`);
+  if (over.length) return err(`导出已中止：仍有 ${over.length} 条过度声称`, `Export halted: ${over.length} overclaims remain`);
   // 'anon' runs as part of the export itself, so it never blocks it
   const undone = ws.rebuttal.checklist.filter((k) => !(k.auto === 'claims' || k.auto === 'anon' ? true : k.auto === 'fig4' ? ws.figures.items[3]?.status === 'done' : k.done));
   if (undone.length) return err(`投稿清单还有 ${undone.length} 项未完成`, `${undone.length} checklist items are unfinished`);
   for (const k of ws.rebuttal.checklist) if (k.auto === 'anon') k.done = true;
   ws.rebuttal.packed = Date.now();
-  E.pushEvent(ws, 'human', b('打包投稿版', 'Submission package built'), b('匿名化脚本已跑过并给出 diff', 'The anonymisation script ran and produced a diff'), 'paper', Date.now());
+  E.pushEvent(ws, 'human', b('打包投稿版', 'Submission package built'), b('匿名化脚本已执行并生成 diff', 'The anonymisation script ran and produced a diff'), 'paper', Date.now());
   return ok('投稿版已打包（匿名化 diff 已生成）', 'Submission package built (anonymisation diff generated)');
 });
 op('rebuttal.rewrite', (ws, {}) => {
@@ -523,7 +523,7 @@ export function apply(ws, opName, args, lang = 'zh') {
   const fn = OPS[opName];
   if (!fn) return { ok: false, toast: b('未知操作', 'Unknown operation') };
   if (ws.mode === 'project' && !PROJECT_OPS.has(opName)) {
-    return { ok: false, toast: b('接入真实项目时，这一步由 agent 写入：工作台只写裁定、排队与人工事件。',
+    return { ok: false, toast: b('接入真实项目时，这一步由 agent 写入。工作台只写入裁定和排队记录。',
       'On a live project this step is written by an agent: the workbench only writes verdicts, queue entries and human events.') };
   }
   if (ws.readonly) return { ok: false, toast: b('当前为只读模式', 'This workspace is read-only') };

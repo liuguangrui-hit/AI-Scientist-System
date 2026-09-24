@@ -206,7 +206,7 @@ function fillSlots(ws, at) {
     let g = 0; while (usedGpu.has(g) && g < ws.settings.gpus) g++;
     usedGpu.add(g);
     e.status = 'running'; e.gpu = g; e.startedAt = at; e.prog = 0; free--; started = true;
-    pushEvent(ws, 'executor', b(`${e.id} 开始运行 · ${e.hyp}`, `${e.id} started · ${e.hyp}`), b('槽位空出后自动开跑', 'Auto-started when a slot freed'), 'experiment', at, { hyp: e.hyp, exp: e.id });
+    pushEvent(ws, 'executor', b(`${e.id} 开始运行 · ${e.hyp}`, `${e.id} started · ${e.hyp}`), b('槽位释放后自动开始运行', 'Auto-started when a slot freed'), 'experiment', at, { hyp: e.hyp, exp: e.id });
   }
   return started;
 }
@@ -276,7 +276,7 @@ function finishSurvey(ws, now) {
   ws.survey.fulltext = j.digests;
   for (const v of ws.survey.venues) if (v.status === 'ok') v.delta = Math.max(1, Math.round(v.delta * (0.6 + Math.random() * 0.8)));
   pushEvent(ws, 'surveyor', b(`采集完成 · ${j.records} 题录 / ${j.digests} digest`, `Collection done · ${j.records} records / ${j.digests} digests`),
-    b('预算到顶，游标已写回；TDSC 入口仍然失效', 'Budget reached, cursors written back; the TDSC entry is still broken'), 'collect', now);
+    b('已达预算上限，游标已写回；TDSC 入口仍不可用', 'Budget reached, cursors written back; the TDSC entry is still unavailable'), 'collect', now);
 }
 
 // ---------------------------------------------------------------- verdict application
@@ -330,8 +330,8 @@ export function reviewerAdvice(ws, hyp) {
   const pos = h.evidence.filter((e) => e.delta > 0), neg = h.evidence.filter((e) => e.delta < 0);
   const roots = activeIdeasOf(ws, hyp).filter((i) => roleIn(ws, hyp ? i : i, hyp)?.kind === 'root');
   if (pos.length && neg.length) return { action: 'narrow_scope', why: b(
-    `三次 PIVOT 都在换估计方式，没有换测量口径。${pos.map((e) => e.exp).join(' 与 ')} 显示断言在局部成立，建议改写 claim 缩小适用范围，而不是整体关闭${roots.length ? ` —— 否则 ${roots.join(' ')} 整棵树要重开` : ''}。`,
-    `Every PIVOT changed the estimator, none changed the measurement. ${pos.map((e) => e.exp).join(' and ')} show the claim holds locally, so narrow the claim rather than closing it${roots.length ? ` — otherwise the whole ${roots.join(' ')} tree reopens` : ''}.`) };
-  if (!pos.length && neg.length >= 3) return { action: 'close', why: b('全部证据为负，且没有局部成立的迹象。', 'All evidence is negative with no sign of local validity.') };
+    `三次 PIVOT 只换了估计方法，没有换测量口径。${pos.map((e) => e.exp).join(' 与 ')} 显示断言在局部成立。建议改写 claim 缩小适用范围，而不是整体关闭。${roots.length ? `否则 ${roots.join(' ')} 整棵树需要重开。` : ''}`,
+    `All PIVOTs changed the estimator but not the measurement protocol. ${pos.map((e) => e.exp).join(' and ')} show the claim holds locally. Narrow the claim rather than closing it.${roots.length ? ` Otherwise the whole ${roots.join(' ')} tree reopens.` : ''}`) };
+  if (!pos.length && neg.length >= 3) return { action: 'close', why: b('全部证据为负，且无局部成立的迹象。', 'All evidence is negative with no sign of local validity.') };
   return { action: 'return_active', why: b('证据不足以判定，附新方向后重回 frontier。', 'Evidence is not decisive; return it to the frontier with a new direction.') };
 }

@@ -13,7 +13,7 @@ export function Survey({ q, onShell }) {
     <span class="chip">surveyor · ${data.shell.agents.surveyor}</span>
     <span class="small mut">${L(`上轮 ${clock(d.lastRun)} 完成 · 下次 ${d.nextInDays} 天后`, `Last round ${clock(d.lastRun)} · next in ${d.nextInDays} days`)}</span>
     <div class="grow"></div>
-    ${job ? html`<span class="chip acc"><span class="spin"></span>${L(`采集中 · 还剩 ${dur(job.remainMs)}`, `Collecting · ${dur(job.remainMs)} left`)}</span>`
+    ${job ? html`<span class="chip acc"><span class="spin"></span>${L(`采集中 · 剩余 ${dur(job.remainMs)}`, `Collecting · ${dur(job.remainMs)} left`)}</span>`
       : html`<button class="btn sm pri" onClick=${() => act('survey.collect', {})}>${I('play', { s: 12 })}${L('立即采集', 'Collect now')}</button>`}`}>
 
     <div class="kpis">
@@ -25,7 +25,7 @@ export function Survey({ q, onShell }) {
     </div>
 
     ${job && html`<div class="card" style="margin-top:12px"><div class="bd">
-      <div class="row"><span class="spin"></span><span class="b">${L('正在按游标增量拉取…', 'Pulling incrementally from the cursors…')}</span>
+      <div class="row"><span class="spin"></span><span class="b">${L('正在按游标增量采集…', 'Collecting incrementally from the cursors…')}</span>
         <div class="grow"></div><span class="mono small">${dur(job.remainMs)}</span></div>
       <div style="margin-top:9px"><${Bar} v=${1 - job.remainMs / (job.endsAt - job.startedAt)} /></div>
     </div></div>`}
@@ -37,7 +37,7 @@ export function Survey({ q, onShell }) {
         <button class=${tab === 'cand' ? 'on' : ''} onClick=${() => setTab('cand')}>${L('候选 · 待确认', 'Candidates')} ${d.candidates.length}</button>
       </div>
       <div class="grow"></div>
-      <span class="tiny faint">${L('scan 字段决定扫法 · 点一行可切换', 'the scan field decides how a source is read · click a row to switch')}</span>
+      <span class="tiny faint">${L('scan 字段决定扫法 · 点击行可切换', 'the scan field decides how a source is read · click a row to switch')}</span>
     </div>
 
     ${tab === 'venues' && html`<div class="card" style="border-radius:0 0 7px 7px"><div class="bd" style="padding:0">
@@ -56,16 +56,16 @@ export function Survey({ q, onShell }) {
       </tbody><//>
     </div>
     <div class="ft">${L(`其余 ${d.others} 个来源本轮无新增 · 停用清单另存 ${d.parked} 个，采集时不读`, `${d.others} other sources added nothing this round · ${d.parked} parked sources are not read`)}
-      <div class="grow"></div><a href="/digest">${L('看一篇入库论文 →', 'Open an indexed paper →')}</a></div></div>`}
+      <div class="grow"></div><a href="/digest">${L('查看入库论文示例 →', 'Open an indexed paper →')}</a></div></div>`}
 
     ${tab === 'funnel' && html`<div class="card" style="border-radius:0 0 7px 7px"><div class="bd">
       <div class="cols2">
         <div>
           ${[[L('枚举 / 关键词检索到', 'Enumerated / searched'), d.enumerated, L('core 全量枚举 + watch 按 seeds 检索', 'core enumerated in full + watch searched by seeds'), 1],
             [L('通过 topics.md 判定', 'Passed topics.md'), d.passedTopics, L('命中至少一个 track，可多标', 'matches at least one track; multiple allowed'), d.passedTopics / d.enumerated],
-            [L('level 1 · 入库题录 + 摘要原文', 'level 1 · record + abstract'), d.funnel.l1, L('到预算上限即停，游标已写回 state.json', 'stops at the budget cap; cursors written back to state.json'), d.funnel.l1 / d.enumerated],
+            [L('level 1 · 入库题录 + 摘要原文', 'level 1 · record + abstract'), d.funnel.l1, L('达到预算上限即停止，游标已写回 state.json', 'stops at the budget cap; cursors written back to state.json'), d.funnel.l1 / d.enumerated],
             [L('level 2 · 下载全文 + digest', 'level 2 · full text + digest'), d.funnel.l2, L(`命中 track 的优先，${d.funnel.l2} / ${d.fulltextCap}`, `track hits first, ${d.funnel.l2} / ${d.fulltextCap}`), d.funnel.l2 / d.enumerated],
-            [L('level 3 · brief_zh + full_zh', 'level 3 · brief + full translation'), d.funnel.l3, L('只做 queue_fulltext.txt 里的 id', 'only ids listed in queue_fulltext.txt'), d.funnel.l3 / d.enumerated]].map(([lab, n, note, w]) => html`
+            [L('level 3 · brief_zh + full_zh', 'level 3 · brief + full translation'), d.funnel.l3, L('仅处理 queue_fulltext.txt 中列出的 id', 'only ids listed in queue_fulltext.txt'), d.funnel.l3 / d.enumerated]].map(([lab, n, note, w]) => html`
             <div style="margin-bottom:13px">
               <div class="row"><span class="small b">${lab}</span><div class="grow"></div><span class="num">${n}</span></div>
               <div style="margin:5px 0"><${Bar} v=${Math.max(0.02, w)} /></div>
@@ -107,9 +107,9 @@ const CLUSTERS = [['间接注入与工具链投毒', 'Indirect injection & tool-
   ['模型窃取与水印', 'Model stealing & watermarking', 24, '−31%'], ['反学习与合规删除', 'Unlearning & compliant deletion', 22, '+2%'], ['多 agent 协作失效', 'Multi-agent coordination failure', 18, 'new']];
 const TERMS = [['RAG poisoning', 180], ['guardrail bypass', 140], ['indirect prompt injection', 95], ['automated reproduction', 62], ['deepfake detection', -40], ['model watermarking', -35]];
 const GAPS = [
-  { id: 'g1', kind: 'gap', zh: '注入点在工具返回值里', en: 'The injection point is in tool return values', bzh: '现有防御都假设注入来自用户输入端，agent 读工具输出这一侧几乎没人设防。6 篇提到，0 篇解决。', ben: 'Existing defences assume injection comes from user input; almost nobody guards the side where an agent reads tool output. Mentioned in 6 papers, solved in 0.', src: 'arxiv-2606-01882, doi-10-1145-3576915-3616600, +4' },
-  { id: 'g2', kind: 'contra', zh: '模型规模与越狱成功率', en: 'Model scale vs. jailbreak success', bzh: '两篇在同一基准上给出相反方向的结论，评测口径不同但都没说明。', ben: 'Two papers reach opposite conclusions on the same benchmark; their setups differ and neither says so.', src: 'arxiv-2605-09931, doi-10-1109-sp2026-00142' },
-  { id: 'g3', kind: 'gap', zh: '自动科研系统只评「对不对」', en: 'Automated science is judged only on correctness', bzh: '评测都在结果正确性上，没有一篇评测产出能否被第三方复现。', ben: 'Evaluations only check whether results are correct; none checks whether outputs can be reproduced by a third party.', src: 'arxiv-2607-11244, +3' },
+  { id: 'g1', kind: 'gap', zh: '注入点位于工具返回值', en: 'The injection point is in tool return values', bzh: '现有防御都假设注入来自用户输入端。agent 读取工具输出的一侧几乎没有防护。6 篇论文提及，尚无工作解决。', ben: 'Existing defences assume injection originates from user input; the side where an agent reads tool output is largely unprotected. Six papers mention it; none addresses it.', src: 'arxiv-2606-01882, doi-10-1145-3576915-3616600, +4' },
+  { id: 'g2', kind: 'contra', zh: '模型规模与越狱成功率', en: 'Model scale vs. jailbreak success', bzh: '两篇论文在同一基准上得出相反结论，评测口径不同但均未说明。', ben: 'Two papers reach opposite conclusions on the same benchmark; their setups differ and neither says so.', src: 'arxiv-2605-09931, doi-10-1109-sp2026-00142' },
+  { id: 'g3', kind: 'gap', zh: '自动科研系统的评测仅关注正确性', en: 'Automated science is judged only on correctness', bzh: '现有评测均针对结果正确性，尚无工作评估产出能否被第三方复现。', ben: 'Evaluations only check whether results are correct; none checks whether outputs can be reproduced by a third party.', src: 'arxiv-2607-11244, +3' },
 ];
 
 export function Trends({ q, onShell }) {
@@ -128,7 +128,7 @@ export function Trends({ q, onShell }) {
     </div>
     <div class="cols2" style="margin-top:12px">
       <div class="col">
-        <${Card} title=${L('主题簇', 'Topic clusters')} sub=${L('从 digest 的 keywords 聚出来，不是预设分类', 'clustered from digest keywords, not a fixed taxonomy')}>
+        <${Card} title=${L('主题簇', 'Topic clusters')} sub=${L('由 digest 关键词聚类得到，非预设分类', 'clustered from digest keywords, not a fixed taxonomy')}>
           ${CLUSTERS.map(([zh, en, n, tag]) => html`
             <div style="margin-bottom:9px">
               <div class="row"><span class="small b" style="flex:1 1 150px">${L(zh, en)}</span>
@@ -136,8 +136,8 @@ export function Trends({ q, onShell }) {
                 <span class="num" style="width:32px;text-align:right">${n}</span></div>
               <div style="margin-top:4px"><${Bar} v=${n / 70} h=${5} c=${tag === 'new' ? 'var(--acc)' : 'var(--faint2)'} /></div>
             </div>`)}
-          <div class="note" style="margin-top:10px">${L('本期 3 个新簇；「间接注入与工具链投毒」里有 5 篇做法高度相似，按规则不合并——同期扎堆本身是信号。',
-            'Three new clusters this period. Five papers in “indirect injection” look almost alike; by the rules they are not merged — a pile-up in one period is itself a signal.')}</div>
+          <div class="note" style="margin-top:10px">${L('本期新增 3 个簇。间接注入方向有 5 篇方法高度相似，按规则不合并。同期集中出现本身就是趋势信号。',
+            'Three new clusters this period. Five papers on indirect injection use near-identical methods. By rule they are not merged. Their concentration is itself a trend signal.')}</div>
         <//>
         <${Card} title=${L('术语变化', 'Term shifts')} sub=${L('相对上期，keywords 用英文原文', 'versus last period; keywords kept in the original English')}>
           <div class="cols3">
@@ -150,8 +150,8 @@ export function Trends({ q, onShell }) {
             <span class="tiny faint">${L('本期新出现', 'New this period')}:</span>
             ${[['agent hijacking', 14], ['tool poisoning', 9], ['computer-use agent', 7], ['reproduction benchmark', 5]].map(([k, n]) => html`<span class="chip mono">${k} ${n}</span>`)}
           </div>
-          <div class="note" style="margin-top:11px">${L('同一现象两个名字：jailbreak 与 guardrail bypass 并存，agent hijacking 与 agent takeover 并存。两边都保留，不做归一化。',
-            'One phenomenon, two names: jailbreak and guardrail bypass coexist, as do agent hijacking and agent takeover. Both are kept; nothing is normalised.')}</div>
+          <div class="note" style="margin-top:11px">${L('同一现象有两种术语。jailbreak 与 guardrail bypass 并存，agent hijacking 与 agent takeover 也并存。两者都保留，不做归一化。',
+            'One phenomenon has two names. Jailbreak and guardrail bypass coexist, as do agent hijacking and agent takeover. Both names are kept.')}</div>
         <//>
       </div>
       <div class="col">
@@ -165,16 +165,16 @@ export function Trends({ q, onShell }) {
                 <div class="mono tiny faint" style="margin-top:7px">${g.src}</div>
                 <div class="row" style="margin-top:9px">
                   ${done[g.id]
-                    ? html`<a class="btn sm" href="/sparks">${L('已生成 spark，去看 →', 'Spark generated — open it →')}</a>`
+                    ? html`<a class="btn sm" href="/sparks">${L('已生成 spark，查看 →', 'Spark generated. Open it →')}</a>`
                     : html`<button class="btn sm acc" onClick=${() => act('spark.gen', { gap: g.id })}>${I('zap', { s: 12, c: '#fff' })}${L('生成 spark', 'Generate a spark')}</button>`}
                 </div>
               </div>`)}
           </div>
         <//>
         <${Card} title=${L('与上期相比', 'Versus last period')}>
-          ${[[L('起来了', 'Rising'), L('间接注入相关工作翻倍，且首次出现在安全四大正会', 'Indirect-injection work doubled and appeared at the four top security venues for the first time'), 'ok'],
-            [L('停了', 'Stalled'), L('静态水印鲁棒性连续两期无新增', 'Static watermark robustness added nothing for two periods running'), ''],
-            [L('被证伪', 'Falsified'), L('「小模型更难越狱」被 3 篇反例推翻，其中 2 篇用同一基准', '“Smaller models are harder to jailbreak” was overturned by 3 counter-examples, 2 on the same benchmark'), 'bad']].map(([k, v, c]) => html`
+          ${[[L('上升', 'Rising'), L('间接注入相关工作数量翻倍，并首次出现于安全领域四大顶会', 'Indirect-injection work doubled and appeared at the four top security venues for the first time'), 'ok'],
+            [L('停滞', 'Stalled'), L('静态水印鲁棒性连续两期无新增', 'No new work on static watermark robustness for two consecutive periods'), ''],
+            [L('被证伪', 'Falsified'), L('小模型更难越狱的说法被 3 篇反例否定，其中 2 篇使用同一基准', 'The claim that smaller models are harder to jailbreak was refuted by 3 counter-examples, 2 of them on the same benchmark'), 'bad']].map(([k, v, c]) => html`
             <div style="padding:8px 0;border-bottom:1px solid var(--line2)">
               <span class=${'chip ' + c}>${k}</span><div class="small mut" style="margin-top:5px">${v}</div></div>`)}
         <//>
@@ -209,11 +209,11 @@ export function Sparks({ q, onShell }) {
                 <div class="row"><span class="mono tiny b">${s.id.replace('SPARK-2026-09-', '')}</span><${St} s=${s.status} />
                   ${s.ideaOf && html`<${IdeaTag} id=${s.ideaOf} />`}</div>
                 <div class="small" style="margin-top:5px">${t(s.ask)}</div>
-                <div class="tiny faint" style="margin-top:4px">${L(`证 ${s.papers.length} 篇`, `${s.papers.length} papers`)}</div>
+                <div class="tiny faint" style="margin-top:4px">${L(`依据 ${s.papers.length} 篇`, `${s.papers.length} papers`)}</div>
               </div>
             </div>`)}
         </div>
-        <div class="ft" style="margin:0 -14px -13px">${L(`本期起草 ${d.drafted} 条，自检删掉 ${d.dropped} 条，没有凑满配额`, `${d.drafted} drafted this period, ${d.dropped} dropped by the self-checks — the quota was not padded`)}</div>
+        <div class="ft" style="margin:0 -14px -13px">${L(`本期起草 ${d.drafted} 条，自检剔除 ${d.dropped} 条，未为满足配额而补足`, `${d.drafted} drafted this period, ${d.dropped} removed by the self-checks. The quota was not padded.`)}</div>
       <//>
 
       ${cur && html`<div class="col">
@@ -233,20 +233,20 @@ export function Sparks({ q, onShell }) {
         ${cur.checks && html`<${Card} title=${L('三道自检', 'Three self-checks')}>
           ${cur.checks.map((c) => html`<div class="row" style="align-items:flex-start;margin-bottom:7px">
             ${I('check', { s: 14, c: 'var(--ok)' })}<span class="small" style="flex:1 1 200px">${t(c)}</span></div>`)}
-          <div class="note" style="margin-top:9px">${L(`被删的 ${d.dropped} 条：2 条读起来是方案，1 条说不出谁会因此改变决定。`, `The ${d.dropped} dropped: two read as solutions, one could not name anyone who would change a decision.`)}</div>
+          <div class="note" style="margin-top:9px">${L(`被剔除的 ${d.dropped} 条中：2 条实为方案而非研究问题，1 条无法说明将影响何方决策。`, `The ${d.dropped} dropped: two were solutions rather than questions, and one could not identify whose decision it would inform.`)}</div>
         <//>`}
-        <${Card} title=${L('交接', 'Hand-off')} sub=${L('Codex 选中后只改这一行的状态', 'Codex only changes this row’s state when it picks one up')}>
+        <${Card} title=${L('交接', 'Hand-off')} sub=${L('Codex 选定后仅修改该行状态', 'Codex changes only this row’s state upon selection')}>
           <div class="row">
-            ${cur.status === 'available' && html`<button class="btn sm pri" onClick=${() => act('spark.state', { id: cur.id, status: 'selected' })}>${L('标为 selected · 交给 Codex', 'Mark selected · hand to Codex')}</button>`}
+            ${cur.status === 'available' && html`<button class="btn sm pri" onClick=${() => act('spark.state', { id: cur.id, status: 'selected' })}>${L('标为 selected · 交由 Codex', 'Mark selected · hand to Codex')}</button>`}
             ${cur.status === 'selected' && html`<${F}>
-              <a class="btn sm acc" href="/ideas">${L('去立项页展开成假设', 'Expand into hypotheses →')}</a>
+              <a class="btn sm acc" href="/ideas">${L('前往立项页展开为假设', 'Expand into hypotheses →')}</a>
               <button class="btn sm" onClick=${() => act('spark.state', { id: cur.id, status: 'developed' })}>${L('标为 developed', 'Mark developed')}</button><//>`}
-            ${cur.status === 'developed' && html`<a class="btn sm" href=${'/tree?idea=' + (cur.ideaOf || 'P-014')}>${L('看展开出来的假设树 →', 'Open the tree it grew into →')}</a>`}
+            ${cur.status === 'developed' && html`<a class="btn sm" href=${'/tree?idea=' + (cur.ideaOf || 'P-014')}>${L('查看展开后的假设树 →', 'Open the resulting hypothesis tree →')}</a>`}
             <button class="btn sm" onClick=${() => act('spark.merge', { id: cur.id })}>${L('合并到…', 'Merge into…')}</button>
-            ${cur.status === 'available' && html`<button class="btn sm" onClick=${() => act('spark.state', { id: cur.id, status: 'parked' })}>${L('暂存 parked', 'Park it')}</button>`}
+            ${cur.status === 'available' && html`<button class="btn sm" onClick=${() => act('spark.state', { id: cur.id, status: 'parked' })}>${L('暂存 parked', 'Park')}</button>`}
           </div>
-          <div class="note" style="margin-top:10px">${L(`没有 rejected：这期没被选中的留在 available，下期连同新 spark 一起给 Codex 挑。`,
-            'There is no rejected state: whatever is not picked stays available and goes back to Codex next period with the new sparks.')}</div>
+          <div class="note" style="margin-top:10px">${L(`不设 rejected 状态。未被选中的 spark 保留为 available，下期与新 spark 一起交由 Codex 选择。`,
+            'There is no rejected state. Unselected sparks stay available and return to Codex next period.')}</div>
         <//>
         <${Card} title=${L('近期动作', 'Recent actions')}>
           ${d.actions.slice(0, 6).map((a) => html`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line2)">
@@ -274,7 +274,7 @@ export function Digest({ q, onShell }) {
     ${p.level < 3 && html`<button class="btn sm pri" onClick=${() => act('paper.level3', { id: p.id })}>${L('升到 level 3', 'Promote to level 3')}</button>`}`}>
     <div class="cols2">
       <div class="col">
-        <${Card} title="digest.md" sub=${L('字段固定、顺序固定、缺项写「未提及」——趋势分析只读这一份', 'Fixed fields in a fixed order; missing ones say “not mentioned”. Trend analysis reads only this.')}
+        <${Card} title="digest.md" sub=${L('字段与顺序固定，缺项记为未提及。趋势分析只读取此文件', 'Fields and their order are fixed. Missing fields read not mentioned. Trend analysis reads only this file.')}
           right=${html`<button class="btn xs" onClick=${() => act('paper.regen', { id: p.id })}>${L('重新生成 digest', 'Regenerate digest')}</button>`}>
           ${p.digest ? html`<${F}>
             <div class="b" style="font-size:14px;margin-bottom:11px">${t(p.digest.title)}</div>
@@ -285,9 +285,9 @@ export function Digest({ q, onShell }) {
             <div class="hr"></div>
             <div class="row wrap"><span class="chip" style="width:84px;justify-content:center">${L('关键词', 'Keywords')}</span>
               ${p.keywords.map((k) => html`<span class="chip mono">${k}</span>`)}</div>
-            <div class="tiny faint" style="margin-top:7px">${L('英文原文术语，不做中译也不归一化——跨批次聚类要对得上。', 'Terms stay in the original English, untranslated and un-normalised, so clustering matches across batches.')}</div>
+            <div class="tiny faint" style="margin-top:7px">${L('保留英文原始术语，不翻译也不归一化。这样跨批次聚类才能对齐。', 'Terms stay in the original English. This keeps clustering consistent across batches.')}</div>
             ${p.regenAt && html`<div class="note acc" style="margin-top:10px">${L(`digest 已于 ${clock(p.regenAt)} 重新生成。`, `Digest regenerated at ${clock(p.regenAt)}.`)}</div>`}
-          <//>` : html`<${Empty}>${L('这篇还没有 digest（level 1）。', 'No digest yet (level 1).')}<//>`}
+          <//>` : html`<${Empty}>${L('该论文暂无 digest（level 1）。', 'No digest yet (level 1).')}<//>`}
         <//>
       </div>
       <div class="col">
@@ -299,14 +299,14 @@ export function Digest({ q, onShell }) {
           </tbody><//>
           <div class="note" style="margin-top:10px">${L('include_reason：', 'include_reason: ')}${t(p.reason)}</div>
         <//>
-        <${Card} title=${L('落盘目录', 'On disk')} sub=${'sources/papers/' + p.id + '/'}>
+        <${Card} title=${L('存储目录', 'Storage directory')} sub=${'sources/papers/' + p.id + '/'}>
           ${[['meta.json', L('题录与状态', 'record and state'), true], ['raw.pdf', L(`原文 ${p.size}`, `source, ${p.size}`), true],
             ['digest.md', L('结构化摘要', 'structured summary'), !!p.digest], ['brief_zh.md', p.brief ? L('已生成', 'generated') : L('未生成', 'not generated'), p.brief],
             ['full_zh.md', p.full ? L('已生成', 'generated') : L('未生成', 'not generated'), p.full]].map(([f, note, on]) => html`
             <div class="row" style=${{ padding: '5px 0', opacity: on ? 1 : .45 }}>
               <span class="mono small" style="width:96px">${f}</span><span class="tiny mut">${note}</span></div>`)}
-          <div class="note" style="margin-top:9px">${L('预印转正后只改 doi / venue / status，目录名不变，已有引用不会断。',
-            'When a preprint is published only doi / venue / status change; the directory name stays, so existing citations do not break.')}</div>
+          <div class="note" style="margin-top:9px">${L('预印本正式发表后仅更新 doi / venue / status，目录名不变，已有引用保持有效。',
+            'When a preprint is published only doi / venue / status change; the directory name is unchanged, so existing citations remain valid.')}</div>
         <//>
         ${d.cited.length > 0 && html`<${Card} title=${L('被引用于', 'Cited by')}>
           ${d.cited.map((s) => html`<a class="item" href="/sparks" style="text-decoration:none;color:inherit">

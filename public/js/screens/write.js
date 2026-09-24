@@ -6,7 +6,7 @@ const F = ({ children }) => children;
 
 const VERDICTS = [
   ['close', '判定不成立并关闭', 'Does not hold — close', '写 verdicts/ 并传播', 'writes verdicts/ and propagates'],
-  ['return_active', '退回 active', 'Return to active', '附新方向，重回 frontier', 'with a new direction, back to the frontier'],
+  ['return_active', '退回 active', 'Return to active', '附新方向，重新进入 frontier', 'with a new direction, back to the frontier'],
   ['narrow_scope', '改写 claim 后重开', 'Rewrite the claim and reopen', '缩小到低秩情形', 'narrowed to the low-rank case'],
   ['downgrade', '降级为借用前提', 'Downgrade to a borrowed premise', '标注未验证', 'marked unverified'],
 ];
@@ -26,7 +26,7 @@ export function Review({ q, onShell }) {
       <div class="col">
         <${Card} title=${L('裁定队列', 'Verdict queue')} sub=${L('executor 已停止展开', 'the executor has stopped expanding these')}>
           <div class="list" style="margin:-13px -14px">
-            ${d.pending.length === 0 && html`<div class="bd"><${Empty}>${L('队列是空的——所有假设都在自行推进。', 'The queue is empty — every hypothesis is advancing on its own.')}<//></div>`}
+            ${d.pending.length === 0 && html`<div class="bd"><${Empty}>${L('队列为空。所有假设都在自动推进中。', 'The queue is empty; all hypotheses are progressing automatically.')}<//></div>`}
             ${d.pending.map((v) => html`
               <div class=${'item' + (sel?.id === v.id ? ' on' : '')} onClick=${() => { setPick(null); go(qs({ h: v.id })); }}>
                 <div style="flex-grow:1">
@@ -38,7 +38,7 @@ export function Review({ q, onShell }) {
                 </div>
               </div>`)}
           </div>
-          <div class="ft">${L('其余节点未达升级阈值，executor 继续自行推进。', 'Everything else is below the threshold; the executor keeps going on its own.')}</div>
+          <div class="ft">${L('其余节点未达升级阈值，由 executor 继续自动推进。', 'All other nodes are below the escalation threshold and continue under the executor.')}</div>
         <//>
         <${Card} title=${L('已裁定', 'Ruled')}>
           ${d.done.slice(0, 8).map((v) => html`
@@ -60,8 +60,8 @@ export function Review({ q, onShell }) {
           <div style="margin-top:10px"><${Meter} v=${sel.score} /></div>
         <//>
 
-        <${Card} title=${L('判定为不成立时的影响范围', 'What breaks if it does not hold')}
-          sub=${L('同一条假设在各 idea 里处在不同层级，后果也不同', 'the same hypothesis sits at a different level in each project, so the damage differs')}>
+        <${Card} title=${L('判定为不成立时的影响范围', 'Impact if the hypothesis is rejected')}
+          sub=${L('同一条假设在各 idea 里处在不同层级，后果也不同', 'the same hypothesis sits at a different level in each project, so the consequences differ')}>
           ${sel.impact.map((im) => html`
             <div style=${{ padding: '11px', marginBottom: '8px', border: '1px solid var(--line)', borderRadius: '6px', borderLeft: '3px solid ' + ic(im.idea) }}>
               <div class="row"><span class="mono b">${im.idea}</span>
@@ -73,7 +73,7 @@ export function Review({ q, onShell }) {
                     : im.kind === 'local' ? L('局部 · 已有独立证据，不受影响', 'local · independently evidenced, unaffected')
                     : L(`分支失效 · 冻结 ${im.frozen} 个节点`, `branch fails · ${im.frozen} nodes freeze`)}</span></div>
               <div class="mono tiny mut" style="margin-top:7px">${im.chain.join(' → ')}${im.kind === 'global' ? L(' → 全树', ' → whole tree') : ''}</div>
-              <div class="tiny mut" style="margin-top:5px">${im.kind === 'global' ? L('全部节点回到 untested · 已写的章节需重写', 'every node returns to untested · written sections must be rewritten')
+              <div class="tiny mut" style="margin-top:5px">${im.kind === 'global' ? L('全部节点重置为 untested · 已撰写章节需重写', 'every node returns to untested · written sections must be rewritten')
                 : im.kind === 'local' ? L('已有独立证据证明该点，无需动作', 'an independent run already proves this point; no action needed')
                 : L(`冻结下游节点 · 相关实验从队列撤下`, 'downstream nodes freeze · related runs leave the queue')}</div>
             </div>`)}
@@ -89,7 +89,7 @@ export function Review({ q, onShell }) {
             <span class="chip acc">${L(VERDICTS.find((v) => v[0] === sel.advice.action)[1], VERDICTS.find((v) => v[0] === sel.advice.action)[2])}</span></div>
         <//>
 
-        <${Card} title=${L('裁定', 'Rule on it')} sub=${L('裁定结果只写 verdicts/，节点状态由此派生', 'a verdict writes only verdicts/; node state derives from it')}>
+        <${Card} title=${L('裁定', 'Verdict')} sub=${L('裁定结果只写 verdicts/，节点状态由此派生', 'a verdict writes only verdicts/; node state derives from it')}>
           <div class="col">
             ${VERDICTS.map(([k, zh, en, dzh, den]) => html`
               <label class="row" style=${{ padding: '9px 11px', border: '1px solid ' + (chosen === k ? 'var(--acc)' : 'var(--line)'), background: chosen === k ? 'var(--accbg)' : undefined, borderRadius: '6px', cursor: 'pointer' }}
@@ -106,14 +106,14 @@ export function Review({ q, onShell }) {
             <button class="btn acc" onClick=${async () => { const r = await act('verdict.apply', { hyp: sel.id, verdict: chosen }); if (r.ok) { setPick(null); go('/review'); } }}>
               ${L('确认裁定并传播', 'Confirm and propagate')}</button>
             <a class="btn" href=${'/panorama?h=' + sel.id}>${L('在网络中查看', 'See it in the network')}</a>
-            <a class="btn" href=${'/tree?idea=' + sel.ideas[0]?.idea + '&h=' + sel.id}>${L('看单 idea 树', 'Single-idea tree')}</a>
+            <a class="btn" href=${'/tree?idea=' + sel.ideas[0]?.idea + '&h=' + sel.id}>${L('查看单 idea 树', 'Single-idea tree')}</a>
           </div>
           <div class="note" style="margin-top:10px">${L(`裁定后队列：+${sel.queueAfter.reopen} 节点回到 frontier · −${sel.queueAfter.withdraw} 实验从队列撤下 · ${sel.queueAfter.unaffected} 个 idea 不受影响`,
             `After the verdict: +${sel.queueAfter.reopen} nodes return to the frontier · −${sel.queueAfter.withdraw} runs leave the queue · ${sel.queueAfter.unaffected} project(s) unaffected`)}</div>
         <//>
       </div>` : html`<${Card} title=${L('没有待裁定的假设', 'Nothing awaits a verdict')}>
-        <${Empty}>${L('所有假设都在自行推进。证据矛盾或连续三次 PIVOT 时，它们会出现在这里。',
-          'Every hypothesis is advancing on its own. They appear here when evidence contradicts or three PIVOTs bring no improvement.')}<//>
+        <${Empty}>${L('所有假设都在自动推进中。出现证据矛盾或连续三次 PIVOT 时，相应假设会列在这里。',
+          'All hypotheses are progressing automatically. A hypothesis appears here when evidence conflicts or three consecutive PIVOTs bring no improvement.')}<//>
       <//>`}
     </div>
   <//>`;
@@ -129,7 +129,7 @@ export function Paper({ q, onShell }) {
   const d = data.paper;
   const s = d.sections.find((x) => x.k === sel) || d.sections[0];
   if (!s) return html`<${Frame}><${Card} title=${L('论文正文', 'Manuscript')}>
-    <${Empty}>${L('还没有草稿。当一个 idea 的节点全部 self_verified 后，系统会按假设树生成章节。',
+    <${Empty}>${L('暂无草稿。当某个 idea 的全部节点达到 self_verified 后，系统将依据假设树生成章节。',
       'No draft yet. When every node of an idea is self_verified, the sections are generated from its hypothesis tree.')}<//><//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip mono">${d.idea}</span><span class="small">${t(d.ideaTitle)}</span>
@@ -156,7 +156,7 @@ export function Paper({ q, onShell }) {
               <span class=${'chip ' + SEC_STATUS[x.status]}>${stLabel(x.status)}</span>
             </div>`)}
         </div>
-        <div class="ft">${L('章节与假设一一挂钩：节点状态一变，对应小节自动标记待更新。', 'Sections hook to hypotheses: when a node changes state, its section is flagged.')}</div>
+        <div class="ft">${L('章节与假设一一对应。节点状态变化时，相应小节自动标为待更新。', 'Sections are linked to hypotheses: when a node changes state, its section is flagged for update.')}</div>
       <//>
 
       <div class="col">
@@ -175,18 +175,18 @@ export function Paper({ q, onShell }) {
           <div class="ft" style="margin:11px -14px -13px">
             <span class="tiny faint">${L(`本节 ${s.paras.length} 段 · 引用 ${s.hyps.length} 条假设 · 点击段落即可编辑`, `${s.paras.length} paragraphs · ${s.hyps.length} hypotheses · click a paragraph to edit`)}</span>
             <div class="grow"></div>
-            <a class="btn xs" href=${'/claims'}>${L('逐条查证据', 'Check the claims')}</a>
+            <a class="btn xs" href=${'/claims'}>${L('逐条核查证据', 'Check the claims')}</a>
           </div>
         <//>
 
         ${s.hypInfo.some((h) => h.status === 'pending_review') && html`<${Card} title=${L('跨 idea 提醒', 'Cross-project warning')}>
           ${s.hypInfo.filter((h) => h.status === 'pending_review').map((h) => html`
-            <div class="note warn"><span class="mono b">${h.id}</span> ${L(`正在裁定流程里。若被限定适用范围，本节结论需要改写 —— 系统会在裁定落地时标出受影响段落。`,
-              'is in the verdict queue. If its scope is narrowed, this section must be rewritten — the system flags the affected paragraphs when the verdict lands.')}
-              <a href=${'/review?h=' + h.id} style="margin-left:6px">${L('去看裁定 →', 'See the verdict →')}</a></div>`)}
+            <div class="note warn"><span class="mono b">${h.id}</span> ${L(`正处于裁定流程中。若适用范围被限定，本节结论需要修改。裁定生效时，系统会标出受影响的段落。`,
+              'is in the verdict queue. If its scope is narrowed, this section must be revised. The system flags the affected paragraphs once the verdict takes effect.')}
+              <a href=${'/review?h=' + h.id} style="margin-left:6px">${L('查看裁定 →', 'See the verdict →')}</a></div>`)}
         <//>`}
 
-        <${Card} title=${L('待补证据', 'Evidence still missing')} sub=${L('写作发现的缺口直接回到实验队列', 'gaps found while writing go straight back to the run queue')}>
+        <${Card} title=${L('待补证据', 'Evidence still missing')} sub=${L('写作中发现的证据缺口将直接加入实验队列', 'evidence gaps found during writing are added directly to the run queue')}>
           ${d.gaps.map((g) => html`
             <div style=${{ padding: '11px', marginBottom: '8px', border: '1px solid var(--line)', borderRadius: '6px', background: g.done ? 'var(--okbg)' : undefined }}>
               <div class="row"><span class="b small">${t(g.title)}</span><div class="grow"></div>
@@ -212,9 +212,9 @@ export function Claims({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.claims, sel = d.sel;
   if (d.empty) return html`<${Frame}><${Card} title=${L('主张 · 证据对照', 'Claims versus evidence')}>
-    <${Empty}>${L('还没有可对照的断言。正文写出来之后，每句话都会回到这里找它的证据。',
-      'Nothing to check yet. Once the manuscript has text, every sentence comes back here to find its evidence.')}<//>
-    <div class="row" style="margin-top:11px"><a class="btn sm" href="/paper">${L('去正文', 'Open the manuscript')}</a></div><//><//>`;
+    <${Empty}>${L('暂无可对照的断言。正文生成后，每条断言将在此与其证据逐一对照。',
+      'No claims to check yet. Once the manuscript is drafted, each claim is matched against its evidence here.')}<//>
+    <div class="row" style="margin-top:11px"><a class="btn sm" href="/paper">${L('前往正文', 'Open the manuscript')}</a></div><//><//>`;
   const shown = filter === 'all' ? d.items : d.items.filter((c) => c.status === filter);
   return html`<${Frame} tools=${html`
     <div class="seg">
@@ -228,10 +228,10 @@ export function Claims({ q, onShell }) {
     <span class="chip">${L('平均每条', 'Per claim')} ${d.stats.perClaim} ${L('条证据', 'evidence')}</span>
     <div class="grow"></div>
     ${d.stats.over > 0 && html`<button class="btn sm" onClick=${() => act('claim.batchSoften', {})}>${L(`批量降级措辞 ${d.stats.over} 条`, `Soften all ${d.stats.over}`)}</button>`}
-    <a class="btn sm" href="/paper">${L('回正文逐条改', 'Back to the manuscript')}</a>`}>
+    <a class="btn sm" href="/paper">${L('返回正文逐条修改', 'Back to the manuscript')}</a>`}>
     <div class="cols2">
       <${Card} title=${L('断言 · 证据对照', 'Claims versus evidence')}
-        sub=${L('扫描会挑出「任何 / 普遍 / 始终」这类词，再回去找证据里的适用范围', 'the scan flags words like “any / generally / always”, then checks the scope in the evidence')}>
+        sub=${L('扫描会标出全称性措辞，并核对证据的适用范围', 'the scan flags universal wording and checks it against the scope of the evidence')}>
         <${Table}><thead><tr><th style="width:36px">${L('节', '§')}</th><th>${L('断言', 'Claim')}</th><th style="width:52px">${L('假设', 'Hyp')}</th><th style="width:86px">${L('证据', 'Evidence')}</th><th style="width:78px">${L('状态', 'Status')}</th></tr></thead>
           <tbody>
             ${shown.map((c) => html`<tr class=${'clickable' + (sel?.id === c.id ? ' on' : '')} onClick=${() => go(qs({ c: c.id }))}>
@@ -244,7 +244,7 @@ export function Claims({ q, onShell }) {
           </tbody><//>
         <div class="ft" style="margin:13px -14px -13px">${L(`还有 ${d.collapsed} 条已支撑的断言未展开`, `${d.collapsed} more supported claims are collapsed`)}
           <div class="grow"></div>
-          ${d.gate ? html`<span class="chip bad">${L('导出会被拦下', 'export will be halted')}</span>` : html`<span class="chip ok">${L('导出检查通过', 'export check passes')}</span>`}</div>
+          ${d.gate ? html`<span class="chip bad">${L('导出将被中止', 'export will be halted')}</span>` : html`<span class="chip ok">${L('导出检查通过', 'export check passes')}</span>`}</div>
       <//>
 
       ${sel && html`<div class="col">
@@ -259,13 +259,13 @@ export function Claims({ q, onShell }) {
               <span class="mono tiny faint" style="width:16px">${i + 1}</span><span class="small">${t(x)}</span></div>`)}
           <//>`}
         <//>
-        ${sel.status !== 'supported' && html`<${Card} title=${L('可选动作', 'What you can do')}>
+        ${sel.status !== 'supported' && html`<${Card} title=${L('可选动作', 'Available actions')}>
           <div class="col">
             ${sel.fixExp && html`<button class="btn acc" style="justify-content:flex-start" onClick=${() => act('claim.fix', { id: sel.id, how: 'experiment' })}>
-              ${L(`补实验：${t({ zh: sel.fixExp.zh, en: sel.fixExp.en })}`, `Run an experiment: ${t({ zh: sel.fixExp.zh, en: sel.fixExp.en })}`)}</button>`}
+              ${L(`补充实验：${t({ zh: sel.fixExp.zh, en: sel.fixExp.en })}`, `Run an experiment: ${t({ zh: sel.fixExp.zh, en: sel.fixExp.en })}`)}</button>`}
             ${sel.soften && html`<button class="btn" style="justify-content:flex-start" onClick=${() => act('claim.fix', { id: sel.id, how: 'soften' })}>
-              ${L('改成推测语气并标注', 'Soften and annotate')}</button>`}
-            <button class="btn bad" style="justify-content:flex-start" onClick=${() => act('claim.fix', { id: sel.id, how: 'delete' })}>${L('删除这句', 'Delete the sentence')}</button>
+              ${L('改为推测性表述并标注', 'Soften and annotate')}</button>`}
+            <button class="btn bad" style="justify-content:flex-start" onClick=${() => act('claim.fix', { id: sel.id, how: 'delete' })}>${L('删除该句', 'Delete the sentence')}</button>
           </div>
           ${sel.soften && html`<${F}>
             <div class="hr"></div>
@@ -274,11 +274,11 @@ export function Claims({ q, onShell }) {
           <//>`}
         <//>`}
         <${Card} title=${L('导出闸门', 'Export gate')}>
-          <div class="small mut">${L('导出前若仍有「过度声称」，导出按钮会停下并列出这几条。',
-            'If any overclaim remains, the export button halts and lists them.')}</div>
+          <div class="small mut">${L('导出前若仍有过度声称，导出会中止并列出相应条目。',
+            'If any overclaim remains, export is halted and the claims are listed.')}</div>
           <div class="row" style="margin-top:9px">
-            <a class="btn sm" href="/rebuttal">${L('去投稿清单', 'Submission checklist')}</a>
-            <a class="btn sm" href="/paper">${L('回正文', 'Back to the manuscript')}</a>
+            <a class="btn sm" href="/rebuttal">${L('前往投稿清单', 'Submission checklist')}</a>
+            <a class="btn sm" href="/paper">${L('返回正文', 'Back to the manuscript')}</a>
           </div>
         <//>
       </div>`}
@@ -292,15 +292,15 @@ export function Figures({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.figures, f = d.fig3;
   if (!d.items.length) return html`<${Frame}><${Card} title=${L('图表工作台', 'Figure workbench')}>
-    <${Empty}>${L('还没有图。每张图都记下它的运行 id、数据文件与脚本，来源可追溯。',
+    <${Empty}>${L('暂无图表。每张图都记录数据来源与绘图脚本，可以追溯。',
       'No figures yet. Each one records the run id, the data file and the script that drew it.')}<//><//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip">${L('全部', 'All')} ${d.items.length}</span>
     <span class="chip ok">${L('已生成', 'Generated')} ${d.items.filter((x) => x.status === 'done').length}</span>
     <span class="chip warn">${L('待重绘', 'To redraw')} ${d.items.filter((x) => x.status === 'redraw').length}</span>
-    <span class="chip">${L('等实验', 'Waiting on runs')} ${d.items.filter((x) => x.status === 'waiting').length}</span>
+    <span class="chip">${L('待实验', 'Awaiting runs')} ${d.items.filter((x) => x.status === 'waiting').length}</span>
     <div class="grow"></div>
-    <span class="tiny faint">${L('审图用视觉模型看渲染结果，不是看代码', 'the figure review looks at the rendered image, not the code')}</span>`}>
+    <span class="tiny faint">${L('审图由视觉模型基于渲染结果进行，而非审阅代码', 'the figure review looks at the rendered image, not the code')}</span>`}>
     <div class="cols2">
       <div class="col">
         <${Card} title=${L('图 3 · 噪声尺度与有效步长', 'Figure 3 · noise scale and effective step')}
@@ -316,7 +316,7 @@ export function Figures({ q, onShell }) {
             onSave=${(v) => act('fig.caption', { text: v })} />
         <//>
 
-        <${Card} title=${L('审图意见', 'Figure review')} sub=${L('视觉模型看图', 'a vision model looked at the rendering')}>
+        <${Card} title=${L('审图意见', 'Figure review')} sub=${L('视觉模型审阅', 'reviewed by a vision model on the rendered image')}>
           ${f.reviews.map((r) => html`
             <div style=${{ padding: '10px', marginBottom: '7px', border: '1px solid var(--line)', borderRadius: '6px', background: r.st === 'done' ? 'var(--okbg)' : undefined }}>
               <div class="row"><span class="b small" style="flex:1 1 140px">${L(r.zh, r.en)}</span>
@@ -325,17 +325,17 @@ export function Figures({ q, onShell }) {
                   : html`<button class="btn xs acc" onClick=${() => act('fig.review', { id: r.id })}>${L('采纳', 'Apply')}</button>`}</div>
               <div class="small mut" style="margin-top:5px">${L(r.bzh, r.ben)}</div>
             </div>`)}
-          <div class="note">${L('采纳后重绘脚本会改动 fig3.py，并把 4.2 节标成待复核。',
+          <div class="note">${L('采纳后重绘脚本将修改 fig3.py，并将 4.2 节标记为待复核。',
             'Applying a comment edits fig3.py and flags §4.2 for re-check.')}</div>
         <//>
       </div>
 
       <div class="col">
         ${d.mismatch && html`<${Card} title=${L('数据一致性', 'Data consistency')}>
-          <div class="note warn">${L(`正文写 ${d.textValue}%，图 3 实测是 ${f.measured}%。`, `The text says ${d.textValue}%, Figure 3 measures ${f.measured}%.`)}</div>
+          <div class="note warn">${L(`正文记为 ${d.textValue}%，图 3 实测为 ${f.measured}%。`, `The text says ${d.textValue}%, Figure 3 measures ${f.measured}%.`)}</div>
           <div class="row" style="margin-top:9px">
             <button class="btn sm acc" onClick=${() => act('fig.align', {})}>${L('按数据改正文', 'Align the text to the data')}</button>
-            <a class="btn sm" href="/claims">${L('去主张对照', 'Claims vs evidence')}</a>
+            <a class="btn sm" href="/claims">${L('前往主张对照', 'Claims vs evidence')}</a>
           </div>
         <//>`}
         <${Card} title=${L('来源', 'Provenance')} sub=${L('8 / 8 可追溯', '8 / 8 traceable')}>
@@ -357,9 +357,9 @@ export function Figures({ q, onShell }) {
               <span class="small" style="flex:1 1 90px">${t(x.title)}</span>
               <span class="mono tiny faint">${x.src}</span>
               ${x.status === 'waiting' && x.prog != null && html`<span class="tiny mut">${Math.round(x.prog * 100)}%</span>`}
-              <span class=${'chip ' + (x.status === 'done' ? 'ok' : x.status === 'redraw' ? 'warn' : '')}>${x.status === 'done' ? L('已生成', 'generated') : x.status === 'redraw' ? L('待重绘', 'redraw') : L('等实验', 'waiting')}</span>
+              <span class=${'chip ' + (x.status === 'done' ? 'ok' : x.status === 'redraw' ? 'warn' : '')}>${x.status === 'done' ? L('已生成', 'generated') : x.status === 'redraw' ? L('待重绘', 'redraw') : L('待实验', 'waiting')}</span>
               <span class="tag">${x.ver}</span></div>`)}
-          <div class="note" style="margin-top:9px">${L('表 1 主要结果 · 表 2 超参设置 —— 都已按 metrics.csv 重新生成。',
+          <div class="note" style="margin-top:9px">${L('表 1 主要结果与表 2 超参设置，均已按 metrics.csv 重新生成。',
             'Table 1 (main results) and Table 2 (hyper-parameters) were regenerated from metrics.csv.')}</div>
         <//>
       </div>
@@ -373,7 +373,7 @@ export function Rebuttal({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.rebuttal;
   if (!d.reviewers.length && !d.comments.length) return html`<${Frame}><${Card} title=${L('审稿与修订', 'Review & rebuttal')}>
-    <${Empty}>${L('还没有评审意见。三位评审用不同模型独立评，分歧点会单独列出。',
+    <${Empty}>${L('暂无评审意见。三位评审由不同模型独立完成，分歧点单独列出。',
       'No reviews yet. Three reviewers run on different models and their disagreements are listed separately.')}<//><//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip">${L('意见', 'Comments')} ${d.all}</span>
@@ -383,7 +383,7 @@ export function Rebuttal({ q, onShell }) {
     <span class="chip">${L('平均分', 'Mean score')} ${d.mean}</span>
     <span class="tiny faint">${L(`上一轮 ${d.prevMean}`, `previous round ${d.prevMean}`)}</span>
     <div class="grow"></div>
-    <span class="tiny faint hide-s">${L('三位评审用不同模型独立评，分歧点单独列出', 'three reviewers, three different models, disagreements listed separately')}</span>`}>
+    <span class="tiny faint hide-s">${L('三位评审由不同模型独立完成，分歧点单独列出', 'three reviewers, three different models, disagreements listed separately')}</span>`}>
     <div class="cols2">
       <div class="col">
         <div class="cols3">
@@ -393,7 +393,7 @@ export function Rebuttal({ q, onShell }) {
               <div class="small" style="margin-top:6px;line-height:1.7">${t(r.note)}</div>
             <//>`)}
         </div>
-        <${Card} title=${L('意见与处理', 'Comments and responses')} sub=${L('每条意见要么改文、要么补实验、要么给出反驳证据', 'every comment is answered by an edit, a run or counter-evidence')}
+        <${Card} title=${L('意见与处理', 'Comments and responses')} sub=${L('每条意见可通过改文或补充实验处理，也可以给出反驳证据', 'every comment is answered by an edit, a run or counter-evidence')}
           right=${html`<button class="btn xs" onClick=${() => act('rebuttal.rewrite', {})}>${L('按处理结果重写相关小节', 'Rewrite the affected sections')}</button>`}>
           ${d.comments.map((c) => html`
             <div style=${{ padding: '11px', marginBottom: '8px', border: '1px solid var(--line)', borderRadius: '6px', background: c.status === 'done' ? 'var(--okbg)' : undefined }}>
@@ -404,29 +404,29 @@ export function Rebuttal({ q, onShell }) {
               <div class="small mut" style="margin-top:6px">${t(c.fix0 || { zh: '', en: '' })}${L('处理：', 'Response: ')}${t(c.fix)}</div>
               ${c.expStatus && html`<div class="row" style="margin-top:7px"><span class="chip acc">${c.exp} · ${stLabel(c.expStatus)}</span>
                 ${c.expStatus === 'running' && html`<span class="tiny mut">${Math.round(c.prog * 100)}%</span>`}
-                <a class="btn xs" href=${'/experiments?e=' + c.exp}>${L('看运行', 'Open run')}</a></div>`}
+                <a class="btn xs" href=${'/experiments?e=' + c.exp}>${L('查看运行', 'Open run')}</a></div>`}
               ${c.status === 'pending' && html`<div class="row" style="margin-top:8px">
-                ${!c.expStatus && html`<button class="btn xs acc" onClick=${() => act('rebuttal.comment', { id: c.id, act: 'exp' })}>${L('补这个实验', 'Queue this run')}</button>`}
+                ${!c.expStatus && html`<button class="btn xs acc" onClick=${() => act('rebuttal.comment', { id: c.id, act: 'exp' })}>${L('补充该实验', 'Queue this run')}</button>`}
                 <button class="btn xs" onClick=${() => act('rebuttal.comment', { id: c.id, act: 'done' })}>${L('标记为已处理', 'Mark handled')}</button></div>`}
             </div>`)}
           <div class="note">${d.pending > 0
-            ? L(`待处理的 ${d.pending} 条都要补实验，已排进队列，预计 ${d.gpuNeeded} GPU·h。`, `The ${d.pending} pending comments all need runs; queued, about ${d.gpuNeeded} GPU·h.`)
+            ? L(`待处理的 ${d.pending} 条意见均需补充实验，已加入队列，预计消耗 ${d.gpuNeeded} GPU·h。`, `The ${d.pending} pending comments all need runs; queued, about ${d.gpuNeeded} GPU·h.`)
             : L('所有意见都已处理。', 'Every comment has been handled.')}</div>
         <//>
       </div>
 
       <div class="col">
-        <${Card} title=${L('投稿前复现自评', 'Reproducibility self-check')} sub=${L('在一台干净机器上只跑 reproduce.sh', 'only reproduce.sh, on a clean machine')}
+        <${Card} title=${L('投稿前复现自评', 'Reproducibility self-check')} sub=${L('在干净环境中仅运行 reproduce.sh', 'reproduce.sh only, in a clean environment')}
           right=${html`<span class="big" style="font-size:20px">${Math.round((d.repro.code * .3 + d.repro.run * .3 + d.repro.match * .4) * 100) / 100}</span>`}>
           ${[[L('代码实现', 'Implementable'), d.repro.code, L('按论文描述能写出来的部分', 'what the paper describes well enough to write')],
-            [L('能跑通', 'Runs clean'), d.repro.run, L('脚本在干净环境里跑完，无手工干预', 'the script finishes with no manual steps')],
-            [L('结果吻合', 'Results match'), d.repro.match, L('图 4 缺，表 1 有两格差 0.4 个点', 'Figure 4 missing; two cells in Table 1 are off by 0.4')]].map(([k, v, note]) => html`
+            [L('可运行', 'Runs end to end'), d.repro.run, L('脚本在干净环境中完整运行，无需人工干预', 'the script finishes with no manual steps')],
+            [L('结果吻合', 'Results match'), d.repro.match, L('图 4 缺失，表 1 中两项相差 0.4 个百分点', 'Figure 4 missing; two cells in Table 1 are off by 0.4')]].map(([k, v, note]) => html`
             <div style="margin-bottom:9px">
               <div class="row"><span class="small">${k}</span><div class="grow"></div><span class="num">${v}</span></div>
               <div style="margin:4px 0"><${Bar} v=${v} c=${v > .8 ? 'var(--ok)' : v > .6 ? 'var(--warn)' : 'var(--bad)'} /></div>
               <div class="tiny mut">${note}</div>
             </div>`)}
-          <button class="btn sm" onClick=${() => act('rebuttal.repro', {})}>${L('在干净机器上重跑一次', 'Re-run on a clean machine')}</button>
+          <button class="btn sm" onClick=${() => act('rebuttal.repro', {})}>${L('在干净环境中重新运行', 'Re-run in a clean environment')}</button>
           ${d.repro.at && html`<div class="tiny faint" style="margin-top:6px">${L(`上次 ${clock(d.repro.at)} · 共 ${d.repro.runs} 次`, `last run ${clock(d.repro.at)} · ${d.repro.runs} total`)}</div>`}
         <//>
 
@@ -439,11 +439,11 @@ export function Rebuttal({ q, onShell }) {
             </div>`)}
           <div class="hr"></div>
           <button class="btn acc" disabled=${!d.ready} onClick=${() => act('rebuttal.pack', {})}>${L('打包投稿版', 'Build the submission package')}</button>
-          ${!d.ready && html`<div class="note warn" style="margin-top:9px">${L('两项未完成：图 4 等 e_16 跑完；过度声称须先改完。匿名化脚本会在导出时自动跑一遍并给出 diff。',
-            'Two items remain: Figure 4 waits on e_16, and overclaims must be fixed first. The anonymisation script runs at export and produces a diff.')}</div>`}
+          ${!d.ready && html`<div class="note warn" style="margin-top:9px">${L('两项未完成：图 4 须待 e_16 运行完成；过度声称须先行修改。导出时将自动执行匿名化脚本并生成 diff。',
+            'Two items remain: Figure 4 awaits e_16, and overclaims must be resolved first. The anonymisation script runs at export and produces a diff.')}</div>`}
           ${d.packed && html`<div class="note acc" style="margin-top:9px">${L(`投稿版已于 ${clock(d.packed)} 打包。`, `Package built at ${clock(d.packed)}.`)}</div>`}
-          <div class="row" style="margin-top:9px"><a class="btn sm" href="/paper">${L('回正文', 'Back to the manuscript')}</a>
-            <a class="btn sm" href="/claims">${L('查过度声称', 'Check overclaims')}</a></div>
+          <div class="row" style="margin-top:9px"><a class="btn sm" href="/paper">${L('返回正文', 'Back to the manuscript')}</a>
+            <a class="btn sm" href="/claims">${L('核查过度声称', 'Check overclaims')}</a></div>
         <//>
       </div>
     </div>

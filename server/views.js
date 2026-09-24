@@ -31,14 +31,14 @@ export function home(ws) {
       kind: 'verdict', id: v.id, title: v.claim, badge: v.ideas[0] || '',
       why: b(`${v.ideas.length} 个 idea 引用；${imp.map((i) => i.kind === 'global' ? `是 ${i.idea} 的根前提` : i.kind === 'local' ? `在 ${i.idea} 已有独立证据` : `${i.idea} 下游 ${i.frozen} 个节点`).join('，')}。`,
         `Referenced by ${v.ideas.length} idea(s); ${imp.map((i) => i.kind === 'global' ? `root premise of ${i.idea}` : i.kind === 'local' ? `independently evidenced in ${i.idea}` : `${i.frozen} downstream nodes in ${i.idea}`).join(', ')}.`),
-      go: '/review?h=' + v.id, cta: b('去裁定', 'Rule on it'),
+      go: '/review?h=' + v.id, cta: b('前往裁定', 'Go to verdict'),
     });
   }
   const f3 = ws.figures.fig3;
   if (ws.figures.items.length && f3.measured && f3.measured !== 18.4 && !ws.decisions.fig3 && !ws.snoozed.fig3) decisions.push({
-    kind: 'figure', id: 'fig3', title: b(`图 3　正文 18.4%，实测 ${f3.measured}%`, `Figure 3 — text says 18.4%, measured ${f3.measured}%`), badge: '',
-    why: b(`图从 run_2291 重画后数字变了，正文 4.2 节那句话还是旧值。`, 'The figure was redrawn from run_2291 and the number changed; the sentence in §4.2 still has the old value.'),
-    go: '/figures', cta: b('去修正', 'Fix it'),
+    kind: 'figure', id: 'fig3', title: b(`图 3　正文 18.4%，实测 ${f3.measured}%`, `Figure 3: text says 18.4%, measured ${f3.measured}%`), badge: '',
+    why: b(`图 3 按 run_2291 重绘后数值已更新，正文 4.2 节仍为旧值。`, 'Figure 3 was redrawn from run_2291 and its value changed; §4.2 still reports the old value.'),
+    go: '/figures', cta: b('前往修正', 'Go to correction'),
   });
   return {
     time: Date.now(), unattendedMs: Date.now() - (ws.lastHuman || ws.createdAt),
@@ -47,16 +47,16 @@ export function home(ws) {
       { k: 'sparks', n: c.sparks, unit: b('条', ''), sub: b('本期新增', 'new this period'), go: '/sparks', label: b('idea spark', 'idea spark') },
       { k: 'ideas', n: c.ideas, unit: b('个', ''), sub: b(`${c.ideasRunning} 个进行中`, `${c.ideasRunning} in progress`), go: '/ideas', label: 'idea' },
       { k: 'hyps', n: c.hyps, unit: b('条', ''), sub: b(`${c.shared} 条被共享`, `${c.shared} shared`), go: '/panorama', label: b('假设', 'hypotheses') },
-      { k: 'exp', n: c.running, unit: b('在跑', 'running'), sub: b(`排队 ${c.queued}`, `${c.queued} queued`), go: '/experiments', label: b('实验', 'experiments') },
-      { k: 'verdict', n: c.pending, unit: b('待定', 'pending'), sub: b('等你裁定', 'waiting on you'), go: '/review', label: b('裁定', 'verdicts'), warn: c.pending > 0 },
-      { k: 'paper', n: 1, unit: b('篇在写', 'in writing'), sub: b(`${c.claims} 条主张`, `${c.claims} claims`), go: '/paper', label: b('论文', 'paper') },
+      { k: 'exp', n: c.running, unit: b('运行中', 'running'), sub: b(`排队 ${c.queued}`, `${c.queued} queued`), go: '/experiments', label: b('实验', 'experiments') },
+      { k: 'verdict', n: c.pending, unit: b('待定', 'pending'), sub: b('待人工裁定', 'awaiting review'), go: '/review', label: b('裁定', 'verdicts'), warn: c.pending > 0 },
+      { k: 'paper', n: 1, unit: b('篇撰写中', 'in writing'), sub: b(`${c.claims} 条主张`, `${c.claims} claims`), go: '/paper', label: b('论文', 'paper') },
     ],
     star, decisions,
     last24: last24(ws),
     agents: [
       { id: 'surveyor', model: ws.agents.surveyor, state: ws.survey.job ? b('采集中', 'collecting') : b('空闲', 'idle'), line: b(`上一轮 ${fmt(ws.survey.lastRun)} 完成 · 下一轮 ${ws.survey.nextInDays} 天后`, `Last round finished ${fmt(ws.survey.lastRun)} · next in ${ws.survey.nextInDays} days`), go: '/survey' },
       { id: 'executor', model: ws.agents.executor, state: b(`并行运行 ${c.running} 个实验`, `${c.running} experiments in parallel`), line: b(`${exps.filter((e) => e.status === 'running').map((e) => e.id).join(' ')} · 槽位 ${c.running}/${ws.settings.parallel} 占用，排队 ${c.queued}`, `${exps.filter((e) => e.status === 'running').map((e) => e.id).join(' ')} · slots ${c.running}/${ws.settings.parallel}, ${c.queued} queued`), go: '/experiments' },
-      { id: 'reviewer', model: ws.agents.reviewer, state: b(`${c.pending} 项待裁定`, `${c.pending} awaiting verdict`), line: b('只写 verdicts/，不碰 tree.json 的状态', 'Writes only verdicts/, never touches state in tree.json'), go: '/review' },
+      { id: 'reviewer', model: ws.agents.reviewer, state: b(`${c.pending} 项待裁定`, `${c.pending} awaiting verdict`), line: b('仅写入 verdicts/，不修改 tree.json 中的状态', 'Writes only verdicts/; does not modify state in tree.json'), go: '/review' },
     ],
     budget: { used: ws.settings.gpuUsed, total: ws.settings.budget },
   };
@@ -80,7 +80,7 @@ function last24(ws) {
     if (!mine.length) continue;
     const head = mine[0];
     out.push({ k, label, head: head.title, body: mine.length > 1
-      ? b(`${t(head.detail, 'zh')}（这段时间共 ${mine.length} 条）`, `${t(head.detail, 'en')} (${mine.length} entries in this window)`)
+      ? b(`${t(head.detail, 'zh')}（该时段共 ${mine.length} 条）`, `${t(head.detail, 'en')} (${mine.length} entries in this window)`)
       : head.detail });
   }
   return out;
@@ -273,7 +273,7 @@ function stream(ws, e) {
   const steps = Math.floor(p * 7);
   for (let i = 0; i < Math.min(steps, 5); i++) rows.push({ t: t0 + i * (e.durMs / 7), text: `batch=${String(bs[i]).padEnd(4)} noise_scale=${String(noise[i]).padEnd(5)} eff_step=${eff[i]}` });
   if (steps >= 4) rows.push({ t: t0 + 4.4 * (e.durMs / 7), text: `fit  noise_scale ∝ batch^-0.49  R²=0.981` });
-  if (steps >= 5) rows.push({ t: t0 + 4.6 * (e.durMs / 7), text: `断言方向与 ${e.hyp} 一致，等待 batch=2048 收尾`, en: `direction matches ${e.hyp}; waiting on batch=2048` });
+  if (steps >= 5) rows.push({ t: t0 + 4.6 * (e.durMs / 7), text: `断言方向与 ${e.hyp} 一致，等待 batch=2048 运行结束`, en: `direction matches ${e.hyp}; awaiting completion of batch=2048` });
   if (e.status === 'running') rows.push({ t: Date.now(), text: `batch=${bs[Math.min(5, steps)]} 运行中 · step ${Math.round(p * 40)}k / 40k`, en: `batch=${bs[Math.min(5, steps)]} running · step ${Math.round(p * 40)}k / 40k`, live: true });
   if (e.status === 'done') rows.push({ t: e.finishedAt, text: `done · evidence ${e.outcome.delta > 0 ? '+' : ''}${e.outcome.delta}`, live: false });
   return rows;

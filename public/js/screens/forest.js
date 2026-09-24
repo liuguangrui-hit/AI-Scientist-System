@@ -13,7 +13,7 @@ function ForestView({ dim, q, onShell }) {
         <button class=${dim === '3d' ? 'on' : ''} onClick=${() => go('/forest3d')}>${L('三维', '3D')}</button>
         <button class=${dim === '2d' ? 'on' : ''} onClick=${() => go('/forest2d')}>${L('二维', '2D')}</button>
       </div>
-      <span class="chip">${L('大规模结构 · 生成的演示数据', 'At scale · generated demo data')}</span>
+      <span class="chip">${L('大规模结构 · 生成数据', 'At scale · generated data')}</span>
       <div class="grow"></div>
       <span class="tiny faint hide-s">${dim === '3d'
         ? L('每个 idea 一棵树，高度 = 深度；共享假设位于各树之间', 'One tree per idea, height = depth; shared hypotheses sit between trees')

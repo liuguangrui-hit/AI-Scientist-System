@@ -13,9 +13,9 @@ export function Experiments({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.experiments;
   if (d.empty) return html`<${Frame}><${Card} title=${L('实验', 'Experiments')}>
-    <${Empty}>${L('还没有实验记录。真实项目从 experiments.jsonl 读取，排队的实验会写进 queue.jsonl。',
-      'No runs yet. A real project reads experiments.jsonl, and anything you queue is written to queue.jsonl.')}<//>
-    <div class="row" style="margin-top:11px"><a class="btn sm" href="/main">${L('去 frontier 排实验', 'Queue one from the frontier')}</a></div><//><//>`;
+    <${Empty}>${L('暂无实验记录。真实项目从 experiments.jsonl 读取，排队的实验会写进 queue.jsonl。',
+      'No runs yet. A real project reads experiments.jsonl, and queued runs are written to queue.jsonl.')}<//>
+    <div class="row" style="margin-top:11px"><a class="btn sm" href="/main">${L('前往 frontier 安排实验', 'Queue from the frontier')}</a></div><//><//>`;
   const live = e.status === 'running';
   return html`<${Frame} tools=${html`
     <span class="chip">${L('运行中', 'Running')} ${d.counts.running}/${d.slots}</span>
@@ -72,7 +72,7 @@ export function Experiments({ q, onShell }) {
             ${e.status === 'paused' && html`<button class="btn xs" onClick=${() => act('exp.control', { exp: e.id, cmd: 'resume' })}>${I('play', { s: 11 })}${L('继续', 'Resume')}</button>`}
             ${(live || e.status === 'paused') && html`<button class="btn xs bad" onClick=${() => act('exp.control', { exp: e.id, cmd: 'abort' })}>${L('中止', 'Abort')}</button>`}
           </div>`}>
-          ${e.status === 'queued' ? html`<${Empty}>${L('排队中，等一个空槽位。', 'Queued, waiting for a free slot.')}<//>` : html`
+          ${e.status === 'queued' ? html`<${Empty}>${L('排队中，等待空闲槽位。', 'Queued, waiting for a free slot.')}<//>` : html`
             <div ref=${logRef} class="mono tiny" style="max-height:186px;overflow-y:auto;background:#0F1419;color:#D7DDE5;border-radius:5px;padding:10px;line-height:1.9">
               ${e.stream.map((r) => html`<div style=${{ opacity: r.live ? 1 : .88 }}>
                 <span style="color:#6B7482">${hm(r.t)}</span>  ${r.en && L(r.text, r.en) || r.text}${r.live ? html`<span class="pulse"> ▌</span>` : ''}</div>`)}
@@ -84,15 +84,15 @@ export function Experiments({ q, onShell }) {
               <td class="tiny mut">${r.state === 'done' ? '' : r.state === 'running' ? L('运行中', 'running') : L('排队', 'queued')}</td></tr>`)}
           </tbody><//>`}
           ${e.sweep && html`<div class="note" style="margin-top:9px">${L('拟合斜率 −0.49，与 H-11 断言的 −0.5 一致。', 'Fitted slope −0.49, consistent with the −0.5 asserted by H-11.')}
-            <a href="/sweep" style="margin-left:6px">${L('看扫描矩阵 →', 'Sweep matrix →')}</a></div>`}
+            <a href="/sweep" style="margin-left:6px">${L('查看扫描矩阵 →', 'Sweep matrix →')}</a></div>`}
         <//>
 
         <${Card} title=${L('执行动作', 'Act on the result')}
           sub=${L(`executor 建议 ${e.outcome.rec} · 置信 ${e.outcome.conf}`, `executor suggests ${e.outcome.rec} · confidence ${e.outcome.conf}`)}
           right=${html`<span class="chip">${L('本支连续 PIVOT', 'Consecutive PIVOTs')} ${e.pivots} / 3</span>`}>
           <div class="cols2" style="grid-template-columns:1fr 1fr">
-            ${[['PROCEED', L('写入证据并展开', 'Write evidence and expand'), 'acc'], ['REFINE', L('改配置重跑同一假设', 'Change the config, same hypothesis'), ''],
-              ['PIVOT', L('换一条子假设', 'Move to another sub-hypothesis'), ''], ['ESCALATE', L('提交裁定，交 reviewer 判断', 'Submit for a verdict'), 'pri']].map(([k, note, cls]) => html`
+            ${[['PROCEED', L('写入证据并展开', 'Write evidence and expand'), 'acc'], ['REFINE', L('修改配置，重新运行同一假设', 'Change the config, same hypothesis'), ''],
+              ['PIVOT', L('转向其他子假设', 'Move to another sub-hypothesis'), ''], ['ESCALATE', L('提交裁定，由 reviewer 判定', 'Submit for a verdict'), 'pri']].map(([k, note, cls]) => html`
               <button class=${'btn ' + cls} style="height:auto;padding:9px 11px;flex-direction:column;align-items:flex-start;gap:3px"
                 disabled=${e.status === 'queued' || (k === 'PROCEED' && e.status === 'done' && !e.aborted && e.finishedAt)}
                 onClick=${() => act('exp.decide', { exp: e.id, kind: k })}>
@@ -108,15 +108,15 @@ export function Experiments({ q, onShell }) {
           <div style="margin-top:11px"><${Evidence} list=${e.prior} onExp=${(x) => x.startsWith('e_') && go(qs({ e: x }))} /></div>
         <//>
 
-        <${Card} title=${L('写入后同步更新', 'What updates when it lands')} sub=${L('这一次实验同时结清多个 idea 上的同一条假设', 'One run settles the same hypothesis in several projects at once')}>
+        <${Card} title=${L('写入后同步更新', 'Propagation on write-back')} sub=${L('一次实验同时更新多个 idea 中的同一条假设', 'One run updates the same hypothesis across several projects')}>
           ${e.places.map((p) => html`
             <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line2)">
               <span style=${{ width: '3px', alignSelf: 'stretch', background: ic(p.idea), borderRadius: '2px' }}></span>
               <span class="mono b small">${p.idea}</span>
-              <span class="small mut" style="flex:1 1 140px">${p.role.kind === 'root' ? L('根前提 · 直接采纳 · 不再往下拆', 'root premise · adopted as given · not decomposed')
-                : p.role.leaf ? L('叶子 · 结清后本支收束', 'leaf · settling it closes this branch')
+              <span class="small mut" style="flex:1 1 140px">${p.role.kind === 'root' ? L('根前提 · 直接采纳 · 不再分解', 'root premise · adopted as given · not decomposed')
+                : p.role.leaf ? L('叶节点 · 验证后本分支收束', 'leaf · verification closes this branch')
                 : L(`第 ${p.role.depth} 层 · 解锁下游节点 · 进入 frontier`, `layer ${p.role.depth} · unlocks downstream nodes · enters the frontier`)}</span>
-              <a class="btn xs" href=${'/tree?idea=' + p.idea + '&h=' + e.hyp}>${L('看树', 'Tree')}</a>
+              <a class="btn xs" href=${'/tree?idea=' + p.idea + '&h=' + e.hyp}>${L('查看假设树', 'Tree')}</a>
             </div>`)}
         <//>
       </div>
@@ -134,7 +134,7 @@ export function ExpTree({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.exptree;
   if (d.empty) return html`<${Frame}><${Card} title=${L('实验树 · 四阶段', 'Experiment tree · four stages')}>
-    <${Empty}>${L('这个 idea 还没有实验树。实验树记录初探 → 调参 → 主实验 → 消融的每一次尝试，失败节点也留着。',
+    <${Empty}>${L('该 idea 暂无实验树。实验树记录初探 → 调参 → 主实验 → 消融各阶段的每次尝试，失败节点亦予以保留。',
       'This idea has no experiment tree yet. The tree records every attempt from probe to ablation, failures included.')}<//><//><//>`;
   const cur = d.nodes.find((n) => n.id === sel) || d.nodes.find((n) => n.status === 'running') || d.nodes[0];
   const byStage = (s) => d.nodes.filter((n) => n.stage === s);
@@ -145,10 +145,10 @@ export function ExpTree({ q, onShell }) {
     <span class="chip">${L('剪枝', 'Pruned')} ${d.counts.pruned}</span>
     <div class="grow"></div>
     <span class="chip">${L('并行', 'Parallel')} ${d.parallel}</span>
-    <span class="chip">${L('同配置重跑', 'Repeat')} k = ${d.k}</span>
+    <span class="chip">${L('同配置重复运行', 'Repeat')} k = ${d.k}</span>
     <span class="chip">${L('本 idea 已用', 'Used')} ${d.budget.used} / ${d.budget.total} GPU·h</span>`}>
     <div class="cols2">
-      <${Card} title=${L('实验树 · 四阶段', 'Experiment tree · four stages')} sub=${L('节点类型：新写 / 修错 / 改进 —— 失败节点不删，留着避免重犯', 'Node kinds: new / fix / improve — failed nodes are kept so mistakes are not repeated')}>
+      <${Card} title=${L('实验树 · 四阶段', 'Experiment tree · four stages')} sub=${L('节点类型：新建 / 修复 / 改进。失败节点保留，避免重复犯错', 'Node kinds: new / fix / improve. Failed nodes are kept so mistakes are not repeated')}>
         <div class="experiment-stages" style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px">
           ${STAGES.map(([s, zh, en]) => html`
             <div>
@@ -166,8 +166,8 @@ export function ExpTree({ q, onShell }) {
               </div>
             </div>`)}
         </div>
-        <div class="note" style="margin-top:12px">${L('只有被标成「代表节点」的结果才写回假设树；其余留在树里做记录，不进证据。',
-          'Only nodes marked as representative write back to the hypothesis tree; the rest stay as a record and never become evidence.')}</div>
+        <div class="note" style="margin-top:12px">${L('只有代表节点的结果写回假设树。其余结果留在实验树中作为记录，不计入证据。',
+          'Only nodes marked as representative are written back to the hypothesis tree; the others are kept as a record and are not counted as evidence.')}</div>
       <//>
 
       ${cur && html`<div class="col">
@@ -187,9 +187,9 @@ export function ExpTree({ q, onShell }) {
           </tbody><//>
           <div class="hr"></div>
           <div class="row">
-            <button class="btn sm acc" onClick=${() => act('tree.expand', { node: cur.id })}>${L('从这里展开子节点', 'Expand a child here')}</button>
-            <button class="btn sm bad" onClick=${() => act('tree.prune', { node: cur.id })}>${cur.pruned ? L('恢复这一支', 'Restore this branch') : L('剪掉这一支', 'Prune this branch')}</button>
-            <a class="btn sm" href="/sweep">${L('看扫描矩阵', 'Sweep matrix')}</a>
+            <button class="btn sm acc" onClick=${() => act('tree.expand', { node: cur.id })}>${L('由此节点展开子节点', 'Expand a child here')}</button>
+            <button class="btn sm bad" onClick=${() => act('tree.prune', { node: cur.id })}>${cur.pruned ? L('恢复该分支', 'Restore this branch') : L('剪除该分支', 'Prune this branch')}</button>
+            <a class="btn sm" href="/sweep">${L('查看扫描矩阵', 'Sweep matrix')}</a>
             ${cur.exp && html`<a class="btn sm" href=${'/experiments?e=' + cur.exp}>${L('打开这次运行', 'Open this run')}</a>`}
           </div>
         <//>
@@ -212,7 +212,7 @@ export function Sweep({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.sweep;
   if (d.empty) return html`<${Frame}><${Card} title=${L('扫描矩阵', 'Sweep matrix')}>
-    <${Empty}>${L('还没有扫描矩阵。一次 batch × seed 的扫描完成后，整张矩阵只产生一条证据。',
+    <${Empty}>${L('暂无扫描矩阵。一次 batch × seed 的扫描完成后，整张矩阵只产生一条证据。',
       'No sweep yet. Once a batch × seed sweep finishes, the whole matrix yields exactly one piece of evidence.')}<//><//><//>`;
   const vals = d.cells.map((c) => (d.metric === 'eff' ? c.eff : c.noise)).filter((v) => v != null);
   const lo = Math.min(...vals), hi = Math.max(...vals);
@@ -226,7 +226,7 @@ export function Sweep({ q, onShell }) {
     <div class="grow"></div>
     <span class="tiny faint">${L(`${d.cells.length} 格 · 配对 t 检验 α = ${d.alpha}`, `${d.cells.length} cells · paired t-test α = ${d.alpha}`)}</span>`}>
     <div class="cols2">
-      <${Card} title=${L('运行矩阵', 'Run matrix')} sub=${L('每格一次运行，颜色深浅＝取值', 'one run per cell; shade = value')}>
+      <${Card} title=${L('运行矩阵', 'Run matrix')} sub=${L('每格对应一次运行，颜色深浅表示数值大小', 'one run per cell; shade = value')}>
         <${Table}><thead><tr><th>batch</th><th>seed 0</th><th>seed 1</th><th>seed 2</th><th>${L('均值', 'Mean')}</th><th>${L('标准差', 'SD')}</th><th>${L('状态', 'State')}</th></tr></thead>
           <tbody>
             ${d.rows.map((r) => html`<tr>
@@ -242,13 +242,13 @@ export function Sweep({ q, onShell }) {
             </tr>`)}
           </tbody><//>
         <div class="note warn" style="margin-top:11px">${d.filled
-          ? L('batch = 2048 一行已补满，参与拟合。', 'The batch = 2048 row is now filled and joins the fit.')
-          : L('batch = 2048 三格全部 OOM，已按自动策略降到 1024 重试；缺格不参与拟合，也不写进证据。', 'All three cells at batch = 2048 hit OOM and were retried at 1024. Missing cells do not join the fit and never become evidence.')}
-          <a href="/runs" style="margin-left:6px">${L('看失败详情 →', 'Failure details →')}</a></div>
+          ? L('batch = 2048 一行已补全，参与拟合。', 'The batch = 2048 row is now complete and included in the fit.')
+          : L('batch = 2048 三格均出现 OOM，已自动降至 1024 重试。缺失单元不参与拟合，也不计入证据。', 'All three cells at batch = 2048 ran out of memory and were retried at 1024. Missing cells are excluded from the fit and from the evidence.')}
+          <a href="/runs" style="margin-left:6px">${L('查看失败详情 →', 'Failure details →')}</a></div>
       <//>
 
       <div class="col">
-        <${Card} title=${L('拟合与显著性', 'Fit and significance')} sub=${L('种子间方差先算，再谈趋势', 'seed variance first, then the trend')}>
+        <${Card} title=${L('拟合与显著性', 'Fit and significance')} sub=${L('先评估种子间方差，再判断趋势', 'seed variance first, then the trend')}>
           <div class="row"><span class="chip acc">${L('幂律拟合', 'Power-law fit')}</span>
             <span class="mono small">slope ${d.filled ? '−0.50' : '−0.50'} · R² ${d.filled ? '0.999' : '0.999'}</span></div>
           <div class="tiny mut" style="margin-top:5px">${L('与 H-11 断言的 −0.5 一致', 'consistent with the −0.5 asserted by H-11')}</div>
@@ -259,20 +259,20 @@ export function Sweep({ q, onShell }) {
               <span class="mono small">p = ${x.p}</span><div class="grow"></div>
               <span class=${'chip ' + (x.sig ? 'ok' : '')}>${x.sig ? L('差异显著', 'significant') : L('相邻档不可分', 'indistinguishable')}</span>
             </div>`)}
-          <div class="note" style="margin-top:10px">${L('别把相邻档写成逐档提升——只有跨度大的比较显著。',
-            'Do not write adjacent tiers up as a step-by-step gain — only the wide comparison is significant.')}</div>
+          <div class="note" style="margin-top:10px">${L('不应把相邻档写成逐档提升。只有跨度较大的比较才显著。',
+            'Adjacent tiers should not be reported as stepwise gains; only the wide-range comparison is significant.')}</div>
         <//>
 
         <${Card} title=${L('写回证据', 'Write back evidence')} sub=${L('整张矩阵只产生一条证据', 'the whole matrix yields exactly one piece of evidence')}>
-          <div class="note">${L('写进 H-11 的是这一句：趋势成立、相邻档不可分。不是 18 个数。',
-            'What lands on H-11 is one sentence: the trend holds, adjacent tiers are indistinguishable. Not 18 numbers.')}</div>
+          <div class="note">${L('写入 H-11 的是一条结论：趋势成立，相邻档不可区分。不是 18 个单独数值。',
+            'H-11 receives one conclusion, not 18 values. The trend holds, and adjacent tiers are indistinguishable.')}</div>
           <div class="row" style="margin-top:10px"><span class="mono b">${d.hyp}</span><${St} s=${d.hypStatus} />
             <div class="grow"></div><span class="tiny mut">${L('本次', 'this run')}</span><${Score} v=${0.6} /></div>
           <div style="margin-top:8px"><${Meter} v=${d.hypScore} /></div>
           <div class="row" style="margin-top:11px">
             <button class="btn sm acc" disabled=${d.written} onClick=${() => act('sweep.write', {})}>
               ${d.written ? L('已写入证据', 'Evidence written') : L('写入证据并标为代表节点', 'Write evidence and mark representative')}</button>
-            <a class="btn sm" href=${'/panorama?h=' + d.hyp}>${L('看假设', 'Open the hypothesis')}</a>
+            <a class="btn sm" href=${'/panorama?h=' + d.hyp}>${L('查看假设', 'Open the hypothesis')}</a>
           </div>
         <//>
 
@@ -281,23 +281,23 @@ export function Sweep({ q, onShell }) {
             ${[['batch', d.rep.b], ['seed', d.rep.s], ['lr', d.rep.lr], [L('运行 id', 'run id'), d.rep.run], [L('产物', 'Artifacts'), 'fig_3.png · metrics.csv']].map(([k, v]) => html`
               <tr><td class="tiny faint" style="width:70px">${k}</td><td class="mono small">${v}</td></tr>`)}
           </tbody><//>
-          <div class="note" style="margin-top:9px">${L('图 3 用的就是这一格；换代表配置会同时重画图 3 并标记 4.2 节待更新。',
+          <div class="note" style="margin-top:9px">${L('图 3 采用该单元的结果。更换代表配置会重绘图 3，并把 4.2 节标为待更新。',
             'Figure 3 comes from this cell. Changing the representative config redraws Figure 3 and flags §4.2 for update.')}
             <a href="/figures" style="margin-left:6px">${L('图表工作台 →', 'Figures →')}</a></div>
         <//>
 
-        <${Card} title=${L('这张矩阵要花多少', 'What this matrix costs')}>
+        <${Card} title=${L('矩阵计算成本', 'Cost of this matrix')}>
           <${Table}><tbody>
             <tr><td class="tiny faint">${L('已用 GPU·h', 'GPU·h spent')}</td><td class="num">${d.gpuh}</td></tr>
-            <tr><td class="tiny faint">${L('剩余格预计', 'Remaining cells')}</td><td class="num">${d.filled ? 0 : d.remain}</td></tr>
+            <tr><td class="tiny faint">${L('剩余单元预计', 'Remaining cells')}</td><td class="num">${d.filled ? 0 : d.remain}</td></tr>
             <tr><td class="tiny faint">${L('本 idea 预算', 'Project budget')}</td><td class="num">${d.budget.total}</td></tr>
-            <tr><td class="tiny faint">${L('补满 2048 三格', 'Filling the 2048 row')}</td><td class="num">${d.filled ? L('已补', 'done') : '+11.0'}</td></tr>
+            <tr><td class="tiny faint">${L('补全 2048 三格', 'Filling the 2048 row')}</td><td class="num">${d.filled ? L('已补', 'done') : '+11.0'}</td></tr>
           </tbody><//>
-          <div class="note warn" style="margin-top:9px">${L('补满 2048 会吃掉近一成预算，而它只影响外推那一段的措辞。executor 的建议是先不补，把那句改成推测语气。',
-            'Filling 2048 eats nearly a tenth of the budget and only affects the wording of one extrapolated sentence. The executor suggests softening the sentence instead.')}</div>
+          <div class="note warn" style="margin-top:9px">${L('补全 2048 一行约需一成预算，只影响外推部分的表述。executor 建议暂不补全，改用推测性表述。',
+            'Filling the 2048 row would consume about a tenth of the budget and affects only the wording of the extrapolation. The executor recommends softening that sentence instead.')}</div>
           <div class="row" style="margin-top:10px">
-            <button class="btn sm" disabled=${d.filled} onClick=${() => act('sweep.fill', {})}>${d.filled ? L('已补满', 'Already filled') : L('补满这一行', 'Fill the row')}</button>
-            <a class="btn sm" href="/claims?c=c3">${L('去改那句话', 'Go fix the sentence')}</a>
+            <button class="btn sm" disabled=${d.filled} onClick=${() => act('sweep.fill', {})}>${d.filled ? L('已补全', 'Already filled') : L('补全该行', 'Fill the row')}</button>
+            <a class="btn sm" href="/claims?c=c3">${L('修改相关表述', 'Revise the sentence')}</a>
           </div>
         <//>
       </div>
@@ -321,12 +321,12 @@ export function Runs({ q, onShell }) {
     <span class="vr"></span>
     <span class="chip">${L('平均排队', 'Avg queue')} ${d.stats.avgQueueMin} ${L('分钟', 'min')}</span>
     <span class="chip">${L('成功率', 'Success')} ${d.stats.rate}%</span>
-    <span class="chip">${L('自动重试救回', 'Auto-rescued')} ${d.stats.rescued[0]}/${d.stats.rescued[1]}</span>
+    <span class="chip">${L('自动重试恢复', 'Recovered by retry')} ${d.stats.rescued[0]}/${d.stats.rescued[1]}</span>
     <div class="grow"></div>
     <span class="tiny faint hide-s">${L('executor 只能写 events.jsonl 与 artifacts/', 'the executor may write only events.jsonl and artifacts/')}</span>`}>
     <div class="cols2">
       <div class="col">
-        <${Card} title=${L('近 24 小时占用', 'Occupancy, last 24 hours')} sub=${L('颜色＝所属 idea，实心＝正在跑，琥珀＝失败', 'colour = project, solid = running, amber = failed')}>
+        <${Card} title=${L('近 24 小时占用', 'Occupancy, last 24 hours')} sub=${L('颜色表示所属 idea，实心表示运行中，琥珀色表示失败', 'colour = project, solid = running, amber = failed')}>
           <div class="tl">
             ${tl.lanes.map((row, g) => html`
               <div class="tl-row"><span class="mono tiny faint tl-g">GPU ${g}</span>
@@ -346,12 +346,12 @@ export function Runs({ q, onShell }) {
               <div class="tl-track tl-axis">${tl.ticks.map((x) => html`<span class="mono tiny faint" style=${{ left: x.pct + '%' }}>${x.label}</span>`)}</div></div>
           </div>
           <div class="note" style="margin-top:9px">${d.stats.queued
-            ? L(`空闲率 ${tl.idle}%——还有 ${d.stats.queued} 个任务在等空槽位，并行上限是 ${d.settings.parallel}。`,
-                `${tl.idle}% idle — ${d.stats.queued} task(s) still waiting for a slot, with a parallel cap of ${d.settings.parallel}.`)
-            : L(`空闲率 ${tl.idle}%——队列已排空。`, `${tl.idle}% idle — the queue is empty.`)}</div>
+            ? L(`空闲率 ${tl.idle}%。另有 ${d.stats.queued} 个任务等待槽位，并行上限为 ${d.settings.parallel}。`,
+                `${tl.idle}% idle. ${d.stats.queued} task(s) are waiting for a slot. The parallel cap is ${d.settings.parallel}.`)
+            : L(`空闲率 ${tl.idle}%。队列已排空。`, `${tl.idle}% idle. The queue is empty.`)}</div>
         <//>
 
-        <${Card} title=${L('运行', 'Runs')} sub=${L('每一行都可以追到节点、假设和产物', 'every row traces back to a node, a hypothesis and its artifacts')}
+        <${Card} title=${L('运行', 'Runs')} sub=${L('每一行都可追溯到对应的节点与产物', 'every row traces back to a node, a hypothesis and its artifacts')}
           right=${html`<span class="tiny faint">${L('时长 / 成本为实测', 'duration / cost measured')}</span>`}>
           <${Table}><thead><tr><th style="width:92px">id</th><th>${L('目标', 'Target')}</th><th style="width:118px">${L('资源', 'Resources')}</th><th style="width:60px">${L('时长', 'Time')}</th><th style="width:60px">${L('成本', 'Cost')}</th><th style="width:76px">${L('状态', 'State')}</th></tr></thead>
             <tbody>
@@ -380,17 +380,17 @@ export function Runs({ q, onShell }) {
               </div>`)}
           </div>
         <//>
-        <${Card} title=${L('这周花在哪', 'Where the week went')}>
+        <${Card} title=${L('本周算力分布', 'This week’s compute')}>
           ${Object.entries(d.spend).map(([idea, h]) => html`
             <div style="margin-bottom:7px">
               <div class="row"><${IdeaTag} id=${idea} /><div class="grow"></div><span class="num small">${h} h</span></div>
               <div style="margin-top:4px"><${Bar} v=${h / 45} c=${ic(idea)} h=${5} /></div>
             </div>`)}
           <div class="hr"></div>
-          <div class="row"><span class="small">${L('失败烧掉', 'Burned on failures')}</span><div class="grow"></div>
+          <div class="row"><span class="small">${L('失败消耗', 'Spent on failures')}</span><div class="grow"></div>
             <span class="num small">${d.failBurn} h</span><span class="chip bad">${Math.round(d.failBurn / Object.values(d.spend).reduce((a, b) => a + b, 0) * 1000) / 10}%</span></div>
         <//>
-        <${Card} title=${L('并行与预算', 'Parallelism and budget')} sub=${L('提高上限会让排队变短，但预算消耗更快', 'a higher cap shortens the queue but spends the budget faster')}>
+        <${Card} title=${L('并行与预算', 'Parallelism and budget')} sub=${L('提高并行上限可缩短排队时间，但会加快预算消耗', 'a higher cap shortens the queue but spends the budget faster')}>
           <div class="row"><span class="tiny faint" style="width:80px">${L('并行上限', 'Parallel cap')}</span>
             <input type="range" min="1" max="6" value=${d.settings.parallel} style="flex:1 1 80px"
               onChange=${(e) => act('settings.update', { parallel: +e.target.value })} />
@@ -403,10 +403,10 @@ export function Runs({ q, onShell }) {
           <div class="tiny mut" style="margin-top:5px">${d.settings.gpuUsed} / ${d.settings.budget} GPU·h</div>
         <//>
         <${Card} title=${L('审计', 'Audit')}>
-          <div class="small mut">${L('每次运行都记下镜像 digest、代码 commit、数据版本与随机种子，复现页可以据此在干净机器上重跑。',
-            'Every run records the image digest, code commit, data version and random seed, so the reproducibility page can re-run it on a clean machine.')}</div>
-          <div class="row" style="margin-top:9px"><a class="btn sm" href="/sweep">${L('回扫描矩阵', 'Sweep matrix')}</a>
-            <a class="btn sm" href="/exptree">${L('回实验树', 'Experiment tree')}</a>
+          <div class="small mut">${L('每次运行都记录完整的运行环境与随机种子。复现页据此在干净环境中重新运行。',
+            'Every run records its full environment and random seed. The reproducibility page can re-run it in a clean environment.')}</div>
+          <div class="row" style="margin-top:9px"><a class="btn sm" href="/sweep">${L('返回扫描矩阵', 'Sweep matrix')}</a>
+            <a class="btn sm" href="/exptree">${L('返回实验树', 'Experiment tree')}</a>
             <a class="btn sm" href="/rebuttal">${L('复现自评', 'Reproducibility')}</a></div>
         <//>
       </div>

@@ -7,7 +7,7 @@ export function Home({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.home, c = data.shell.counts;
   return html`<${Frame}>
-    <${Card} title=${L('管线', 'Pipeline')} sub=${L('一条文献进来，到一篇论文出去，中间的每一段都能点开', 'One paper in, one paper out — every segment in between opens')}
+    <${Card} title=${L('管线', 'Pipeline')} sub=${L('从文献采集到论文成稿的完整流程，各环节均可展开查看', 'The full pipeline from literature collection to manuscript; every stage can be inspected')}
       right=${html`<span class="mono tiny faint">${L('数据来自', 'from')} index.jsonl · tree.json · events.jsonl</span>`}>
       <div class="pipe">
         ${d.pipeline.map((p, i) => html`
@@ -18,8 +18,8 @@ export function Home({ q, onShell }) {
 
     <div class="cols2" style="margin-top:12px">
       <div class="col">
-        <${Card} title=${d.star ? L(`一条假设，${d.star.places.length} 个 idea 在用`, `One hypothesis, ${d.star.places.length} projects using it`) : L('共享假设', 'Shared hypotheses')}
-          right=${html`<a href=${'/graph?h=' + d.star?.id}>${L('看共享关系 →', 'See shared hypotheses →')}</a>`}>
+        <${Card} title=${d.star ? L(`同一假设被 ${d.star.places.length} 个 idea 引用`, `One hypothesis cited by ${d.star.places.length} projects`) : L('共享假设', 'Shared hypotheses')}
+          right=${html`<a href=${'/graph?h=' + d.star?.id}>${L('查看共享关系 →', 'See shared hypotheses →')}</a>`}>
           ${d.star ? html`<${Fragment}>
             <div class="row" style="margin-bottom:9px">
               <span class="mono b">${d.star.id}</span><${St} s=${d.star.status} /><${Score} v=${d.star.score} />
@@ -34,12 +34,12 @@ export function Home({ q, onShell }) {
                   <div class="tiny mut" style="margin-top:3px">${p.role.role === 'borrowed_assumption' ? L('借用前提，不再展开', 'borrowed premise, not expanded') : L('本 idea 自证', 'proven in this project')}</div>
                 </div>`)}
             </div>
-            <div class="note" style="margin-top:11px">${L('假设是全局实体，不属于任何一个 idea。一次实验的证据会同时落到所有引用它的 idea 上。',
-              'A hypothesis is a global entity. Evidence from one run lands on every project that cites it.')}</div>
+            <div class="note" style="margin-top:11px">${L('假设是全局实体，不属于任何一个 idea。一次实验的证据会同时作用于所有引用它的 idea。',
+              'A hypothesis is a global entity. Evidence from one run applies to every project that cites it.')}</div>
           <//>` : html`<${Empty}>${L('目前没有跨 idea 共享的假设。', 'No hypothesis is shared across projects right now.')}<//>`}
         <//>
 
-        <${Card} title=${L('过去 24 小时', 'The last 24 hours')} sub=${L('系统自己做完的部分', 'What the system did on its own')}
+        <${Card} title=${L('过去 24 小时', 'The last 24 hours')} sub=${L('系统自动完成的工作', 'Work completed automatically')}
           right=${html`<a href="/events">${L('完整事件流 →', 'Full event stream →')}</a>`}>
           <${Table}><tbody>
             ${d.last24.map((x) => html`<tr>
@@ -47,15 +47,15 @@ export function Home({ q, onShell }) {
               <td><div class="b">${t(x.head)}</div><div class="small mut" style="margin-top:3px">${t(x.body)}</div></td>
             </tr>`)}
           </tbody><//>
-          <div class="note" style="margin-top:11px">${L(`这 24 小时里没有人操作过。上一次人工介入是 ${clock(Date.now() - d.unattendedMs)}。`,
-            `Nobody touched it in those 24 hours. The last manual step was ${clock(Date.now() - d.unattendedMs)}.`)}</div>
+          <div class="note" style="margin-top:11px">${L(`过去 24 小时内无人工操作；最近一次人工介入：${clock(Date.now() - d.unattendedMs)}。`,
+            `No manual operations in the last 24 hours. Last manual intervention: ${clock(Date.now() - d.unattendedMs)}.`)}</div>
         <//>
       </div>
 
       <div class="col">
-        <${Card} title=${L('等你决定的', 'Waiting on you')} right=${html`<span class="chip ${d.decisions.length ? 'warn' : ''}">${d.decisions.length}</span>`}
-          sub=${L('系统不会替你决定这些', 'The system will not decide these for you')}>
-          ${d.decisions.length === 0 ? html`<${Empty}>${L('目前没有需要你裁定的事。', 'Nothing needs your decision right now.')}<//>` : null}
+        <${Card} title=${L('待人工决策', 'Pending decisions')} right=${html`<span class="chip ${d.decisions.length ? 'warn' : ''}">${d.decisions.length}</span>`}
+          sub=${L('以下事项须由研究者决定', 'These decisions are reserved for the researcher')}>
+          ${d.decisions.length === 0 ? html`<${Empty}>${L('当前没有待裁定事项。', 'Nothing needs your decision right now.')}<//>` : null}
           <div class="col">
             ${d.decisions.map((x) => html`
               <div style="padding:11px;border:1px solid var(--line);border-radius:6px">
@@ -67,13 +67,13 @@ export function Home({ q, onShell }) {
                 <div class="small mut" style="margin-top:6px">${t(x.why)}</div>
                 <div class="row" style="margin-top:9px">
                   <a class="btn sm acc" href=${x.go}>${t(x.cta)}</a>
-                  <button class="btn sm" onClick=${() => act('decision.snooze', { id: x.kind === 'verdict' ? 'v:' + x.id : x.id })}>${L('先放一放', 'Set aside')}</button>
+                  <button class="btn sm" onClick=${() => act('decision.snooze', { id: x.kind === 'verdict' ? 'v:' + x.id : x.id })}>${L('暂缓处理', 'Defer')}</button>
                 </div>
               </div>`)}
           </div>
         <//>
 
-        <${Card} title=${L('三个 agent 在做什么', 'What the three agents are doing')} sub=${L('各自只写自己的文件', 'Each writes only its own files')}>
+        <${Card} title=${L('agent 运行状态', 'Agent status')} sub=${L('各 agent 仅写入各自负责的文件', 'Each agent writes only to its own files')}>
           <div class="col">
             ${d.agents.map((a) => html`
               <div class="row" style="align-items:flex-start;cursor:pointer" onClick=${() => go(a.go)}>
@@ -110,26 +110,26 @@ export function Main({ q, onShell }) {
     <a class="btn sm" href="/ideas">${I('plus', { s: 13 })}${L('新建 idea', 'New idea')}</a>`}>
     <div class="kpis">
       <${Kpi} k=${L('并行 idea', 'Parallel ideas')} v=${d.stats.parallel} s=${L(`${d.stats.candidates} 个待启动`, `${d.stats.candidates} to start`)} onClick=${() => go('/ideas')} />
-      <${Kpi} k=${L('全局 frontier', 'Global frontier')} v=${d.stats.frontier} s=${L('可直接开跑', 'ready to run')} />
+      <${Kpi} k=${L('全局 frontier', 'Global frontier')} v=${d.stats.frontier} s=${L('可立即执行', 'ready to run')} />
       <${Kpi} k=${L('运行中实验', 'Running')} v=${d.stats.running} s=${d.running.map((r) => r.id).join(' ')} onClick=${() => go('/experiments')} />
-      <${Kpi} k=${L('待裁定', 'Pending verdicts')} v=${d.stats.pending} warn=${d.stats.pending > 0} s=${L('等你处理', 'waiting on you')} onClick=${() => go('/review')} />
+      <${Kpi} k=${L('待裁定', 'Pending verdicts')} v=${d.stats.pending} warn=${d.stats.pending > 0} s=${L('待处理', 'awaiting review')} onClick=${() => go('/review')} />
       <${Kpi} k=${L('一次实验平均服务', 'Ideas served per run')} v=${d.stats.perExp} s=${L('个 idea', 'ideas')} />
     </div>
 
     <div class="cols2" style="margin-top:12px">
-      <${Card} title=${L('全局 frontier', 'Global frontier')} sub=${L('依赖已就绪、可直接开跑的假设 · 跨全部 idea', 'Hypotheses whose dependencies are ready · across all projects')}
+      <${Card} title=${L('全局 frontier', 'Global frontier')} sub=${L('依赖已满足的假设 · 跨全部 idea', 'Hypotheses whose dependencies are ready · across all projects')}
         right=${html`<div class="row"><span class="tiny faint">${L('排序', 'Sort')}</span>
           <div class="seg"><button class=${sort === 'ideas' ? 'on' : ''} onClick=${() => setSort('ideas')}>${L('覆盖 idea 数', 'Ideas covered')}</button>
           <button class=${sort === 'id' ? 'on' : ''} onClick=${() => setSort('id')}>ID</button></div></div>`}
         foot=${html`<button class="btn sm pri" onClick=${() => act('exp.runBatch', { hyps: fr.filter((f) => !f.queued).slice(0, 3).map((f) => f.id) })}>
-            ${L('按顺序批量开跑前 3 条', 'Queue the top 3 in order')}</button>
-          <span class="tiny faint">${L('服务多个 idea 的优先', 'Multi-project hypotheses go first')}</span>`}>
+            ${L('按优先级批量运行前 3 条', 'Queue the top 3 in order')}</button>
+          <span class="tiny faint">${L('优先处理服务多个 idea 的假设', 'Hypotheses serving multiple projects take priority')}</span>`}>
         <${Table} class="frontier-table"><tbody>
           ${fr.map((f) => html`<tr class="clickable" onClick=${() => go('/panorama?h=' + f.id)}>
             <td style="width:112px">${f.ideas.map((i) => html`<${IdeaTag} id=${i} />`)}</td>
             <td style="width:52px" class="mono b">${f.id}</td>
             <td>${t(f.claim)}${f.ideas.length > 1 && html`<span class="chip acc" style="margin-left:7px">${L(`服务 ${f.ideas.length} 个 idea`, `serves ${f.ideas.length} ideas`)}</span>`}</td>
-            <td style="width:88px"><${St} s=${f.needsDecompose ? 'untested' : f.status} label=${f.needsDecompose ? L('待拆解', 'to decompose') : f.rerun ? L('需复跑', 'needs re-run') : undefined} /></td>
+            <td style="width:88px"><${St} s=${f.needsDecompose ? 'untested' : f.status} label=${f.needsDecompose ? L('待拆解', 'to decompose') : f.rerun ? L('需重新运行', 'needs re-run') : undefined} /></td>
             <td style="width:92px;text-align:right" onClick=${(e) => e.stopPropagation()}>
               ${f.needsDecompose
                 ? html`<button class="btn xs" onClick=${() => act('hyp.decompose', { hyp: f.id })}>${L('拆解', 'Decompose')}</button>`
@@ -142,7 +142,7 @@ export function Main({ q, onShell }) {
 
       <div class="col">
         <${Card} title=${L('执行槽位', 'Execution slots')} sub=${L(`${d.running.length} / ${d.slots} 占用 · 排队 ${d.queued.length}`, `${d.running.length} / ${d.slots} busy · ${d.queued.length} queued`)}
-          right=${html`<a href="/experiments">${L('进实验页 →', 'Experiments →')}</a>`}>
+          right=${html`<a href="/experiments">${L('实验详情 →', 'Experiments →')}</a>`}>
           <div class="col">
             ${d.running.map((r) => html`
               <div style="padding:10px;border:1px solid var(--line);border-radius:6px;cursor:pointer" onClick=${() => go('/experiments?e=' + r.id)}>
@@ -159,14 +159,14 @@ export function Main({ q, onShell }) {
           </div>
         <//>
 
-        <${Card} title=${L('待裁定', 'Awaiting a verdict')} sub=${L('executor 不再往下展开', 'the executor stops expanding here')}>
+        <${Card} title=${L('待裁定', 'Awaiting a verdict')} sub=${L('executor 已停止展开', 'the executor stops expanding here')}>
           <div class="col">
-            ${d.pending.length === 0 && html`<${Empty}>${L('队列是空的。', 'The queue is empty.')}<//>`}
+            ${d.pending.length === 0 && html`<${Empty}>${L('队列为空。', 'The queue is empty.')}<//>`}
             ${d.pending.map((v) => html`
               <div style="padding:10px;border:1px solid var(--warnln);background:var(--warnbg);border-radius:6px;cursor:pointer" onClick=${() => go('/review?h=' + v.id)}>
                 <div class="row"><span class="mono b">${v.id}</span><span class="small" style="flex:1 1 120px">${t(v.claim)}</span><${Score} v=${v.score} /></div>
                 <div class="row" style="margin-top:7px">${v.ideas.map((i) => html`<${IdeaTag} id=${i} />`)}</div>
-                <div class="tiny mut" style="margin-top:6px">${v.impact.map((i) => i.kind === 'global' ? L(`${i.idea} 的根前提，裁定后整棵树重估`, `root premise of ${i.idea} — the whole tree is re-estimated`)
+                <div class="tiny mut" style="margin-top:6px">${v.impact.map((i) => i.kind === 'global' ? L(`${i.idea} 的根前提，裁定后整棵树重估`, `root premise of ${i.idea}; the whole tree is re-estimated`)
                   : i.kind === 'local' ? L(`${i.idea} 有独立证据，不受影响`, `${i.idea} has independent evidence`)
                   : L(`${i.idea} 下游 ${i.frozen} 个节点冻结`, `${i.frozen} downstream nodes freeze in ${i.idea}`)).join(' · ')}</div>
               </div>`)}
@@ -195,7 +195,7 @@ export function Events({ q, onShell }) {
   return html`<${Frame} tools=${html`<div class="seg">
       ${Object.entries(KINDS).map(([k, lab]) => html`<button class=${kind === k ? 'on' : ''} onClick=${() => setKind(k)}>${lab}</button>`)}
     </div><div class="grow"></div><span class="mono tiny faint">events.jsonl · ${d.list.length} ${L('行', 'lines')}</span>`}>
-    <${Card} title=${L('事件流', 'Event stream')} sub=${L('每个 agent 只写自己的行，人工动作也记在这里', 'Each agent writes only its own lines; manual actions are logged too')}>
+    <${Card} title=${L('事件流', 'Event stream')} sub=${L('各 agent 仅追加各自的记录，人工操作亦记录于此', 'Each agent appends only its own entries; manual actions are also recorded')}>
       <${Table}><tbody>
         ${d.list.map((e) => html`<tr>
           <td style="width:88px" class="mono tiny faint">${hm(e.t)}<div>${ago(e.t)}</div></td>

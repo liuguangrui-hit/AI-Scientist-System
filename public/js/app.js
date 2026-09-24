@@ -19,7 +19,17 @@ export function go(to, replace = false) {
 addEventListener('popstate', () => subs.forEach((f) => f()));
 addEventListener('click', (e) => {
   const a = e.target.closest?.('a[href]');
-  if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || a.getAttribute('href')[0] === '#') return;
+  if (!a) return;
+  // In-page anchors: <base href> would resolve '#screens' against the site root and
+  // leave the page, so scroll within the current page instead.
+  const raw = a.getAttribute('href');
+  if (raw[0] === '#') {
+    e.preventDefault();
+    const el = raw.length > 1 && document.getElementById(raw.slice(1));
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.focus?.({ preventScroll: true }); history.replaceState(history.state, '', location.pathname + location.search + raw); }
+    return;
+  }
+  if (a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
   const u = new URL(a.href);
   if (u.origin !== location.origin || !u.pathname.startsWith(BASE) || /\.\w+$/.test(u.pathname)) return;
   e.preventDefault();
@@ -131,18 +141,18 @@ function Top({ screen, shell, onMenu, open }) {
     <span class="crumb">${title}</span>
     <span class="mono small b hide-s">${clock(now)}</span>
     <div class="grow"></div>
-    <span class="small mut hide-s">${L(`昨夜自动运行 ${dur(shell.now - shell.createdAt + 33120000)} · 无人值守`, `Ran unattended for ${dur(shell.now - shell.createdAt + 33120000)}`)}</span>
+    <span class="small mut hide-s">${L(`最近一次无人值守运行 ${dur(shell.now - shell.createdAt + 33120000)}`, `Last unattended run: ${dur(shell.now - shell.createdAt + 33120000)}`)}</span>
     <${SourceBadge} src=${shell.source} />
     <button class="btn xs lang-toggle" onClick=${() => setLang(LANG === 'zh' ? 'en' : 'zh')} title="Language">${LANG === 'zh' ? 'EN' : '中文'}</button>
     ${c.pending > 0 && screen !== 'review' && html`<a class="btn sm pending-link" aria-label=${L(`${c.pending} 项待裁定`, `${c.pending} pending verdicts`)} href="/review" style="color:var(--warn);border-color:var(--warnln)">${I('warn', { s: 13, c: 'var(--warn)' })}${c.pending}</a>`}
-    <a class="btn sm pri hide-s" href=${screen === 'main' ? '/home' : '/main'}>${screen === 'main' ? L('看总览', 'Overview') : L('进工作台', 'Workbench')}</a>
+    <a class="btn sm pri hide-s" href=${screen === 'main' ? '/home' : '/main'}>${screen === 'main' ? L('返回总览', 'Overview') : L('进入工作台', 'Workbench')}</a>
   </header>`;
 }
 
 // Which data you are looking at: the private demo workspace, or a live project
 // directory on disk (read-only when the process cannot write to it).
 function SourceBadge({ src }) {
-  if (!src || src.mode === 'demo') return html`<span class="chip source-badge" title=${L('每位访客独立会话；不调用真实模型或实验执行器。试玩记录可能重置。', 'Private session per visitor; no live models or experiment executors. Trial data may reset.')}>${L('演示数据 · 模拟实验', 'Demo data · simulated experiments')}</span>`;
+  if (!src || src.mode === 'demo') return null;
   const bad = src.problems > 0;
   return html`<span class=${'chip source-badge ' + (bad ? 'warn' : 'ok')} title=${L('接入的真实项目目录', 'The live project directory in use')}>
     ${src.readonly ? L('真实项目 · 只读', 'Live project · read-only') : L('真实项目', 'Live project')}
@@ -203,8 +213,8 @@ function Workbench({ screen, q }) {
 
 const NotFound = () => html`<div class="sec" style="text-align:center">
   <h2 style="font-size:22px">404</h2>
-  <p class="mut">${L('这个页面不存在。', 'This page does not exist.')}</p>
-  <p><a class="btn" href="/">${L('回首页', 'Back home')}</a></p></div>`;
+  <p class="mut">${L('请求的页面不存在。', 'This page does not exist.')}</p>
+  <p><a class="btn" href="/">${L('返回首页', 'Back to home')}</a></p></div>`;
 
 function App() {
   const { screen, q } = useRoute();

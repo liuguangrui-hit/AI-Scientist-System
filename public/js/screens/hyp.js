@@ -11,10 +11,10 @@ export function Ideas({ q, onShell }) {
   const d = data.ideas, c = d.cand;
   if (d.empty) return html`<${Frame}>
     <${Card} title=${L('Idea 立项', 'Idea intake')} sub=${L(`进行中 ${d.counts.running} · 已收束 ${d.counts.done}`, `${d.counts.running} running · ${d.counts.done} wrapped up`)}>
-      <${Empty}>${L('当前没有待立项的候选。候选来自 spark：在趋势页从空白或矛盾生成 spark，选中后回到这里展开成假设树。',
+      <${Empty}>${L('当前没有待立项的候选。候选来自 spark：在趋势页由研究空白或矛盾生成 spark，选定后在此展开为假设树。',
         'No candidate is waiting. Candidates come from sparks: generate one from a gap or contradiction on the trends screen, select it, then expand it into a hypothesis tree here.')}<//>
-      <div class="row" style="margin-top:11px"><a class="btn sm" href="/sparks">${L('去看 spark', 'Open sparks')}</a>
-        <a class="btn sm" href="/panorama">${L(`已有 ${d.extracted} 条假设在网`, `${d.extracted} hypotheses in the network`)}</a></div>
+      <div class="row" style="margin-top:11px"><a class="btn sm" href="/sparks">${L('查看 spark', 'Open sparks')}</a>
+        <a class="btn sm" href="/panorama">${L(`网络中已有 ${d.extracted} 条假设`, `${d.extracted} hypotheses in the network`)}</a></div>
     <//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip">${L('候选', 'Candidates')} ${d.counts.candidates}</span>
@@ -33,11 +33,11 @@ export function Ideas({ q, onShell }) {
           <div class="cols3" style="margin-top:12px">
             <${Kpi} k=${L('新颖性', 'Novelty')} v=${d.novelty} />
             <${Kpi} k=${L('可行性', 'Feasibility')} v=${d.feasibility} />
-            <${Kpi} k=${L('与在跑 idea 重叠', 'Overlap with running')} v=${d.overlap} />
+            <${Kpi} k=${L('与进行中 idea 的重叠', 'Overlap with running')} v=${d.overlap} />
           </div>
         <//>
 
-        <${Card} title=${L('立项时的假设清单', 'Hypotheses at launch')} sub=${L('已在网络里的假设可直接挂上，不重复验证', 'Anything already in the network can be attached instead of re-verified')}
+        <${Card} title=${L('立项时的假设清单', 'Hypotheses at launch')} sub=${L('网络中已有的假设可直接引用，无需重复验证', 'Hypotheses already in the network can be cited directly without re-verification')}
           right=${html`<span class="chip">${L(`复用 ${d.reuse} · 新建 ${d.fresh}`, `${d.reuse} reused · ${d.fresh} new`)}</span>`}
           foot=${html`
             <button class="btn sm acc" onClick=${async () => { const r = await act('idea.launch', {}); if (r.ok) go('/tree?idea=' + (r.idea || c.id)); }}>
@@ -65,8 +65,8 @@ export function Ideas({ q, onShell }) {
           </tbody><//>
         <//>
 
-        <${Card} title=${L('文献池', 'Literature pool')} sub=${L('与当前候选相关 · 勾选后可抽假设', 'related to this candidate · tick to extract hypotheses')}
-          right=${html`<button class="btn xs" onClick=${() => act('idea.extract', {})}>${L('从选中文献抽假设', 'Extract from selected')}</button>`}>
+        <${Card} title=${L('文献池', 'Literature pool')} sub=${L('与当前候选相关 · 勾选后可抽取假设', 'related to this candidate · tick to extract hypotheses')}
+          right=${html`<button class="btn xs" onClick=${() => act('idea.extract', {})}>${L('从选中文献抽取假设', 'Extract from selected')}</button>`}>
           <${Table}><tbody>
             ${d.lit.map((p) => html`<tr class="clickable" onClick=${() => act('idea.lit', { id: p.id })}>
               <td style="width:26px">${p.selected ? I('check', { s: 14, c: 'var(--acc)' }) : html`<span style="display:inline-block;width:13px;height:13px;border:1px solid var(--line);border-radius:3px"></span>`}</td>
@@ -80,7 +80,7 @@ export function Ideas({ q, onShell }) {
       </div>
 
       <div class="col">
-        <${Card} title=${L('与在跑 idea 的关系', 'Relation to running projects')}>
+        <${Card} title=${L('与进行中 idea 的关系', 'Relation to running projects')}>
           ${d.overlaps.map((o) => html`
             <div style="padding:9px 0;border-bottom:1px solid var(--line2)">
               <div class="row"><${IdeaTag} id=${o.idea} name=${o.name} /><div class="grow"></div>
@@ -90,7 +90,7 @@ export function Ideas({ q, onShell }) {
         <//>
         <${Card} title=${L('立项成本估计', 'Cost to start')}>
           <div class="row"><span class="big">${d.cost}</span><span class="mut">${L('个新实验', 'new experiments')}</span></div>
-          <div class="note" style="margin-top:9px">${L(`若不复用已有证据，同样的主张需要 ${d.costNoReuse} 个实验。复用的 ${d.reuse} 条假设已被其他 idea 验证过。`,
+          <div class="note" style="margin-top:9px">${L(`若不复用已有证据，同一主张需要 ${d.costNoReuse} 个实验。复用的 ${d.reuse} 条假设已由其他 idea 验证。`,
             `Without reuse the same claim would need ${d.costNoReuse} experiments. The ${d.reuse} reused hypotheses were already verified by other projects.`)}</div>
         <//>
         <${Card} title=${L('展开后的形态', 'Shape after expansion')}>
@@ -100,7 +100,7 @@ ${c.plan.filter((p) => p.mode !== 'skip').map((p, i, a) => `${i === a.length - 1
             'Where a hypothesis sits in a tree is decided by that project’s own argument, not by the hypothesis.')}</div>
         <//>
         <${Card} title=${L('已建库', 'Extracted so far')}>
-          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条假设在网', 'hypotheses in the network')}</span></div>
+          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条在网假设', 'hypotheses in the network')}</span></div>
           <div class="row" style="margin-top:6px"><span class="num">${d.sharedCount}</span><span class="mut small">${L('条被 2 个以上 idea 引用', 'cited by 2+ projects')}</span></div>
         <//>
       </div>
@@ -134,7 +134,7 @@ export function Panorama({ q, onShell }) {
   const d = data.panorama;
   const sel = d.sel;
   if (d.empty) return html`<${Frame}><${Card} title=${L('假设网络', 'Hypothesis network')}>
-    <${Empty}>${L('还没有假设。接入真实项目后，这里显示 tree.json 里的全部 idea 与假设。',
+    <${Empty}>${L('暂无假设。接入真实项目后，这里显示 tree.json 里的全部 idea 与假设。',
       'No hypotheses yet. Wired to a real project this shows every idea and hypothesis in tree.json.')}<//><//><//>`;
   if (mobile) return html`<${MobilePanorama} d=${d} q=${q} act=${act} />`;
   return html`<${Frame} tools=${html`
@@ -144,7 +144,7 @@ export function Panorama({ q, onShell }) {
     <button class=${'btn sm' + (labels ? ' acc' : '')} onClick=${() => setLabels(!labels)}>${L('节点标签', 'Labels')}</button>
     <a class="btn sm" href="/forest3d">${L('大规模森林 · 三维 →', 'Forest at scale · 3D →')}</a>
     <div class="grow"></div>
-    <span class="tiny faint hide-s">${L('滚轮缩放 · 拖拽平移 · 拖节点可移动', 'Scroll to zoom · drag to pan · drag a node to move it')}</span>`}>
+    <span class="tiny faint hide-s">${L('滚轮缩放 · 拖拽平移 · 可拖动节点', 'Scroll to zoom · drag to pan · drag a node to move it')}</span>`}>
     <div class="cols2">
       <${Graph} d=${d} color=${color} hidden=${hidden} labels=${labels} sel=${sel?.id} key="g"
         onPick=${(id) => go(qs({ h: id }))} />
@@ -153,15 +153,15 @@ export function Panorama({ q, onShell }) {
           <${Kpi} k=${L('假设', 'Hypotheses')} v=${d.counts.hyps} /><${Kpi} k=${L('边', 'Edges')} v=${d.counts.edges} />
           <${Kpi} k=${L('共享', 'Shared')} v=${d.counts.shared} /><${Kpi} k="idea" v=${d.counts.ideas} />
         </div>
-        <${Card} title=${L('状态', 'Status')} sub=${L('点一行可隐藏该类', 'click a row to hide that class')}>
+        <${Card} title=${L('状态', 'Status')} sub=${L('点击行可隐藏该类', 'click a row to hide that class')}>
           ${Object.entries(d.byStatus).sort((a, b) => b[1] - a[1]).map(([s, n]) => html`
             <div class="row" style=${{ padding: '4px 0', cursor: 'pointer', opacity: hidden[s] ? .4 : 1 }} onClick=${() => setHidden({ ...hidden, [s]: !hidden[s] })}>
               <span style=${{ width: '11px', height: '11px', borderRadius: '50%', background: STATUS_COLOR[s], border: '2px solid ' + STATUS_STROKE[s] }}></span>
               <span class="small">${stLabel(s)}</span><div class="grow"></div><span class="num small">${n}</span></div>`)}
-          <div class="tiny faint" style="margin-top:8px">${L('粗圈＝被多个 idea 引用 · 蓝虚线＝归纳边 · 灰虚线＝跨 idea 依赖',
+          <div class="tiny faint" style="margin-top:8px">${L('粗圈表示被多个 idea 引用 · 蓝色虚线表示归纳边 · 灰色虚线表示跨 idea 依赖',
             'Thick ring = cited by several projects · blue dashes = induced edge · grey dashes = cross-project dependency')}</div>
         <//>
-        <div id="hypothesis-detail">${sel ? html`<${HypPanel} sel=${sel} act=${act} />` : html`<${Card} title=${L('选择一个节点', 'Pick a node')}><${Empty}>${L('点图里的任意节点查看详情。', 'Click any node in the graph.')}<//><//>`}</div>
+        <div id="hypothesis-detail">${sel ? html`<${HypPanel} sel=${sel} act=${act} />` : html`<${Card} title=${L('选择一个节点', 'Pick a node')}><${Empty}>${L('点击图中任意节点查看详情。', 'Click any node in the graph.')}<//><//>`}</div>
         <${Card} title=${L('活动', 'Activity')}>
           ${d.events.map((e) => html`<div class="row" style="padding:4px 0">
             <span class="mono tiny faint" style="width:40px">${clock(e.t).slice(11)}</span><span class="small">${t(e.title)}</span></div>`)}
@@ -210,13 +210,13 @@ function MobilePanorama({ d, q, act }) {
       : html`<${Empty}>${L('这条假设不存在，请返回清单选择。', 'Hypothesis not found. Choose one from the list.')}<//>`}
   <//>`;
   if (view === 'map') return html`<${Frame} tools=${tools}>
-    <div class="note" style="margin-bottom:10px">${L('点节点直接打开详情。需要平移时开启“移动图谱”；随时可用上方按钮返回清单。',
-      'Tap a node to open its detail. Enable “Move graph” to pan; use the button above to return to the list.')}</div>
+    <div class="note" style="margin-bottom:10px">${L('点击节点打开详情。需要平移时，请开启移动图谱。上方按钮可返回清单。',
+      'Tap a node to open its detail. Turn on Move graph to pan. The button above returns to the list.')}</div>
     <${Graph} d=${d} color="status" hidden=${{}} labels=${true} onPick=${open} />
   <//>`;
   return html`<${Frame} tools=${tools}>
     <div class="hyp-filters">
-      <input type="search" aria-label=${L('搜索假设', 'Search hypotheses')} placeholder=${L('搜索编号、主张或 idea', 'Search ID, claim or project')}
+      <input type="search" aria-label=${L('搜索假设', 'Search hypotheses')} placeholder=${L('搜索假设编号或主张', 'Search ID, claim or project')}
         value=${search} onInput=${(e) => { listScroll.current = 0; setSearch(e.target.value); }} />
       <div class="hyp-filter-row">
         <select aria-label=${L('按 idea 筛选', 'Filter by project')} value=${idea} onChange=${(e) => { listScroll.current = 0; setIdea(e.target.value); }}>
@@ -228,7 +228,7 @@ function MobilePanorama({ d, q, act }) {
           ${Object.keys(d.byStatus).map((s) => html`<option value=${s}>${stLabel(s)}</option>`)}
         </select>
       </div>
-      <div class="row"><span class="tiny mut" role="status">${L(`${nodes.length} 条假设 · 点卡片查看详情与实验`, `${nodes.length} hypotheses · tap for details and experiments`)}</span>
+      <div class="row"><span class="tiny mut" role="status">${L(`${nodes.length} 条假设 · 点击卡片查看详情与实验`, `${nodes.length} hypotheses · tap for details and experiments`)}</span>
         ${(search || idea || status) && html`<button class="btn xs" onClick=${() => { setSearch(''); setIdea(''); setStatus(''); }}>${L('清除筛选', 'Clear filters')}</button>`}</div>
     </div>
     <div class="hyp-mobile-list">
@@ -237,7 +237,7 @@ function MobilePanorama({ d, q, act }) {
         <span class="hyp-list-claim">${t(n.claim)}</span>
         <span class="row"><span class="tiny mut">${n.ideas.join(' · ')}</span><span class="grow"></span><span class="hyp-list-open">${L('详情与实验 →', 'Details & runs →')}</span></span>
       </button>`)}
-      ${!nodes.length && html`<${Empty}>${L('没有匹配的假设，试试其他关键词或清除筛选。', 'No matching hypotheses. Try another search or clear the filters.')}<//>`}
+      ${!nodes.length && html`<${Empty}>${L('没有匹配的假设，请尝试其他关键词或清除筛选。', 'No matching hypotheses. Try another search or clear the filters.')}<//>`}
     </div>
   <//>`;
 }
@@ -381,7 +381,7 @@ export function HypPanel({ sel, act, compact }) {
       ${sel.status !== 'pending_review' && html`<button class="btn sm acc" onClick=${() => act('exp.run', { hyp: sel.id })}>${L('运行实验', 'Run an experiment')}</button>`}
       <button class="btn sm" onClick=${() => setAdding(!adding)}>${L('添加子假设', 'Add a sub-hypothesis')}</button>
       ${sel.status === 'pending_review'
-        ? html`<a class="btn sm pri" href=${'/review?h=' + sel.id}>${L('去裁定', 'Rule on it')}</a>`
+        ? html`<a class="btn sm pri" href=${'/review?h=' + sel.id}>${L('前往裁定', 'Go to verdict')}</a>`
         : html`<button class="btn sm" onClick=${() => act('hyp.submit', { hyp: sel.id })}>${L('提交裁定', 'Submit for verdict')}</button>`}
       <button class="btn sm" onClick=${() => act('hyp.borrow', { hyp: sel.id, idea: sel.ideas[0]?.idea })}>${L('标为借用前提', 'Mark as borrowed')}</button>
       <a class="btn sm" href=${'/tree?idea=' + (sel.ideas[0]?.idea || 'P-014') + '&h=' + sel.id}>${L('树视图', 'Tree view')}</a>
@@ -459,15 +459,15 @@ export function GraphScreen({ q, onShell }) {
           sub=${html`<${St} s=${sel.status} />`} right=${html`<${Score} v=${sel.score} />`}>
           <div style="font-size:14px;line-height:1.7">${t(sel.claim)}</div>
           <div class="hr"></div>
-          <div class="tiny faint" style="margin-bottom:7px">${L('在各 idea 中的位置 · 层级各不相同', 'Its place in each project — different every time')}</div>
+          <div class="tiny faint" style="margin-bottom:7px">${L('在各 idea 中的位置 · 层级各不相同', 'Position in each project')}</div>
           <div class="cols3">
             ${sel.ideas.map((p) => html`
               <div style=${{ padding: '12px', border: '1px solid var(--line)', borderRadius: '6px', borderLeft: '3px solid ' + ic(p.idea) }}>
                 <div class="row"><span class="mono b">${p.idea}</span><span class="tiny mut">${t(p.name)}</span></div>
                 <div class="b small" style="margin-top:7px">${p.role.kind === 'root' ? L('根前提', 'root premise') : p.role.leaf ? L('叶子', 'leaf') : L(`第 ${p.role.depth} 层`, `layer ${p.role.depth}`)}${p.role.verified ? L(' · 已证', ' · verified') : ''}</div>
                 <div class="tiny mut" style="margin-top:5px">${p.role.role === 'borrowed_assumption'
-                  ? (p.role.kind === 'root' ? L('直接采纳，不再往下拆 · 本 idea 的出发点', 'Adopted as given, never decomposed — this project’s starting point')
-                    : L('作为已验证前提引用，无需重跑实验', 'Cited as a verified premise; no re-run needed'))
+                  ? (p.role.kind === 'root' ? L('直接采纳，不再分解 · 本 idea 的出发点', 'Adopted as given and never decomposed. This is the project’s starting point.')
+                    : L('作为已验证前提引用，无需重新运行实验', 'Cited as a verified premise; no re-run needed'))
                   : L('本 idea 自证', 'Proven inside this project')}</div>
                 <a class="btn xs" style="margin-top:9px" href=${'/tree?idea=' + p.idea + '&h=' + sel.id}>${L('在树中定位', 'Locate in the tree')}</a>
               </div>`)}
@@ -477,10 +477,10 @@ export function GraphScreen({ q, onShell }) {
           <${Evidence} list=${sel.evidence} onExp=${(e) => e.startsWith('e_') && go('/experiments?e=' + e)} />
           <div style="margin-top:11px"><${Meter} v=${sel.score} /></div>
           ${sel.status === 'pending_review' && html`<div class="note warn" style="margin-top:10px">
-            ${L('三个 idea 的实验都写在这一条假设上，结论互相矛盾，已升级到裁定。', 'Runs from every project wrote onto this one hypothesis and the conclusions contradict; it was escalated to a verdict.')}</div>`}
+            ${L('三个 idea 的实验均作用于该假设，结论相互矛盾，已提交裁定。', 'Runs from several projects bear on this hypothesis and their conclusions conflict; it has been escalated for a verdict.')}</div>`}
           <div class="row" style="margin-top:11px">
-            ${sel.status === 'pending_review' && html`<a class="btn sm pri" href=${'/review?h=' + sel.id}>${L('去裁定 →', 'Rule on it →')}</a>`}
-            <button class="btn sm acc" onClick=${() => act('exp.run', { hyp: sel.id })}>${L('为此假设排实验', 'Queue an experiment')}</button>
+            ${sel.status === 'pending_review' && html`<a class="btn sm pri" href=${'/review?h=' + sel.id}>${L('前往裁定 →', 'Go to verdict →')}</a>`}
+            <button class="btn sm acc" onClick=${() => act('exp.run', { hyp: sel.id })}>${L('为该假设安排实验', 'Queue an experiment')}</button>
             <a class="btn sm" href=${'/panorama?h=' + sel.id}>${L('在网络中查看', 'See it in the network')}</a>
           </div>
         <//>
@@ -551,8 +551,8 @@ export function Tree({ q, onShell }) {
               </div>
             </div>
             <div class="note" style="margin-top:10px">${sel.downstream.length
-              ? L(`下游依赖 ${sel.downstream.length} 个 · 推翻时路由范围为「分支」`, `${sel.downstream.length} downstream · overturning it routes to “branch”`)
-              : L('下游依赖 0 个 · 推翻时路由范围为「局部」', 'No downstream · overturning it routes to “local”')}</div>
+              ? L(`下游依赖 ${sel.downstream.length} 个 · 推翻时影响范围为分支`, `${sel.downstream.length} downstream · overturning it affects the branch`)
+              : L('下游依赖 0 个 · 推翻时影响范围为局部', 'No downstream · overturning it has a local effect')}</div>
           <//>
           ${sel.decisions.length > 0 && html`<${Card} title=${L('决策记录', 'Decision log')}>
             <div class="row">${sel.decisions.slice(-6).map((x) => html`<span class=${'chip ' + (x.kind === 'PIVOT' ? 'bad' : x.kind === 'PROCEED' ? 'ok' : '')}>${x.kind}</span>`)}</div>

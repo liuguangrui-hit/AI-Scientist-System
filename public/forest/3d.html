@@ -79,7 +79,7 @@ body.embed #title{display:none}
 <body>
 <script>(function(){var m=new URLSearchParams(location.search).get('mode');if(m==='hero'||m==='embed')document.body.classList.add(m);})();</script>
 <canvas id="gl"></canvas><canvas id="ov"></canvas>
-<div id="nogl">这台设备上没有 WebGL2。<br><a href="2d.html">看二维版 →</a></div>
+<div id="nogl">当前设备不支持 WebGL2。<br><a href="2d.html">查看二维视图 →</a></div>
 
 <div class="ui panel" id="hud">
   <div class="hd">
@@ -89,15 +89,15 @@ body.embed #title{display:none}
   <div class="stats" id="stats"></div>
   <div class="legend" id="legend"></div>
   <div class="keys"><div class="mousekeys">
-    <kbd>拖动节点</kbd> 释放后保留惯性 · <kbd>拖背景</kbd> 环绕（也有惯性）<br>
-    <kbd>右键 / ⇧拖</kbd> 平移 · <kbd>滚轮</kbd> 远近 · <kbd>双击</kbd> 复位<br>
+    <kbd>拖动节点</kbd> 释放后保留惯性 · <kbd>拖动背景</kbd> 旋转视角（保留惯性）<br>
+    <kbd>右键 / ⇧拖动</kbd> 平移 · <kbd>滚轮</kbd> 缩放 · <kbd>双击</kbd> 复位<br>
     <kbd>空格</kbd> 冻结 · <kbd>A</kbd> 自转 · <kbd>E</kbd> 证据流 · <kbd>B</kbd> 泛光
-  </div><div class="touchkeys"><kbd>单指拖点</kbd> 释放后保留惯性 · <kbd>拖空白</kbd> 环绕 · <kbd>双指</kbd> 缩放与平移 · <kbd>点一个点</kbd> 看证据</div></div>
+  </div><div class="touchkeys"><kbd>单指拖动节点</kbd> 释放后保留惯性 · <kbd>拖动空白处</kbd> 旋转视角 · <kbd>双指</kbd> 缩放与平移 · <kbd>点击节点</kbd> 查看证据</div></div>
 </div>
 
 <div class="ui panel" id="inspect"><div class="bd" id="inspectBody"></div></div>
 <div class="ui panel" id="tip"></div>
-<div class="ui" id="title">动态假设-证据森林 · <b>三维</b> · <a href="2d.html">看二维 →</a> · <a href="index.html">说明</a></div>
+<div class="ui" id="title">动态假设-证据森林 · <b>三维</b> · <a href="2d.html">二维视图 →</a></div>
 
 <div class="ui panel" id="bottom">
   <button class="b" id="bLegend">图例</button>

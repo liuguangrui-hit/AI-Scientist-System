@@ -103,7 +103,7 @@ export const STATUS = {
   merged: ['merged', 'merged'], parked: ['parked', 'parked'], supported: ['已支撑', 'supported'],
   insufficient: ['证据不足', 'insufficient'], overclaim: ['过度声称', 'overclaim'], ok: ['证据充足', 'evidenced'],
   aligned: ['已对齐', 'aligned'], missing: ['缺证据', 'missing evidence'], affected: ['受裁定影响', 'verdict-affected'],
-  todo: ['待写', 'to write'], figure: ['待补图', 'figure pending'], rescued: ['已救回', 'rescued'], review: ['待复核', 'needs review'],
+  todo: ['待写', 'to write'], figure: ['待补图', 'figure pending'], rescued: ['已恢复', 'recovered'], review: ['待复核', 'needs review'],
   oom: ['OOM', 'OOM'], partial: ['缺种子', 'seed missing'], pending: ['待处理', 'pending'], broken: ['入口失效', 'entry broken'],
 };
 export const stLabel = (s) => (STATUS[s] ? L(STATUS[s][0], STATUS[s][1]) : s);
