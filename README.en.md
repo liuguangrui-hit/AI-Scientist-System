@@ -12,6 +12,18 @@ Neither the client nor the server has third-party dependencies, and no build ste
 The live demo uses demonstration data and simulated experiments only. All logic executes in the
 browser, and the visitor's actions are stored locally.
 
+## Core idea
+
+Each research idea is decomposed into a tree of hypotheses tested by experiments, and hypotheses
+shared between ideas join the trees into a forest. Two processes drive the forest:
+
+| | Method | Role |
+| --- | --- | --- |
+| Expand | Socratic questioning | Agents question each hypothesis and split it into sub-hypotheses that experiments can test. Hypotheses that fail are questioned and split again. |
+| Converge | Occam's razor | Reinforcement learning abstracts several specific hypotheses into one more general hypothesis and prunes redundant branches. |
+
+**Overall objective: the fewest hypotheses that explain the most experimental evidence.**
+
 ## Core design
 
 The system rests on one premise: **a hypothesis is a global entity and does not belong to any

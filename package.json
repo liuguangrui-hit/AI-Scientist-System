@@ -2,7 +2,7 @@
   "name": "hypothesis-evidence-forest",
   "version": "1.0.0",
   "private": true,
-  "description": "AI Scientist: a dynamic hypothesis–evidence forest. A working bilingual interface for an autonomous research system — literature, hypotheses, experiments, verdicts and writing on one shared network.",
+  "description": "AI Scientist: a dynamic hypothesis–evidence forest. The bilingual interface of an autonomous research system in which literature review, hypotheses, experiments, verdicts and writing share one network of hypotheses.",
   "type": "module",
   "scripts": {
     "start": "node server/index.js",
