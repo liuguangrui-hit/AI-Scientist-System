@@ -113,7 +113,7 @@ function Side({ screen, counts, ideas, agents, open, onClose }) {
     ${ideas.filter((i) => i.status === 'running' || i.status === 'candidate').map((i) => html`
       <a class="nav sub" href=${'/tree?idea=' + i.id} style="gap:7px">
         <span class="dot" style=${{ background: i.color, width: '7px', height: '7px' }}></span>
-        <span class="mono tiny">${i.id}</span><span class="ell">${t(i.name)}</span>
+        <span class="mono tiny" style="flex-shrink:0;white-space:nowrap">${i.id}</span><span class="ell" style="min-width:0">${t(i.name)}</span>
       </a>`)}
     <a class="nav sub" href="/ideas" style="color:var(--acc)">${L(`全部 ${ideas.length} 个 idea →`, `All ${ideas.length} ideas →`)}</a>
     <div class="binding">

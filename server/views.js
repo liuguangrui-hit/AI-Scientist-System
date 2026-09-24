@@ -22,7 +22,12 @@ export function home(ws) {
   const shared = Object.keys(ws.hyps).filter((h) => E.activeIdeasOf(ws, h).length > 1)
     .map((h) => ({ ...hyp(ws, h), places: E.activeIdeasOf(ws, h).map((i) => ({ idea: i, role: E.roleIn(ws, i, h) })) }))
     .sort((a, x) => x.ideas.length - a.ideas.length || (a.status === 'pending_review' ? -1 : 1));
-  const star = shared.find((s) => s.status === 'pending_review') || shared[0];
+  const top = shared.find((s) => s.status === 'pending_review') || shared[0];
+  const star = top && {
+    ...top,
+    places: top.places.map((p) => ({ ...p, name: ws.ideas.find((i) => i.id === p.idea)?.name, mini: miniTree(ws, p.idea, top.id) })),
+    last: ws.hyps[top.id].evidence.filter((e) => e.exp && e.exp !== 'ind').slice(-1)[0] || null,
+  };
   const decisions = [];
   for (const v of E.pendingVerdicts(ws)) {
     if (ws.snoozed['v:' + v.id]) continue;
@@ -61,6 +66,25 @@ export function home(ws) {
     budget: { used: ws.settings.gpuUsed, total: ws.settings.budget },
   };
 }
+// The part of one idea's tree around a hypothesis, small enough to draw in a card:
+// the path from the root down to it, the siblings along that path, and two levels below it.
+function miniTree(ws, idea, hypId) {
+  const nodes = ws.trees[idea] || [];
+  const at = nodes.find((n) => n.hyp === hypId);
+  if (!at) return [];
+  const byK = new Map(nodes.map((n) => [n.k, n]));
+  const keep = new Set();
+  const kids = (k) => nodes.filter((n) => n.parent === k).slice(0, 3);
+  for (let cur = at; cur; cur = cur.parent ? byK.get(cur.parent) : null) {
+    keep.add(cur.k);
+    if (cur.parent) kids(cur.parent).forEach((n) => keep.add(n.k));
+  }
+  for (const c of kids(at.k)) { keep.add(c.k); kids(c.k).slice(0, 2).forEach((n) => keep.add(n.k)); }
+  return nodes.filter((n) => keep.has(n.k))
+    .sort((a, c) => a.k.localeCompare(c.k, undefined, { numeric: true }))
+    .map((n) => ({ k: n.k, parent: n.parent ?? null, on: n.hyp === hypId }));
+}
+
 const fmt = (t) => new Date(t).toISOString().slice(5, 16).replace('T', ' ');
 
 // What the system did on its own, read back out of the event stream.

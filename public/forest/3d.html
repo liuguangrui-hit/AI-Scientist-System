@@ -335,6 +335,9 @@ let sparks = [], rings = [], hover = -1, selected = -1;
 // 生长：只作用于画面，不碰模拟。每棵树从树根处的地面一层一层往上长，
 // 共享假设最后出现在树与树之间。缓出曲线，不过冲，所以不会抖。
 const GROW = { step: 150, shared: 260, dur: 1100 };
+// 回访时首页传 quick：生长和俯冲都缩短，画面照旧，只是不再让人等
+const QUICK = HERO && new URLSearchParams(location.search).has('quick');
+if (QUICK) Object.assign(GROW, { step: 55, shared: 90, dur: 650 });
 let grow = null, VP = null, gpos = null;
 function reveal(now) {
   if (!grow) return sim.pos;
@@ -423,7 +426,7 @@ function seedWorld(seed, count) {
   grow = { t0: performance.now(), delay, end: last + GROW.dur };
   sparks = []; rings = []; hover = -1; selected = -1;
   // 开场：从高处俯冲下来，停在略高于树梢的位置
-  cam.dist = ring * 4.2; cam.want.dist = ring * 2.45 * heroDist(); cam.want.ty = 110; cam.want.pitch = 0.40; cam.pitch = 1.1; cam.vpitch = -0.004;
+  cam.dist = ring * (QUICK ? 2.9 : 4.2); cam.want.dist = ring * 2.45 * heroDist(); cam.want.ty = 110; cam.want.pitch = 0.40; cam.pitch = QUICK ? 0.62 : 1.1; cam.vpitch = -0.004;
   drawHud();
   window.__forest3 = { sim, F, cam, project: (x, y, z) => project(x, y, z), ray: (x, y) => ray(x, y), M, get vp() { return vp; }, get eye() { return eye; }, get shown() { return VP; } };
 }

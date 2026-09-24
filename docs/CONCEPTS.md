@@ -2,14 +2,14 @@
 
 English · [中文](CONCEPTS.zh-CN.md)
 
-The system rests on one design decision, and everything else follows from it:
-**a hypothesis is a global entity and belongs to no single project.**
+The system rests on a single design decision from which the rest follows:
+**a hypothesis is a global entity and does not belong to any single project.**
 
-The usual arrangement gives each project its own tree, and the trees never touch. So the
-same hypothesis gets verified three times in three projects, and when one run overturns it,
-the other two carry on regardless. Here every project's hypotheses live in one forest: the
-trees are each project's own line of argument, and the hypotheses their nodes point at are
-shared.
+The conventional arrangement gives each project an independent tree, and the trees are not
+connected. As a result, the same hypothesis is verified three times in three projects, and when
+one experiment refutes it, the other two projects continue on the original assumption. In this
+system the hypotheses of all projects reside in one forest: each tree represents one project's
+line of argument, and the hypotheses referenced by its nodes are shared.
 
 ---
 
@@ -29,11 +29,11 @@ The same hypothesis `H-02` can be:
 | In which tree | Where it sits | How that tree uses it |
 | --- | --- | --- |
 | P-014 | mid-layer node, depth 2 | proven inside this project; supports its parent |
-| P-016 | root premise | adopted as given, never decomposed — the whole argument starts here |
-| P-017 | proven leaf | cited as a verified premise; no re-run needed |
+| P-016 | root premise | adopted as given and not decomposed; the starting point of the argument |
+| P-017 | proven leaf | cited as a verified premise; no further experiment required |
 
-The position is decided by **each tree's own argument**, not by the hypothesis. Everything
-below is a consequence of that.
+The position is determined by **the argument of each tree**, not by the hypothesis itself. All
+behaviour described below follows from this.
 
 ### Roles
 
@@ -56,31 +56,31 @@ When a run finishes it writes one piece of evidence onto the **hypothesis**, not
 ```
 
 - `delta` is signed. The sum is the hypothesis' **cumulative score**.
-- `idea` records which project the run happened under — evidence has a provenance, but no owner.
+- `idea` records the project under which the run was performed. Evidence has a provenance but no owner.
 - At **+1.0** the hypothesis reads as `self_verified`; at **−1.0**, or after three consecutive
   `PIVOT`s with no improvement, it is escalated to the verdict queue.
 
-**One write, every citing project updated.** That is the direct payoff of sharing: the
-baseline three projects have in common is re-measured once, and downstream nodes unfreeze on
-all three sides.
+**One write updates every citing project.** This is the direct benefit of sharing: a baseline
+common to three projects is re-measured once, and the downstream nodes in all three projects are
+released together.
 
-### State is derived, never typed in
+### State is derived, not stored
 
-What you see on screen is **computed**:
+The state shown in the interface is **computed**:
 
 ```
 a run is in progress        → testing
 submitted for a verdict     → pending_review
 cumulative ≥ +1.0           → self_verified
 has evidence, below threshold → active
-nothing at all              → untested
+no runs and no evidence    → untested
 ```
 
-So "marked verified while the evidence is negative" cannot happen.
+A hypothesis therefore cannot be marked verified while its cumulative evidence is negative.
 
 ---
 
-## 3. The frontier: what can be run right now
+## 3. The frontier: hypotheses ready for testing
 
 The frontier is the global set of hypotheses whose dependencies are ready. A hypothesis
 enters it only when all of these hold:
@@ -93,25 +93,25 @@ enters it only when all of these hold:
    not by an experiment of its own.
 
 The frontier is ordered across all projects, with hypotheses serving several projects first.
-That makes scheduling answer a concrete question: *given one free slot, which hypothesis buys
-the most?*
+Scheduling thus reduces to a concrete question: *given one free execution slot, which
+hypothesis yields the greatest benefit?*
 
 ---
 
-## 4. A verdict: one failure, three different costs
+## 4. Verdicts: one failure, three different consequences
 
-When evidence contradicts itself, or three changes of method bring no improvement, the
-executor **stops expanding that hypothesis** and hands it to a human. This is the only place
-the system stops and waits.
+When the evidence is contradictory, or three changes of method bring no improvement, the
+executor **stops expanding the hypothesis** and refers it to the researcher. This is the only
+point at which the system waits for a human decision.
 
-The question a verdict answers is not "is it true" but "if it does not hold, what does each
-project lose":
+A verdict does not answer whether the hypothesis is true. It answers what each project loses
+if the hypothesis does not hold:
 
 | Its position in that tree | Consequence | Scope |
 | --- | --- | --- |
 | root premise | every node returns to `untested`; written sections must be rewritten | **global** |
 | mid-layer node | its downstream subtree freezes; queued runs are withdrawn | **branch** |
-| leaf with independent positive evidence in that project | untouched | **local** |
+| leaf with independent positive evidence in that project | unaffected | **local** |
 
 Four possible rulings:
 
@@ -122,25 +122,25 @@ Four possible rulings:
 - `downgrade` — demote it to a borrowed premise, marked unverified.
 
 **A verdict writes only `verdicts/<hyp>.json`; node state is derived from it.** The reviewer
-never edits the tree. The boundary is deliberate: who writes which file is fixed, so a
-mistake can be traced to a person (or an agent).
+does not edit the tree. The boundary is deliberate: the writer of each file is fixed, so any
+error can be traced to a specific person or agent.
 
 ---
 
 ## 5. Write boundaries for the three agents
 
-| agent | writes only | never touches |
+| agent | writes only | does not modify |
 | --- | --- | --- |
 | surveyor | `index.jsonl`, `sources/`, the cursor `state.json` | hypothesis trees, verdicts |
 | executor | `events.jsonl`, `artifacts/`, experiment records | state in `tree.json`, verdicts |
 | reviewer | `verdicts/` | tree structure, experiment artifacts |
-| human | verdicts, queueing, approving a new project | — |
+| researcher | verdicts, queueing experiments, approving new projects | — |
 
-No party can both manufacture evidence and judge it.
+No party can both produce evidence and adjudicate it.
 
 ---
 
-## 6. The experiment tree: how a hypothesis actually gets tested
+## 6. The experiment tree: how a hypothesis is tested
 
 The hypothesis tree answers *what must be shown*; the experiment tree answers *how it was
 tried*, in four stages:
@@ -149,8 +149,8 @@ tried*, in four stages:
 probe  →  tune  →  main  →  ablation
 ```
 
-- Nodes are typed **new / fix / improve**, and failed nodes are **kept**, so the same mistake
-  is not repeated;
+- Nodes are typed **new / fix / improve**, and failed nodes are **retained** so that the same
+  error is not repeated;
 - only a node marked **representative** writes back to the hypothesis tree; the rest stay as
   a record and never become evidence;
 - an entire batch × seed sweep matrix yields **exactly one piece of evidence** — the sentence
@@ -169,21 +169,21 @@ update.
 - while an overclaim remains, the button that packages the submission refuses and lists which
   sentences are at fault.
 
-Gaps found while writing (a paragraph resting on a single run) go straight back into the run
-queue, which closes the loop.
+Evidence gaps found during writing (for example, a paragraph supported by a single run) are
+returned directly to the experiment queue, which closes the loop.
 
 ---
 
-## 8. Where the human sits
+## 8. The role of the researcher
 
-The system does not decide three things:
+Three decisions are reserved for the researcher:
 
 1. **direction** — the source whitelist, the topics, whether a project starts;
 2. **verdicts on hypotheses** — what to do when the evidence contradicts itself;
-3. **when to submit** — when the writing is done.
+3. **when to submit** — when the manuscript is complete.
 
-Everything else — collecting, grading, inducing, queueing runs, pruning, retrying, plotting,
-auditing claims — the system does on its own, writing every step into `events.jsonl`.
+All other work (collection, grading, induction, scheduling, pruning, retrying, plotting and
+claim auditing) is performed by the system, and every step is recorded in `events.jsonl`.
 
 ---
 
@@ -200,4 +200,4 @@ auditing claims — the system does on its own, writing every step into `events.
 | self_verified | cumulative evidence crossed the +1.0 threshold |
 | representative node | the one experiment-tree result that writes evidence back |
 
-The file formats and how to connect a real project: [DATA.md](DATA.md).
+File formats and the procedure for connecting a research project are described in [DATA.md](DATA.md).

@@ -1,5 +1,5 @@
 // Overview (Home), global Workbench (Main), and the full event stream.
-import { html, useState, useScreen, Frame, Card, Table, Kpi, Loading, ErrBox, Empty, t, L, I, St, Chip, Bar, Score, IdeaTag, ic, dur, ago, hm, clock, pct, Meter, Evidence } from './common.js';
+import { html, useState, useEffect, useRef, useScreen, Frame, Card, Table, Kpi, Loading, ErrBox, Empty, t, L, I, St, Chip, Bar, Score, IdeaTag, ic, dur, ago, hm, clock, pct, Meter, Evidence } from './common.js';
 import { go } from '../app.js';
 
 export function Home({ q, onShell }) {
@@ -21,21 +21,20 @@ export function Home({ q, onShell }) {
         <${Card} title=${d.star ? L(`同一假设被 ${d.star.places.length} 个 idea 引用`, `One hypothesis cited by ${d.star.places.length} projects`) : L('共享假设', 'Shared hypotheses')}
           right=${html`<a href=${'/graph?h=' + d.star?.id}>${L('查看共享关系 →', 'See shared hypotheses →')}</a>`}>
           ${d.star ? html`<${Fragment}>
-            <div class="row" style="margin-bottom:9px">
+            <div class="row" style="margin-bottom:4px">
               <span class="mono b">${d.star.id}</span><${St} s=${d.star.status} /><${Score} v=${d.star.score} />
               <span class="small mut" style="flex:1 1 220px">${t(d.star.claim)}</span>
             </div>
-            <div class="cols3">
-              ${d.star.places.map((p) => html`
-                <div style=${{ padding: '11px 12px', border: '1px solid var(--line)', borderRadius: '6px', borderLeft: '3px solid ' + ic(p.idea), cursor: 'pointer' }}
-                  onClick=${() => go('/tree?idea=' + p.idea + '&h=' + d.star.id)}>
-                  <${IdeaTag} id=${p.idea} />
-                  <div class="small b" style="margin-top:7px">${p.role.kind === 'root' ? L('根前提', 'root premise') : p.role.leaf ? L('叶子', 'leaf') : L(`第 ${p.role.depth} 层`, `layer ${p.role.depth}`)}</div>
-                  <div class="tiny mut" style="margin-top:3px">${p.role.role === 'borrowed_assumption' ? L('借用前提，不再展开', 'borrowed premise, not expanded') : L('本 idea 自证', 'proven in this project')}</div>
-                </div>`)}
-            </div>
-            <div class="note" style="margin-top:11px">${L('假设是全局实体，不属于任何一个 idea。一次实验的证据会同时作用于所有引用它的 idea。',
-              'A hypothesis is a global entity. Evidence from one run applies to every project that cites it.')}</div>
+            <div class="small mut" style="line-height:1.7">${L('假设是全局实体，不属于任何一个 idea。同一条假设在不同 idea 中可处于不同层级，一次实验的证据同时作用于所有引用它的 idea。',
+              'A hypothesis is a global entity that belongs to no single project. It can sit at a different depth in each project, and evidence from one run applies to every project that cites it.')}</div>
+            <${SharedMap} star=${d.star} />
+            ${d.star.last && html`<div class="note row" style="margin-top:12px;gap:9px">
+              <span class="mono b" style="color:var(--ink)">${d.star.last.exp}</span>
+              <span style="color:var(--ink2)">${L(`写入 ${d.star.id} 证据`, `writes evidence to ${d.star.id}`)} <span class="num">${d.star.last.delta > 0 ? '+' : ''}${d.star.last.delta}</span></span>
+              <span class="faint">→</span>
+              <span style="color:var(--ink2);flex:1 1 180px">${L(`${d.star.places.length} 个 idea 的下游节点同步重估`, `downstream nodes in all ${d.star.places.length} projects are re-estimated together`)}</span>
+              <a href=${'/panorama?h=' + d.star.id}>${L('在网络中查看 →', 'View in the network →')}</a>
+            </div>`}
           <//>` : html`<${Empty}>${L('目前没有跨 idea 共享的假设。', 'No hypothesis is shared across projects right now.')}<//>`}
         <//>
 
@@ -96,6 +95,85 @@ export function Home({ q, onShell }) {
   <//>`;
 }
 const Fragment = ({ children }) => children;
+
+// One shared hypothesis drawn inside each tree that cites it, and a single dashed
+// thread through all of its positions. The thread is measured from the laid-out
+// cards, so it follows them whether they sit side by side or stack on a phone.
+function SharedMap({ star }) {
+  const box = useRef(null);
+  const [pts, setPts] = useState([]);
+  const [cw, setCw] = useState(0);
+  const tone = star.status === 'pending_review' ? 'var(--warn)' : 'var(--acc)';
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => {
+      const o = el.getBoundingClientRect();
+      setCw(Math.round(el.querySelector('.shmap-card')?.getBoundingClientRect().width || 0));
+      setPts([...el.querySelectorAll('[data-star]')].map((n) => { const r = n.getBoundingClientRect(); return [r.left + r.width / 2 - o.left, r.top + r.height / 2 - o.top]; }));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [star.id, star.places.length]);
+  // Trees are drawn in real pixels, so a node stays the same size on a phone.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const o = el.getBoundingClientRect();
+    setPts([...el.querySelectorAll('[data-star]')].map((n) => { const r = n.getBoundingClientRect(); return [r.left + r.width / 2 - o.left, r.top + r.height / 2 - o.top]; }));
+  }, [cw]);
+  const d = pts.map(([x, y], i) => {
+    if (!i) return `M${x} ${y}`;
+    const [px, py] = pts[i - 1], dx = x - px, dy = y - py;
+    return Math.abs(dx) >= Math.abs(dy)
+      ? `C${px + dx * 0.5} ${py} ${x - dx * 0.5} ${y} ${x} ${y}`
+      : `C${px} ${py + dy * 0.5} ${x} ${y - dy * 0.5} ${x} ${y}`;
+  }).join(' ');
+  const rows = Math.max(...star.places.map((p) => depthOf(p.mini))) + 1;
+  return html`<div class="shmap" ref=${box}>
+    <div class="shmap-grid" style=${{ '--n': star.places.length }}>
+      ${star.places.map((p) => html`<a class="shmap-card" href=${'/tree?idea=' + p.idea + '&h=' + star.id} style=${{ '--c': ic(p.idea) }}>
+        <${MiniTree} nodes=${p.mini} rows=${rows} color=${ic(p.idea)} W=${cw || 200} />
+        <div class="shmap-cap">
+          <div class="row" style="gap:6px"><span class="dot" style=${{ background: ic(p.idea) }}></span><span class="mono b small" style="color:var(--ink)">${p.idea}</span><span class="small mut">${t(p.name)}</span></div>
+          <div class="tiny faint" style="margin-top:3px">${p.role.kind === 'root' ? L('根前提', 'root premise') : L(`第 ${p.role.depth} 层`, `layer ${p.role.depth}`)}${p.role.leaf && p.role.kind !== 'root' ? L(' · 叶子', ' · leaf') : ''} · ${p.role.role === 'borrowed_assumption' ? L('借用前提', 'borrowed premise') : L('本 idea 自证', 'proven here')}</div>
+        </div>
+      </a>`)}
+    </div>
+    <svg class="shmap-link" aria-hidden="true">
+      <path d=${d} stroke=${tone} stroke-width="1.6" stroke-dasharray="5 4" fill="none" opacity=".85" />
+      ${pts.map(([x, y]) => html`<g><circle cx=${x} cy=${y} r="8.5" fill="#fff" stroke=${tone} stroke-width="2.4" />
+        <text x=${x} y=${y - 14} text-anchor="middle" class="shmap-id">${star.id}</text></g>`)}
+    </svg>
+  </div>`;
+}
+const depthOf = (nodes) => { const dep = {}; let m = 0; for (const n of nodes) { dep[n.k] = n.parent == null ? 0 : (dep[n.parent] ?? 0) + 1; m = Math.max(m, dep[n.k]); } return m; };
+
+// A tidy little tree: leaves spread evenly, each parent centred over its children.
+function MiniTree({ nodes, rows, color, W }) {
+  const ROW = W < 170 ? 34 : 38, PAD = 28, M = Math.min(34, W * 0.16), H = PAD * 2 + (rows - 1) * ROW;
+  const kids = {}, pos = {};
+  for (const n of nodes) (kids[n.parent ?? ''] ||= []).push(n);
+  let leaf = 0;
+  const place = (n, dep) => {
+    const ch = kids[n.k] || [];
+    ch.forEach((c) => place(c, dep + 1));
+    pos[n.k] = { y: PAD + dep * ROW, x: ch.length ? (pos[ch[0].k].x + pos[ch[ch.length - 1].k].x) / 2 : leaf++ };
+  };
+  (kids[''] || []).forEach((r) => place(r, 0));
+  const span = Math.max(1, leaf - 1), sx = (x) => leaf < 2 ? W / 2 : M + (x / span) * (W - 2 * M);
+  const on = new Set();
+  for (let n = nodes.find((x) => x.on); n; n = nodes.find((x) => x.k === n.parent)) on.add(n.k);
+  return html`<svg class="shmap-tree" viewBox=${`0 0 ${W} ${H}`} height=${H} aria-hidden="true">
+    ${nodes.filter((n) => n.parent != null && pos[n.parent]).map((n) => html`<line x1=${sx(pos[n.parent].x)} y1=${pos[n.parent].y} x2=${sx(pos[n.k].x)} y2=${pos[n.k].y}
+      stroke=${on.has(n.k) ? color : '#D5D9E0'} stroke-opacity=${on.has(n.k) ? 0.45 : 1} stroke-width="1.3" />`)}
+    ${nodes.map((n) => n.on
+      ? html`<circle data-star cx=${sx(pos[n.k].x)} cy=${pos[n.k].y} r="8.5" fill="none" />`
+      : html`<circle cx=${sx(pos[n.k].x)} cy=${pos[n.k].y} r=${n.parent == null ? 6.5 : 5.5} fill=${color} />`)}
+  </svg>`;
+}
 
 export function Main({ q, onShell }) {
   const { data, act } = useScreen('main', {}, onShell);
