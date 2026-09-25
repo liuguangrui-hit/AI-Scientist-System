@@ -25,7 +25,7 @@ export function Landing({ about }) {
   const ref = useReveal();
   const [live, setLive] = useState(null);
   useEffect(() => { view('home').then((d) => setLive(d)).catch(() => {}); }, []);
-  useEffect(() => { document.title = L('AI Scientist 工作台', 'AI Scientist Workbench'); }, [LANG]);
+  useEffect(() => { document.title = L('系统介绍 · AI Scientist', 'About · AI Scientist'); }, [LANG]);
   const c = live?.shell?.counts;
   const stats = [
     [c ? c.library.toLocaleString() : '1,207', L('已建库文献', 'papers indexed')],
@@ -38,8 +38,9 @@ export function Landing({ about }) {
     <nav class="lnav">
       <a class="brand" href="/" style="color:#fff">${I('logo', { s: 21, c: '#fff', w: 1.8 })}<span style="font-size:15px;font-weight:600;color:#fff">AI Scientist</span></a>
       <div class="grow"></div>
+      <a href="#purpose" class="hide-s">${L('设计主旨', 'Purpose')}</a>
+      <a href="#features" class="hide-s">${L('特色', 'Features')}</a>
       <a href="#pipeline" class="hide-s">${L('研究流程', 'Pipeline')}</a>
-      <a href="#network" class="hide-s">${L('假设网络', 'Network')}</a>
       <a href="#screens" class="hide-s">${L('全部界面', 'All screens')}</a>
       <a href="/panorama" class="hide-s">${L('假设图', 'Graph')}</a>
       <a href="/forest3d" class="hide-s">${L('森林', 'Forest')}</a>
@@ -48,10 +49,10 @@ export function Landing({ about }) {
     </nav>
 
     <header class="hero" id="main">
-      <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:#7DA2FF"></span>${L('自动化科研系统', 'Autonomous research system')}</span>
-      <h1>${L(html`从文献到论文<br/>科研全流程<em>自主运行</em>`, html`From literature to manuscript<br/>the research chain, <em>run autonomously</em>`)}</h1>
-      <p>${L('8 个课题并行推进，56 条假设共享同一网络。研究者只负责三项关键决策。',
-        'Eight projects run in parallel over one shared network of 56 hypotheses. The researcher makes only three key decisions.')}</p>
+      <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:#7DA2FF"></span>${L('科研全流程自动化系统', 'End-to-end research automation')}</span>
+      <h1>${L(html`从 idea 到 paper<br/>科研全流程<em>自动化</em>`, html`From idea to paper<br/>research, <em>end to end</em>`)}</h1>
+      <p>${L('文献调研、立项、实验与写作由 agent 自主推进，研究者只在必要的节点作出决策。',
+        'Agents carry literature review, project intake, experiments and writing forward on their own. The researcher decides only where a decision is necessary.')}</p>
       <div class="hbtns">
         <a class="hbtn" href="/home">${L('进入系统 →', 'Open the system →')}</a>
         <a class="hbtn ghost" href="/panorama">${L('查看假设网络', 'See the hypothesis network')}</a>
@@ -67,35 +68,34 @@ export function Landing({ about }) {
       </div>
     </header>
 
-    <${Section} id="pipeline" cls="">
-      <div class="eyebrow">${L('研究流程', 'Pipeline')}</div>
-      <h2>${L('从文献到论文', 'From literature to manuscript')}</h2>
-      <p class="lead">${L('每个环节都可以展开查看。从文献来源到每次实验写入的证据，都有据可查。',
-        'Every stage can be opened and inspected. Each piece of evidence can be traced back to its run.')}</p>
-      <div class="steps">
-        ${[[1, '采集', 'Collect', '从 62 个来源增量采集，分三级处理至全文。', 'Incremental collection from 62 sources by cursor, processed in three levels up to full text.'],
-          [2, '趋势', 'Trends', '聚类研究主题，识别空白与矛盾，由此生成 spark。', 'Topics are clustered and gaps are identified. Sparks come from these gaps.'],
-          [3, '立项', 'Intake', '将研究主张展开为假设树，可复用的假设不重复验证。', 'A research claim is expanded into a hypothesis tree; reusable hypotheses are not re-verified.'],
-          [4, '实验', 'Experiments', '四阶段实验树，保留失败节点以避免重复错误。', 'A four-stage experiment tree; failed nodes are retained to avoid repeating errors.'],
-          [5, '裁定', 'Verdicts', '证据矛盾时提交人工裁定，影响按 idea 分别计算。', 'Contradictions are escalated for human review, with the impact computed per idea.'],
-          [6, '写作', 'Writing', '章节由假设树映射，缺少证据的部分予以标注。', 'Sections are mapped from the hypothesis tree; unsupported passages are flagged.']].map(([i, zh, en, dzh, den]) => html`
-          <div class="step"><div class="i">0${i}</div><h4>${L(zh, en)}</h4><p>${L(dzh, den)}</p></div>`)}
+    <${Section} id="purpose" cls="">
+      <div class="eyebrow">${L('设计主旨', 'Purpose')}</div>
+      <h2>${L('面向未来的 AI 科学家', 'Designed for the AI scientist of the future')}</h2>
+      <p class="lead">${L('AI 的智力水平持续提升，过细的流程指引反而会限制 agent 的自主性。本系统尝试回答一个问题：当 AI 的能力趋于无限时，人类在科研中还有哪些必要的参与点？',
+        'As AI grows more capable, detailed procedural guidance increasingly constrains an agent’s autonomy. The system asks one question: as AI capability approaches its limit, where must humans still take part in research?')}</p>
+      <div class="feat">
+        ${[['确定方向', 'Set the direction', '划定研究领域与采集范围，并审批立项。', 'Define the research field and the scope of collection, and approve new projects.'],
+          ['裁定假设', 'Rule on hypotheses', '证据相互矛盾，或连续三次 PIVOT 仍无改善时，agent 暂停并提交人工裁定。', 'When evidence conflicts or three PIVOTs bring no improvement, the agent pauses for a human verdict.'],
+          ['决定投稿', 'Decide to submit', '判断论文何时完成。仍有过度声称时，导出将被中止并列出相应条目。', 'Judge when the paper is finished. If overclaims remain, export is halted and they are listed.']].map(([zh, en, dzh, den], i) => html`
+          <div class="f"><div class="mono" style="color:var(--acc);font-size:11px">0${i + 1}</div><h3>${L(zh, en)}</h3><p>${L(dzh, den)}</p></div>`)}
       </div>
+      <p class="lead" style="margin-top:28px">${L('这是目前保留给研究者的三项决策，其余环节由系统自动完成，每一步都有记录可查。',
+        'These are the three decisions currently reserved for the researcher. Everything else runs automatically, and every step is recorded.')}</p>
     <//>
 
-    <${Section} id="network" cls="alt">
-      <div class="eyebrow">${L('核心设计', 'The core idea')}</div>
-      <h2>${L('假设是全局实体，不属于任何一个 idea', 'A hypothesis is a global entity. It belongs to no single project.')}</h2>
-      <p class="lead">${L('同一条假设在不同 idea 中的角色可以不同。一次实验的证据会同时作用于所有引用它的 idea。重新测量一次，就能解决多个课题中的同一问题。',
-        'The same hypothesis can play different roles in different projects. Evidence from one run applies to every project that cites it. One re-measurement can settle the same question in several projects.')}</p>
+    <${Section} id="features" cls="alt">
+      <div class="eyebrow">${L('特色', 'Features')}</div>
+      <h2>${L('一片会展开、也会收敛的假设森林', 'A hypothesis forest that expands and converges')}</h2>
+      <p class="lead">${L('每个 idea 拆解为一棵由实验检验的假设树，共享假设把树连成森林。整体目标是以最精简的假设，解释最多的实验证据。',
+        'Each idea becomes a tree of hypotheses tested by experiments, and shared hypotheses join the trees into a forest. The overall objective is the fewest hypotheses that explain the most experimental evidence.')}</p>
       <div class="feat">
-        ${[['net', '共享与传播', 'Shared and propagated', '一次写入，所有引用方同步更新。假设被推翻时，影响按层级分别计算。', 'One write updates every citing project. If a hypothesis is overturned, the impact is computed per project.'],
-          ['gavel', '裁定只写 verdicts/', 'Verdicts write only verdicts/', '节点状态由裁定结果决定。reviewer 不直接修改假设树。', 'Node state is derived from the verdict. The reviewer never edits the tree.'],
-          ['flask', '证据带方向', 'Evidence carries a sign', '每次实验写入一个带符号的增量。累积达到阈值后，假设转为已验证。', 'Each run writes back a signed delta. A hypothesis turns self_verified once the total crosses the threshold.']].map(([ic, zh, en, dzh, den]) => html`
+        ${[['net', '多 idea 共享假设', 'Hypotheses shared across ideas', '假设是全局实体，不属于任何单个 idea。一次实验的证据同时作用于所有引用它的 idea，推翻一条假设时，影响按其在各 idea 中的位置分别计算。', 'A hypothesis is a global entity that belongs to no single idea. Evidence from one run applies to every idea that cites it, and when a hypothesis is overturned the impact is computed from its position in each idea.'],
+          ['fork', '苏格拉底式追问', 'Socratic questioning', '多个 agent 对假设层层追问，直至拆解为可由实验检验的子假设。未通过检验的假设继续追问拆解，森林由此展开。', 'Agents question each hypothesis until it is split into sub-hypotheses that experiments can test. Those that fail are questioned and split again, and so the forest expands.'],
+          ['merge', '奥卡姆剃刀', 'Occam’s razor', '强化学习将多条具体假设抽象为一条更普适的假设，并剪除冗余分支，森林由此收敛。', 'Reinforcement learning abstracts several specific hypotheses into one more general hypothesis and prunes redundant branches, and so the forest converges.']].map(([ic, zh, en, dzh, den]) => html`
           <div class="f">${I(ic, { s: 20, c: 'var(--acc)' })}<h3>${L(zh, en)}</h3><p>${L(dzh, den)}</p></div>`)}
       </div>
       <div style="margin-top:34px" class="card">
-        <div class="hd"><h2>${L('示例：H-02 在三个 idea 中的不同角色', 'Example: the roles of H-02 in three projects')}</h2><span class="sub2">${L('同一条假设，三种后果', 'One hypothesis, three consequences')}</span></div>
+        <div class="hd"><h2 style="font-size:15px;margin:0;letter-spacing:0">${L('示例：H-02 在三个 idea 中的不同角色', 'Example: the roles of H-02 in three projects')}</h2><span class="sub2">${L('同一条假设，三种后果', 'One hypothesis, three consequences')}</span></div>
         <div class="bd"><div class="cols3">
           ${[['P-014', L('第 2 层', 'layer 2'), L('分支失效 · 冻结 2 个节点', 'branch fails · 2 nodes frozen'), 'var(--acc)'],
             ['P-016', L('根前提', 'root premise'), L('全局失效 · 整个 idea 需重开', 'global failure · the whole project reopens'), 'var(--pur)'],
@@ -108,17 +108,20 @@ export function Landing({ about }) {
       </div>
     <//>
 
-    <${Section} cls="">
-      <div class="eyebrow">${L('研究者的角色', 'The researcher’s role')}</div>
-      <h2>${L('须由研究者作出的三项决策', 'Three decisions reserved for the researcher')}</h2>
-      <div class="feat">
-        ${[['确定方向', 'Set the direction', '研究者划定采集范围，并审批立项。', 'The researcher defines what is collected and approves new projects.'],
-          ['裁定假设', 'Rule on hypotheses', '当证据相互矛盾，或连续三次 PIVOT 仍无改善时，agent 暂停并提交人工裁定。', 'When evidence conflicts or three PIVOTs bring no improvement, the agent pauses for a human verdict.'],
-          ['决定投稿', 'Decide to submit', '若仍存在过度声称，导出将被中止并列出相应条目。', 'If overclaims remain, export is halted and the claims are listed.']].map(([zh, en, dzh, den], i) => html`
-          <div class="f"><div class="mono" style="color:var(--acc);font-size:11px">0${i + 1}</div><h3>${L(zh, en)}</h3><p>${L(dzh, den)}</p></div>`)}
+    <${Section} id="pipeline" cls="">
+      <div class="eyebrow">${L('研究流程', 'Pipeline')}</div>
+      <h2>${L('六个环节，一张假设网络', 'Six stages, one hypothesis network')}</h2>
+      <p class="lead">${L('每个环节都可以展开查看。从文献来源到每次实验写入的证据，都有据可查。',
+        'Every stage can be opened and inspected. Each piece of evidence can be traced back to its run.')}</p>
+      <div class="steps">
+        ${[[1, '采集', 'Collect', '从 62 个来源增量采集，分三级处理至全文。', 'Incremental collection from 62 sources by cursor, processed in three levels up to full text.'],
+          [2, '趋势', 'Trends', '聚类研究主题，识别空白与矛盾，由此生成 spark。', 'Topics are clustered and gaps are identified. Sparks come from these gaps.'],
+          [3, '立项', 'Intake', '将研究主张展开为假设树，可复用的假设不重复验证。', 'A research claim is expanded into a hypothesis tree; reusable hypotheses are not re-verified.'],
+          [4, '实验', 'Experiments', '四阶段实验树，保留失败节点以避免重复错误。', 'A four-stage experiment tree; failed nodes are retained to avoid repeating errors.'],
+          [5, '裁定', 'Verdicts', '证据矛盾时提交人工裁定，影响按 idea 分别计算。', 'Contradictions are escalated for human review, with the impact computed per idea.'],
+          [6, '写作', 'Writing', '章节由假设树映射，缺少证据的部分予以标注。', 'Sections are mapped from the hypothesis tree; unsupported passages are flagged.']].map(([i, zh, en, dzh, den]) => html`
+          <div class="step"><div class="i">0${i}</div><h4>${L(zh, en)}</h4><p>${L(dzh, den)}</p></div>`)}
       </div>
-      <p class="lead" style="margin-top:28px">${L('其余环节由系统自动完成。每一步都记录在 events.jsonl 中。',
-        'Everything else runs automatically. Every step is logged in events.jsonl.')}</p>
     <//>
 
     <${Section} id="screens" cls="alt">
@@ -152,14 +155,10 @@ export function Landing({ about }) {
 
     <${Section} cls="" style=${{ background: 'var(--dark)' }}>
       <div class="dark" style="text-align:center">
-        <h2 style="color:#fff">${L('数据来源', 'Data sources')}</h2>
-        <p class="lead" style="margin-inline:auto;text-align:center">${L('界面直接读取项目目录中的文件。文献条目在 index.jsonl，假设树在 tree.json，裁定在 verdicts/，事件在 events.jsonl，产物在 artifacts/。界面本身不保存状态。',
-          'The interface reads the files in the project directory. Records are in index.jsonl, hypothesis trees in tree.json, verdicts in verdicts/, events in events.jsonl and outputs in artifacts/. The interface keeps no state of its own.')}</p>
-        <div class="mono" style="margin-top:26px;color:#7DA2FF;font-size:12.5px;line-height:2.1">
-          index.jsonl · tree.json · verdicts/ · events.jsonl · artifacts/ · venues.yaml · topics.md
-        </div>
-        <div class="hbtns"><a class="hbtn" href="/home">${L('打开工作台', 'Open the workbench')}</a>
-          <a class="hbtn ghost" href="/survey">${L('从文献采集开始', 'Start at the collection pipeline')}</a></div>
+        <div class="eyebrow" style="color:#7DA2FF">${L('整体目标', 'Objective')}</div>
+        <h2 style="color:#fff;margin-top:12px">${L('以最精简的假设，解释最多的实验证据', 'The fewest hypotheses that explain the most experimental evidence')}</h2>
+        <div class="hbtns"><a class="hbtn" href="/home">${L('进入系统', 'Open the system')}</a>
+          <a class="hbtn ghost" href="/forest3d">${L('查看假设森林', 'See the hypothesis forest')}</a></div>
       </div>
     <//>
 
@@ -167,8 +166,8 @@ export function Landing({ about }) {
       <div class="in">
         <div style="max-width:330px">
           <div class="row" style="color:#fff">${I('logo', { s: 20, c: '#fff', w: 1.8 })}<span style="font-weight:600">AI Scientist</span></div>
-          <div style="margin-top:10px">${L('自动化科研系统的操作界面。整个科研流程共享同一张假设网络。',
-            'The interface of an autonomous research system. The whole research process shares one hypothesis network.')}</div>
+          <div style="margin-top:10px">${L('从 idea 到 paper 的科研全流程自动化系统。',
+            'An end-to-end research automation system, from idea to paper.')}</div>
         </div>
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('工作流', 'Workflow')}</div>
           <div><a href="/survey">${L('文献调研', 'Literature')}</a></div><div><a href="/panorama">${L('假设网络', 'Hypotheses')}</a></div>

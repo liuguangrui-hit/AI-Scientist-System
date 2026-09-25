@@ -143,6 +143,8 @@ export const ICONS = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
   warn: '<path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17.2v.1"/>',
   zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  fork: '<circle cx="12" cy="4.5" r="2"/><circle cx="4.5" cy="19.5" r="1.7"/><circle cx="12" cy="19.5" r="1.7"/><circle cx="19.5" cy="19.5" r="1.7"/><path d="M12 6.5v11.3M11 6.3 5.3 17.9M13 6.3l5.7 11.6"/>',
+  merge: '<circle cx="4.5" cy="4.5" r="1.7"/><circle cx="12" cy="4.5" r="1.7"/><circle cx="19.5" cy="4.5" r="1.7"/><circle cx="12" cy="19.5" r="2"/><path d="M12 6.2v11.3M5.3 6.1 11 17.7M18.7 6.1 13 17.7"/>',
 };
 export const I = (k, p = {}) => html`<${Icon} d=${ICONS[k]} ...${p} />`;
 
