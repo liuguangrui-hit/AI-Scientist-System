@@ -5,7 +5,7 @@
 **[在线演示](https://liuguangrui.top/ai-scientist/)** · [工作台](https://liuguangrui.top/ai-scientist/main) · [假设全景](https://liuguangrui.top/ai-scientist/panorama) · [三维森林](https://liuguangrui.top/ai-scientist/forest3d)
 
 本仓库是一个自动化科研系统的交互界面。系统覆盖从文献调研到论文写作的五个环节，依次为文献调研，假设生成，实验执行，证据裁定和论文写作。
-各环节共享同一个假设网络。前端与服务端均无第三方依赖，无需构建步骤。
+各环节共享同一片假设森林。前端与服务端均无第三方依赖，无需构建步骤。
 
 在线演示仅使用演示数据与模拟实验，全部逻辑在浏览器中执行，操作记录仅保存在访问者本地。
 
@@ -56,7 +56,7 @@
 | --- | --- |
 | 入口 | `/` 三维森林首页 · `/about` 系统介绍 · `/home` 总览 · `/main` 工作台（可执行假设） |
 | 文献调研 | `/survey` 文献采集 · `/trends` 趋势分析 · `/sparks` idea spark · `/digest` 论文详情 |
-| 立项与假设 | `/ideas` 立项 · `/panorama` 假设全景 · `/graph` 共享关系 · `/tree` 单课题假设树 · `/forest3d` `/forest2d` 大规模森林（三维 / 二维） |
+| 立项与假设 | `/ideas` 立项 · `/panorama` 假设全景 · `/graph` 共享假设 · `/tree` 单 idea 假设树 · `/forest3d` 三维森林 · `/forest2d` 二维森林 |
 | 实验 | `/experiments` 单次实验 · `/exptree` 实验树（四阶段）· `/sweep` 参数扫描矩阵 · `/runs` 算力与失败记录 |
 | 裁定与写作 | `/review` 裁定队列 · `/paper` 论文正文 · `/claims` 主张与证据对照 · `/figures` 图表 · `/rebuttal` 审稿与修订 |
 | 其他 | `/events` 事件流 |

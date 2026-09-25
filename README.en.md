@@ -6,7 +6,7 @@ English · [中文](README.md)
 
 This repository contains the interactive interface of an autonomous research system. The system
 covers five stages (literature review, hypothesis generation, experimentation, adjudication of
-evidence and manuscript writing), all of which operate on a single shared network of hypotheses.
+evidence and manuscript writing), all of which operate on one shared hypothesis forest.
 Neither the client nor the server has third-party dependencies, and no build step is required.
 
 The live demo uses demonstration data and simulated experiments only. All logic executes in the
@@ -49,7 +49,7 @@ dependent screens.
 | Queue an experiment | The run is queued, assigned a slot, executed and completed. On completion, signed evidence is written back to its hypothesis, and every project that cites the hypothesis is updated at once. The simulation clock advances independently, so the queue continues to drain while the page is closed. |
 | PROCEED / REFINE / PIVOT / escalate | After three consecutive PIVOTs without improvement, or when cumulative evidence falls below −1.0, the executor stops expanding the hypothesis and transfers it to the verdict queue. |
 | Adjudicate a shared hypothesis | The impact depends on position: a project in which the hypothesis is a root premise is re-estimated in full, a project in which it is an intermediate node has the corresponding branch frozen, and a leaf supported by independent evidence is unaffected. |
-| Launch a candidate project | After the existing hypotheses to be reused are selected, the new tree joins the shared network. Reused nodes gain an additional reference and are not verified again. |
+| Launch a candidate project | After the existing hypotheses to be reused are selected, the new tree joins the shared forest. Reused nodes gain an additional reference and are not verified again. |
 | Revise the manuscript | Correcting an overclaim rewrites the corresponding sentence. Accepting a figure-review comment redraws the figure and marks its section for re-checking. While any overclaim remains unresolved, the submission version cannot be exported and the outstanding items are listed. |
 | Explore the panorama | The view supports zooming, panning and dragging nodes. Shared hypotheses are placed between the projects that cite them. |
 
@@ -63,7 +63,7 @@ The interface is available in Chinese and English; the language preference is st
 | --- | --- |
 | Entry | `/` 3D forest homepage · `/about` system introduction · `/home` overview · `/main` workbench (global frontier) |
 | Literature | `/survey` collection pipeline · `/trends` trend analysis · `/sparks` idea sparks · `/digest` paper detail |
-| Intake & hypotheses | `/ideas` project intake · `/panorama` panorama · `/graph` shared hypotheses · `/tree` single-project tree · `/forest3d` `/forest2d` the forest at scale (3D / 2D) |
+| Intake & hypotheses | `/ideas` project intake · `/panorama` panorama · `/graph` shared hypotheses · `/tree` single-idea tree · `/forest3d` 3D forest · `/forest2d` 2D forest |
 | Experiments | `/experiments` single run · `/exptree` four-stage experiment tree · `/sweep` sweep matrix · `/runs` compute and failures |
 | Verdicts & writing | `/review` verdict queue · `/paper` manuscript · `/claims` claims and evidence · `/figures` figures · `/rebuttal` review and revision |
 | Other | `/events` event stream |

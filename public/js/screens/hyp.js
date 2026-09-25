@@ -14,7 +14,7 @@ export function Ideas({ q, onShell }) {
       <${Empty}>${L('当前没有待立项的候选。候选来自 spark：在趋势页由研究空白或矛盾生成 spark，选定后在此展开为假设树。',
         'No candidate is waiting. Candidates come from sparks: generate one from a gap or contradiction on the trends screen, select it, then expand it into a hypothesis tree here.')}<//>
       <div class="row" style="margin-top:11px"><a class="btn sm" href="/sparks">${L('查看 spark', 'Open sparks')}</a>
-        <a class="btn sm" href="/panorama">${L(`网络中已有 ${d.extracted} 条假设`, `${d.extracted} hypotheses in the network`)}</a></div>
+        <a class="btn sm" href="/panorama">${L(`森林中已有 ${d.extracted} 条假设`, `${d.extracted} hypotheses in the forest`)}</a></div>
     <//><//>`;
   return html`<${Frame} tools=${html`
     <span class="chip">${L('候选', 'Candidates')} ${d.counts.candidates}</span>
@@ -37,7 +37,7 @@ export function Ideas({ q, onShell }) {
           </div>
         <//>
 
-        <${Card} title=${L('立项时的假设清单', 'Hypotheses at launch')} sub=${L('网络中已有的假设可直接引用，无需重复验证', 'Hypotheses already in the network can be cited directly without re-verification')}
+        <${Card} title=${L('立项时的假设清单', 'Hypotheses at launch')} sub=${L('森林中已有的假设可直接引用，无需重复验证', 'Hypotheses already in the network can be cited directly without re-verification')}
           right=${html`<span class="chip">${L(`复用 ${d.reuse} · 新建 ${d.fresh}`, `${d.reuse} reused · ${d.fresh} new`)}</span>`}
           foot=${html`
             <button class="btn sm acc" onClick=${async () => { const r = await act('idea.launch', {}); if (r.ok) go('/tree?idea=' + (r.idea || c.id)); }}>
@@ -100,7 +100,7 @@ ${c.plan.filter((p) => p.mode !== 'skip').map((p, i, a) => `${i === a.length - 1
             'Where a hypothesis sits in a tree is decided by that project’s own argument, not by the hypothesis.')}</div>
         <//>
         <${Card} title=${L('已建库', 'Extracted so far')}>
-          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条假设已在网络中', 'hypotheses in the network')}</span></div>
+          <div class="row"><span class="big">${d.extracted}</span><span class="mut small">${L('条假设已在森林中', 'hypotheses in the forest')}</span></div>
           <div class="row" style="margin-top:6px"><span class="num">${d.sharedCount}</span><span class="mut small">${L('条被 2 个以上 idea 引用', 'cited by 2+ projects')}</span></div>
         <//>
       </div>
@@ -133,7 +133,7 @@ export function Panorama({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.panorama;
   const sel = d.sel;
-  if (d.empty) return html`<${Frame}><${Card} title=${L('假设网络', 'Hypothesis network')}>
+  if (d.empty) return html`<${Frame}><${Card} title=${L('假设全景', 'Panorama')}>
     <${Empty}>${L('暂无假设。立项后，这里显示全部 idea 与假设。',
       'No hypotheses yet. Once a project is launched, every idea and hypothesis appears here.')}<//><//><//>`;
   if (mobile) return html`<${MobilePanorama} d=${d} q=${q} act=${act} />`;
@@ -142,7 +142,7 @@ export function Panorama({ q, onShell }) {
     <div class="seg"><button class=${color === 'status' ? 'on' : ''} onClick=${() => setColor('status')}>${L('按状态', 'By status')}</button>
       <button class=${color === 'idea' ? 'on' : ''} onClick=${() => setColor('idea')}>${L('按 idea', 'By project')}</button></div>
     <button class=${'btn sm' + (labels ? ' acc' : '')} onClick=${() => setLabels(!labels)}>${L('节点标签', 'Labels')}</button>
-    <a class="btn sm" href="/forest3d">${L('大规模森林 · 三维 →', 'Forest at scale · 3D →')}</a>
+    <a class="btn sm" href="/forest3d">${L('三维森林 →', '3D forest →')}</a>
     <div class="grow"></div>
     <span class="tiny faint hide-s">${L('滚轮缩放 · 拖拽平移 · 可拖动节点', 'Scroll to zoom · drag to pan · drag a node to move it')}</span>`}>
     <div class="cols2">
@@ -195,7 +195,7 @@ function MobilePanorama({ d, q, act }) {
   const term = search.trim().toLocaleLowerCase();
   const nodes = d.nodes.filter((n) => (!idea || n.ideas.includes(idea)) && (!status || n.status === status)
     && (!term || `${n.id} ${t(n.claim)} ${n.ideas.join(' ')}`.toLocaleLowerCase().includes(term)));
-  const heading = view === 'detail' ? L('假设详情', 'Hypothesis detail') : view === 'map' ? L('关系图谱', 'Relationship map') : L('假设清单', 'Hypotheses');
+  const heading = view === 'detail' ? L('假设详情', 'Hypothesis detail') : view === 'map' ? L('假设全景', 'Panorama') : L('假设清单', 'Hypotheses');
   const tools = html`
     ${view !== 'list' && html`<a class="btn sm" href=${qs({ h: null, map: null })}>${L('← 返回清单', '← Back to list')}</a>`}
     <h1 class="hyp-mobile-title" tabIndex="-1" ref=${head}>${heading}</h1>
@@ -328,7 +328,7 @@ function Graph({ d, color, hidden, labels, sel, onPick }) {
   return html`<div class="canvas" ref=${wrap} style=${{ height: h + 'px' }} onWheel=${onWheel}>
     <svg viewBox=${`${vb.x} ${vb.y} ${vb.w} ${vb.w * (h / Math.max(1, w))}`} width="100%" height=${h} class=${mobile && !interact ? 'touch-scroll' : drag.current?.pan ? 'drag' : ''}
       onPointerDown=${(e) => down(e, null)} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${() => { drag.current = null; }} role="img"
-      aria-label=${L('假设网络图', 'Hypothesis network graph')}>
+      aria-label=${L('假设全景图', 'Hypothesis panorama')}>
       <g>${d.ideas.filter((i) => d.centers[i.id]).map((i) => {
         const c = d.centers[i.id];
         const mine = nodes.filter((n) => n.ideas.includes(i.id));
@@ -481,7 +481,7 @@ export function GraphScreen({ q, onShell }) {
           <div class="row" style="margin-top:11px">
             ${sel.status === 'pending_review' && html`<a class="btn sm pri" href=${'/review?h=' + sel.id}>${L('前往裁定 →', 'Go to verdict →')}</a>`}
             <button class="btn sm acc" onClick=${() => act('exp.run', { hyp: sel.id })}>${L('为该假设安排实验', 'Queue an experiment')}</button>
-            <a class="btn sm" href=${'/panorama?h=' + sel.id}>${L('在网络中查看', 'See it in the network')}</a>
+            <a class="btn sm" href=${'/panorama?h=' + sel.id}>${L('在假设全景中查看', 'View in the panorama')}</a>
           </div>
         <//>
       </div>` : html`<${Empty}>${L('没有跨 idea 共享的假设。', 'No hypothesis is shared across projects.')}<//>`}

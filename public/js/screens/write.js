@@ -104,7 +104,7 @@ export function Review({ q, onShell }) {
           <div class="row" style="margin-top:11px">
             <button class="btn acc" onClick=${async () => { const r = await act('verdict.apply', { hyp: sel.id, verdict: chosen }); if (r.ok) { setPick(null); go('/review'); } }}>
               ${L('确认裁定并传播', 'Confirm and propagate')}</button>
-            <a class="btn" href=${'/panorama?h=' + sel.id}>${L('在网络中查看', 'See it in the network')}</a>
+            <a class="btn" href=${'/panorama?h=' + sel.id}>${L('在假设全景中查看', 'View in the panorama')}</a>
             <a class="btn" href=${'/tree?idea=' + sel.ideas[0]?.idea + '&h=' + sel.id}>${L('查看单 idea 树', 'Single-idea tree')}</a>
           </div>
           <div class="note" style="margin-top:10px">${L(`裁定后队列：+${sel.queueAfter.reopen} 节点回到可执行队列 · −${sel.queueAfter.withdraw} 实验从队列撤回 · ${sel.queueAfter.unaffected} 个 idea 不受影响`,

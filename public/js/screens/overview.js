@@ -18,7 +18,7 @@ export function Home({ q, onShell }) {
     <div class="cols2" style="margin-top:12px">
       <div class="col">
         <${Card} title=${d.star ? L(`同一假设被 ${d.star.places.length} 个 idea 引用`, `One hypothesis cited by ${d.star.places.length} projects`) : L('共享假设', 'Shared hypotheses')}
-          right=${html`<a href=${'/graph?h=' + d.star?.id}>${L('查看共享关系 →', 'See shared hypotheses →')}</a>`}>
+          right=${html`<a href=${'/graph?h=' + d.star?.id}>${L('查看共享假设 →', 'See shared hypotheses →')}</a>`}>
           ${d.star ? html`<${Fragment}>
             <div class="row" style="margin-bottom:4px">
               <span class="mono b">${d.star.id}</span><${St} s=${d.star.status} /><${Score} v=${d.star.score} />
@@ -32,7 +32,7 @@ export function Home({ q, onShell }) {
               <span style="color:var(--ink2)">${L(`写入 ${d.star.id} 证据`, `writes evidence to ${d.star.id}`)} <span class="num">${d.star.last.delta > 0 ? '+' : ''}${d.star.last.delta}</span></span>
               <span class="faint">→</span>
               <span style="color:var(--ink2);flex:1 1 180px">${L(`${d.star.places.length} 个 idea 的下游节点同步重估`, `downstream nodes in all ${d.star.places.length} projects are re-estimated together`)}</span>
-              <a href=${'/panorama?h=' + d.star.id}>${L('在网络中查看 →', 'View in the network →')}</a>
+              <a href=${'/panorama?h=' + d.star.id}>${L('在假设全景中查看 →', 'View in the panorama →')}</a>
             </div>`}
           <//>` : html`<${Empty}>${L('目前没有跨 idea 共享的假设。', 'No hypothesis is shared across projects right now.')}<//>`}
         <//>

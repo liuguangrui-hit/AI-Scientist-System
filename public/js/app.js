@@ -85,9 +85,9 @@ const NAV = [
   { k: 'survey', icon: 'book', zh: '文献调研', en: 'Literature', count: 'library', subs: [
     { k: 'survey', zh: '文献采集', en: 'Collection' }, { k: 'trends', zh: '趋势分析', en: 'Trends' }, { k: 'sparks', zh: 'idea spark', en: 'Idea sparks' }, { k: 'digest', zh: '论文详情', en: 'Paper detail' }] },
   { k: 'ideas', icon: 'bulb', zh: 'Idea 立项', en: 'Idea intake', count: 'ideas' },
-  { k: 'panorama', icon: 'net', zh: '假设网络', en: 'Hypotheses', count: 'hyps', subs: [
-    { k: 'panorama', zh: '全景 · 全部 idea', en: 'Panorama · all ideas' }, { k: 'graph', zh: '共享关系 · 跨 idea', en: 'Shared · cross-idea' }, { k: 'tree', zh: '单 idea 树', en: 'Single-idea tree' },
-    { k: 'forest3d', zh: '森林 · 三维', en: 'Forest · 3D' }, { k: 'forest2d', zh: '森林 · 二维', en: 'Forest · 2D' }] },
+  { k: 'panorama', icon: 'net', zh: '假设森林', en: 'Hypothesis forest', count: 'hyps', subs: [
+    { k: 'panorama', zh: '假设全景', en: 'Panorama' }, { k: 'graph', zh: '共享假设', en: 'Shared hypotheses' }, { k: 'tree', zh: '单 idea 假设树', en: 'Single-idea tree' },
+    { k: 'forest3d', zh: '三维森林', en: '3D forest' }, { k: 'forest2d', zh: '二维森林', en: '2D forest' }] },
   { k: 'experiments', icon: 'flask', zh: '实验', en: 'Experiments', count: 'running', subs: [
     { k: 'experiments', zh: '单次实验', en: 'Single run' }, { k: 'exptree', zh: '实验树 · 四阶段', en: 'Experiment tree' }, { k: 'sweep', zh: '扫描矩阵', en: 'Sweep matrix' }, { k: 'runs', zh: '算力与失败', en: 'Compute & failures' }] },
   { k: 'review', icon: 'gavel', zh: '裁定队列', en: 'Verdict queue', count: 'pending', warn: true },
@@ -223,7 +223,10 @@ function App() {
   useEffect(() => { document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en'; }, []);
   useEffect(() => {
     if (screen === '' || screen === 'about') return;   // the homepage and /about name themselves
-    const titles = { home: L('总览', 'Overview'), main: L('工作台', 'Workbench'), forest3d: L('森林 · 三维', 'Forest · 3D'), forest2d: L('森林 · 二维', 'Forest · 2D') };
+    // tab titles use the same names as the sidebar
+    const titles = {};
+    for (const n of NAV) { titles[n.k] ??= L(n.zh, n.en); for (const s of n.subs || []) titles[s.k] = L(s.zh, s.en); }
+    titles.events = L('事件流', 'Event stream');
     document.title = (titles[screen] || screen.replace(/^\w/, (c) => c.toUpperCase())) + ' · AI Scientist';
   }, [screen, LANG]);
   return html`<${Fragment2}>

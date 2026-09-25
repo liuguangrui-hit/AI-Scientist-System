@@ -29,7 +29,7 @@ export function Landing({ about }) {
   const c = live?.shell?.counts;
   const stats = [
     [c ? c.library.toLocaleString() : '1,207', L('已建库文献', 'papers indexed')],
-    [c ? c.hyps : '56', L('网络中的假设', 'hypotheses live')],
+    [c ? c.hyps : '56', L('森林中的假设', 'hypotheses in the forest')],
     [c ? c.running + c.queued : '7', L('运行中 / 排队实验', 'runs live & queued')],
     ['9h12m', L('最近一次无人值守运行', 'last unattended run')],
   ];
@@ -39,10 +39,10 @@ export function Landing({ about }) {
       <a class="brand" href="/" style="color:#fff">${I('logo', { s: 21, c: '#fff', w: 1.8 })}<span style="font-size:15px;font-weight:600;color:#fff">AI Scientist</span></a>
       <div class="grow"></div>
       <a href="#purpose" class="hide-s">${L('设计主旨', 'Purpose')}</a>
-      <a href="#features" class="hide-s">${L('特色', 'Features')}</a>
+      <a href="#features" class="hide-s">${L('系统特色', 'System features')}</a>
       <a href="#pipeline" class="hide-s">${L('研究流程', 'Pipeline')}</a>
-      <a href="/panorama" class="hide-s">${L('假设图', 'Graph')}</a>
-      <a href="/forest3d" class="hide-s">${L('森林', 'Forest')}</a>
+      <a href="/panorama" class="hide-s">${L('假设全景', 'Panorama')}</a>
+      <a href="/forest3d" class="hide-s">${L('三维森林', '3D forest')}</a>
       <button class="btn xs" style="background:transparent;color:#98A2B3;border-color:rgba(255,255,255,.18)" onClick=${() => setLang(LANG === 'zh' ? 'en' : 'zh')}>${LANG === 'zh' ? 'EN' : '中文'}</button>
       <a class="cta" href="/home">${L('进入系统', 'Open the system')}</a>
     </nav>
@@ -54,7 +54,7 @@ export function Landing({ about }) {
         'Agents carry literature review, project intake, experiments and writing forward on their own. The researcher decides only where a decision is necessary.')}</p>
       <div class="hbtns">
         <a class="hbtn" href="/home">${L('进入系统 →', 'Open the system →')}</a>
-        <a class="hbtn ghost" href="/panorama">${L('查看假设网络', 'See the hypothesis network')}</a>
+        <a class="hbtn ghost" href="/panorama">${L('查看假设全景', 'See the panorama')}</a>
       </div>
       <div class="hstats">${stats.map(([v, k], i) => html`
         ${i > 0 && html`<span class="sep"></span>`}
@@ -83,7 +83,7 @@ export function Landing({ about }) {
     <//>
 
     <${Section} id="features" cls="alt">
-      <div class="eyebrow">${L('特色', 'Features')}</div>
+      <div class="eyebrow">${L('系统特色', 'System features')}</div>
       <h2>${L('假设森林的展开与收敛', 'Expansion and convergence of the hypothesis forest')}</h2>
       <p class="lead">${L('每个 idea 拆解为一棵由实验检验的假设树，共享假设把树连成森林。整体目标是以最精简的假设，解释最多的实验证据。',
         'Each idea becomes a tree of hypotheses tested by experiments, and shared hypotheses join the trees into a forest. The overall objective is the fewest hypotheses that explain the most experimental evidence.')}</p>
@@ -103,13 +103,13 @@ export function Landing({ about }) {
               <div class="mono b">${id}</div><div class="small mut" style="margin-top:3px">${role}</div>
               <div style="margin-top:9px;font-size:12.5px;line-height:1.6">${eff}</div></div>`)}
         </div></div>
-        <div class="ft"><a href="/graph">${L('在共享关系页打开 →', 'Open in the shared-hypotheses view →')}</a></div>
+        <div class="ft"><a href="/graph">${L('在共享假设页打开 →', 'Open in Shared hypotheses →')}</a></div>
       </div>
     <//>
 
     <${Section} id="pipeline" cls="">
       <div class="eyebrow">${L('研究流程', 'Pipeline')}</div>
-      <h2>${L('六个环节，一张假设网络', 'Six stages, one hypothesis network')}</h2>
+      <h2>${L('六个环节，共享同一片假设森林', 'Six stages over one hypothesis forest')}</h2>
       <p class="lead">${L('每个环节都可以展开查看。从文献来源到每次实验写入的证据，都有据可查。',
         'Every stage can be opened and inspected. Each piece of evidence can be traced back to its run.')}</p>
       <div class="steps">
@@ -140,11 +140,11 @@ export function Landing({ about }) {
             'An end-to-end research automation system, from idea to paper.')}</div>
         </div>
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('工作流', 'Workflow')}</div>
-          <div><a href="/survey">${L('文献调研', 'Literature')}</a></div><div><a href="/panorama">${L('假设网络', 'Hypotheses')}</a></div>
-          <div><a href="/experiments">${L('实验', 'Experiments')}</a></div><div><a href="/review">${L('裁定队列', 'Verdicts')}</a></div><div><a href="/paper">${L('论文', 'Paper')}</a></div></div>
+          <div><a href="/survey">${L('文献调研', 'Literature')}</a></div><div><a href="/panorama">${L('假设森林', 'Hypothesis forest')}</a></div>
+          <div><a href="/experiments">${L('实验', 'Experiments')}</a></div><div><a href="/review">${L('裁定队列', 'Verdict queue')}</a></div><div><a href="/paper">${L('论文', 'Paper')}</a></div></div>
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('常用入口', 'Shortcuts')}</div>
           <div><a href="/home">${L('总览', 'Overview')}</a></div><div><a href="/main">${L('工作台', 'Workbench')}</a></div>
-          <div><a href="/runs">${L('算力与失败', 'Compute')}</a></div><div><a href="/claims">${L('主张对照', 'Claims')}</a></div><div><a href="/rebuttal">${L('审稿与修订', 'Rebuttal')}</a></div></div>
+          <div><a href="/runs">${L('算力与失败', 'Compute & failures')}</a></div><div><a href="/claims">${L('主张 · 证据对照', 'Claims vs evidence')}</a></div><div><a href="/rebuttal">${L('审稿与修订', 'Review & rebuttal')}</a></div></div>
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('关于', 'About')}</div>
           <div>${L('语言', 'Language')}: <a href="#" onClick=${(e) => { e.preventDefault(); setLang(LANG === 'zh' ? 'en' : 'zh'); }}>${LANG === 'zh' ? 'English' : '中文'}</a></div>
           <div><a href="#" onClick=${async (e) => { e.preventDefault(); await reset(); location.reload(); }}>${L('重置会话数据', 'Reset session data')}</a></div></div>
