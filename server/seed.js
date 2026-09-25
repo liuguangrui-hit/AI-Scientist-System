@@ -496,7 +496,7 @@ function makeRebuttal() {
   return {
     reviewers: [
       { id: 'A', model: 'claude', score: 6, conf: 4, note: b('方法表述清晰，但长上下文部分的结论超出数据范围', 'The method is clearly presented, but the long-context conclusion extends beyond the data') },
-      { id: 'B', model: 'gpt', score: 5, conf: 3, note: b('缺少与 StruQ、SecAlign 两条近期防御的直接对比，创新性难以判断', 'No direct comparison with two recent defences, StruQ and SecAlign; novelty is hard to judge') },
+      { id: 'B', model: 'gpt', score: 5, conf: 3, note: b('缺少与 StruQ 和 SecAlign 两条近期防御的直接对比，创新性难以判断', 'No direct comparison with two recent defences, StruQ and SecAlign; novelty is hard to judge') },
       { id: 'C', model: 'deepseek', score: 7, conf: 4, note: b('消融实验充分；建议给出开销的实测值而非估计值', 'The ablation is thorough; the overhead should be reported as a measurement rather than an estimate') },
     ],
     prevMean: 5.0, collapsed: 8,

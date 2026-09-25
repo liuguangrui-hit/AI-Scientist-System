@@ -51,7 +51,7 @@ export function Landing({ about }) {
     <header class="hero" id="main">
       <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:#7DA2FF"></span>${L('科研全流程自动化系统', 'End-to-end research automation')}</span>
       <h1>${L(html`从 idea 到 paper<br/>科研全流程<em>自动化</em>`, html`From idea to paper<br/>research, <em>end to end</em>`)}</h1>
-      <p>${L('文献调研、立项、实验与写作由 agent 自主推进，研究者只在必要的节点作出决策。',
+      <p>${L('从文献调研到论文写作，各环节由 agent 自主推进，研究者只在必要的节点作出决策。',
         'Agents carry literature review, project intake, experiments and writing forward on their own. The researcher decides only where a decision is necessary.')}</p>
       <div class="hbtns">
         <a class="hbtn" href="/home">${L('进入系统 →', 'Open the system →')}</a>
