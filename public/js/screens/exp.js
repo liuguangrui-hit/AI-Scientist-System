@@ -13,8 +13,8 @@ export function Experiments({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.experiments;
   if (d.empty) return html`<${Frame}><${Card} title=${L('实验', 'Experiments')}>
-    <${Empty}>${L('暂无实验记录。真实项目从 experiments.jsonl 读取，排队的实验会写进 queue.jsonl。',
-      'No runs yet. A real project reads experiments.jsonl, and queued runs are written to queue.jsonl.')}<//>
+    <${Empty}>${L('暂无实验记录。实验排队后将在此显示。',
+      'No runs yet. Queued experiments appear here.')}<//>
     <div class="row" style="margin-top:11px"><a class="btn sm" href="/main">${L('前往可执行假设安排实验', 'Queue from the frontier')}</a></div><//><//>`;
   const live = e.status === 'running';
   return html`<${Frame} tools=${html`
@@ -65,7 +65,7 @@ export function Experiments({ q, onShell }) {
           </tbody><//>
         <//>
 
-        <${Card} title=${L('实时输出', 'Live output')} sub="events.jsonl · module=executor"
+        <${Card} title=${L('实时输出', 'Live output')} sub="executor"
           right=${html`<div class="row">
             ${live && html`<span class="chip acc"><span class="spin"></span>${Math.round(e.prog * 100)}%</span>`}
             ${live && html`<button class="btn xs" onClick=${() => act('exp.control', { exp: e.id, cmd: 'pause' })}>${I('pause', { s: 11 })}${L('暂停', 'Pause')}</button>`}
@@ -322,8 +322,7 @@ export function Runs({ q, onShell }) {
     <span class="chip">${L('平均排队', 'Avg queue')} ${d.stats.avgQueueMin} ${L('分钟', 'min')}</span>
     <span class="chip">${L('成功率', 'Success')} ${d.stats.rate}%</span>
     <span class="chip">${L('自动重试恢复', 'Recovered by retry')} ${d.stats.rescued[0]}/${d.stats.rescued[1]}</span>
-    <div class="grow"></div>
-    <span class="tiny faint hide-s">${L('executor 只能写 events.jsonl 与 artifacts/', 'the executor may write only events.jsonl and artifacts/')}</span>`}>
+    <div class="grow"></div>`}>
     <div class="cols2">
       <div class="col">
         <${Card} title=${L('近 24 小时占用', 'Occupancy, last 24 hours')} sub=${L('颜色表示所属 idea，实心表示运行中，琥珀色表示失败', 'colour = project, solid = running, amber = failed')}>

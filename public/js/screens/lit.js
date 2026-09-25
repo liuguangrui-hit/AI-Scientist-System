@@ -62,7 +62,7 @@ export function Survey({ q, onShell }) {
       <div class="cols2">
         <div>
           ${[[L('枚举 / 关键词检索到', 'Enumerated / searched'), d.enumerated, L('core 全量枚举 + watch 按 seeds 检索', 'core enumerated in full + watch searched by seeds'), 1],
-            [L('通过 topics.md 判定', 'Passed topics.md'), d.passedTopics, L('命中至少一个 track，可多标', 'matches at least one track; multiple allowed'), d.passedTopics / d.enumerated],
+            [L('通过领域筛选', 'Passed the topic filter'), d.passedTopics, L('命中至少一个 track，可多标', 'matches at least one track; multiple allowed'), d.passedTopics / d.enumerated],
             [L('level 1 · 入库条目与摘要原文', 'level 1 · record + abstract'), d.funnel.l1, L('达到预算上限即停止，断点已保存至 state.json', 'stops at the budget cap; cursors written back to state.json'), d.funnel.l1 / d.enumerated],
             [L('level 2 · 下载全文 + digest', 'level 2 · full text + digest'), d.funnel.l2, L(`命中 track 的优先，${d.funnel.l2} / ${d.fulltextCap}`, `track hits first, ${d.funnel.l2} / ${d.fulltextCap}`), d.funnel.l2 / d.enumerated],
             [L('level 3 · brief_zh + full_zh', 'level 3 · brief + full translation'), d.funnel.l3, L('仅处理 queue_fulltext.txt 中列出的 id', 'only ids listed in queue_fulltext.txt'), d.funnel.l3 / d.enumerated]].map(([lab, n, note, w]) => html`

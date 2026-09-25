@@ -5,7 +5,7 @@ import { go, qs } from '../app.js';
 const F = ({ children }) => children;
 
 const VERDICTS = [
-  ['close', '判定不成立并关闭', 'Does not hold — close', '写 verdicts/ 并传播', 'writes verdicts/ and propagates'],
+  ['close', '判定不成立并关闭', 'Does not hold — close', '记录裁定并传播', 'records the verdict and propagates'],
   ['return_active', '退回 active', 'Return to active', '附新方向，重新进入可执行队列', 'with a new direction, back to the frontier'],
   ['narrow_scope', '改写 claim 后重开', 'Rewrite the claim and reopen', '缩小到短返回值情形', 'narrowed to short tool returns'],
   ['downgrade', '降级为借用前提', 'Downgrade to a borrowed premise', '标注未验证', 'marked unverified'],
@@ -89,7 +89,7 @@ export function Review({ q, onShell }) {
             <span class="chip acc">${L(VERDICTS.find((v) => v[0] === sel.advice.action)[1], VERDICTS.find((v) => v[0] === sel.advice.action)[2])}</span></div>
         <//>
 
-        <${Card} title=${L('裁定', 'Verdict')} sub=${L('裁定结果只写 verdicts/，节点状态由此派生', 'a verdict writes only verdicts/; node state derives from it')}>
+        <${Card} title=${L('裁定', 'Verdict')} sub=${L('节点状态由裁定结果派生', 'node state derives from the verdict')}>
           <div class="col">
             ${VERDICTS.map(([k, zh, en, dzh, den]) => html`
               <label class="row" style=${{ padding: '9px 11px', border: '1px solid ' + (chosen === k ? 'var(--acc)' : 'var(--line)'), background: chosen === k ? 'var(--accbg)' : undefined, borderRadius: '6px', cursor: 'pointer' }}
@@ -100,7 +100,6 @@ export function Review({ q, onShell }) {
               </label>`)}
           </div>
           <div class="hr"></div>
-          <div class="tiny faint" style="margin-bottom:5px">${L('将写入', 'Will write')} verdicts/${sel.id}.json</div>
           <pre class="mono tiny" style="margin:0;background:#0F1419;color:#D7DDE5;padding:11px;border-radius:5px;overflow-x:auto;line-height:1.8">${JSON.stringify({ ...sel.preview, verdict: chosen, scope: chosen === 'narrow_scope' ? 'low_rank_only' : null, next_action: chosen === 'close' ? 'freeze' : 'reopen' }, null, 2)}</pre>
           <div class="row" style="margin-top:11px">
             <button class="btn acc" onClick=${async () => { const r = await act('verdict.apply', { hyp: sel.id, verdict: chosen }); if (r.ok) { setPick(null); go('/review'); } }}>

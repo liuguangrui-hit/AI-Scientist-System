@@ -61,7 +61,7 @@ export function home(ws) {
     agents: [
       { id: 'surveyor', model: ws.agents.surveyor, state: ws.survey.job ? b('采集中', 'collecting') : b('空闲', 'idle'), line: b(`上一轮 ${fmt(ws.survey.lastRun)} 完成 · 下一轮 ${ws.survey.nextInDays} 天后`, `Last round finished ${fmt(ws.survey.lastRun)} · next in ${ws.survey.nextInDays} days`), go: '/survey' },
       { id: 'executor', model: ws.agents.executor, state: b(`并行运行 ${c.running} 个实验`, `${c.running} experiments in parallel`), line: b(`${exps.filter((e) => e.status === 'running').map((e) => e.id).join(' ')} · 并发 ${c.running}/${ws.settings.parallel}，排队 ${c.queued}`, `${exps.filter((e) => e.status === 'running').map((e) => e.id).join(' ')} · slots ${c.running}/${ws.settings.parallel}, ${c.queued} queued`), go: '/experiments' },
-      { id: 'reviewer', model: ws.agents.reviewer, state: b(`${c.pending} 项待裁定`, `${c.pending} awaiting verdict`), line: b('仅写入 verdicts/，不修改 tree.json 中的状态', 'Writes only verdicts/; does not modify state in tree.json'), go: '/review' },
+      { id: 'reviewer', model: ws.agents.reviewer, state: b(`${c.pending} 项待裁定`, `${c.pending} awaiting verdict`), line: b('只提交裁定，不直接修改假设树', 'Submits verdicts only; does not edit the hypothesis tree'), go: '/review' },
     ],
     budget: { used: ws.settings.gpuUsed, total: ws.settings.budget },
   };

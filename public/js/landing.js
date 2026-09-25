@@ -85,7 +85,7 @@ export function Landing({ about }) {
 
     <${Section} id="features" cls="alt">
       <div class="eyebrow">${L('特色', 'Features')}</div>
-      <h2>${L('一片会展开、也会收敛的假设森林', 'A hypothesis forest that expands and converges')}</h2>
+      <h2>${L('假设森林的展开与收敛', 'Expansion and convergence of the hypothesis forest')}</h2>
       <p class="lead">${L('每个 idea 拆解为一棵由实验检验的假设树，共享假设把树连成森林。整体目标是以最精简的假设，解释最多的实验证据。',
         'Each idea becomes a tree of hypotheses tested by experiments, and shared hypotheses join the trees into a forest. The overall objective is the fewest hypotheses that explain the most experimental evidence.')}</p>
       <div class="feat">
@@ -135,7 +135,7 @@ export function Landing({ about }) {
           ['survey', '文献采集', 'Collection pipeline', '来源白名单与三级分级', 'Source whitelist, cursor budget, three grading levels'],
           ['trends', '趋势分析', 'Trend analysis', '主题聚类与研究空白', 'Monthly depth, clusters, term shifts, gaps and contradictions'],
           ['sparks', 'idea spark', 'Idea sparks', '四行格式与三道自检', 'Four-line format, three self-checks, state flow'],
-          ['digest', '论文详情', 'Paper detail', '结构化摘要与衍生文本', 'meta.json, fixed digest fields, three derived texts'],
+          ['digest', '论文详情', 'Paper detail', '结构化摘要与衍生文本', 'Structured digest and derived texts'],
           ['ideas', 'Idea 立项', 'Idea intake', '候选主张与立项成本', 'Candidate claims, reuse of hypotheses, cost to start'],
           ['panorama', '假设全景', 'Hypothesis panorama', '8 个 idea 与 56 条假设的全局网络', 'The global network: 8 ideas, 56 hypotheses'],
           ['graph', '共享关系', 'Shared hypotheses', '同一假设在不同 idea 中的层级', 'One hypothesis at three levels in three projects'],

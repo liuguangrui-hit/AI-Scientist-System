@@ -202,7 +202,7 @@ op('decision.snooze', (ws, { id }) => { ws.snoozed[id] = Date.now(); return ok('
 op('survey.collect', (ws, {}) => {
   if (ws.survey.job) return err('采集正在进行', 'A collection round is already running');
   ws.survey.job = { startedAt: Date.now(), endsAt: Date.now() + 25000, records: 120 + Math.floor(Math.random() * 120), digests: 30 + Math.floor(Math.random() * 30) };
-  E.pushEvent(ws, 'surveyor', b('开始一轮采集', 'Collection round started'), b('按 venues.yaml 中的采集断点增量采集', 'Incremental collection from the cursors in venues.yaml'), 'collect', Date.now());
+  E.pushEvent(ws, 'surveyor', b('开始一轮采集', 'Collection round started'), b('按来源白名单增量采集', 'Incremental collection from the source whitelist'), 'collect', Date.now());
   return ok('采集已启动，约 25 秒后保存采集断点', 'Collection started; cursors are written back in about 25 seconds');
 });
 

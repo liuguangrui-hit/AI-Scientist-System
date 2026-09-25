@@ -134,8 +134,8 @@ export function Panorama({ q, onShell }) {
   const d = data.panorama;
   const sel = d.sel;
   if (d.empty) return html`<${Frame}><${Card} title=${L('假设网络', 'Hypothesis network')}>
-    <${Empty}>${L('暂无假设。接入真实项目后，这里显示 tree.json 里的全部 idea 与假设。',
-      'No hypotheses yet. Wired to a real project this shows every idea and hypothesis in tree.json.')}<//><//><//>`;
+    <${Empty}>${L('暂无假设。立项后，这里显示全部 idea 与假设。',
+      'No hypotheses yet. Once a project is launched, every idea and hypothesis appears here.')}<//><//><//>`;
   if (mobile) return html`<${MobilePanorama} d=${d} q=${q} act=${act} />`;
   return html`<${Frame} tools=${html`
     <span class="tiny faint">${L('着色', 'Colour')}</span>

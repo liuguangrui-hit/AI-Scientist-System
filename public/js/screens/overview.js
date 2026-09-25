@@ -7,8 +7,7 @@ export function Home({ q, onShell }) {
   if (!data) return html`<${Loading} />`;
   const d = data.home, c = data.shell.counts;
   return html`<${Frame}>
-    <${Card} title=${L('研究流程', 'Pipeline')} sub=${L('从文献采集到论文成稿的完整流程，各环节均可展开查看', 'The full pipeline from literature collection to manuscript; every stage can be inspected')}
-      right=${html`<span class="mono tiny faint">${L('数据来自', 'from')} index.jsonl · tree.json · events.jsonl</span>`}>
+    <${Card} title=${L('研究流程', 'Pipeline')} sub=${L('从文献采集到论文成稿的完整流程，各环节均可展开查看', 'The full pipeline from literature collection to manuscript; every stage can be inspected')}>
       <div class="pipe">
         ${d.pipeline.map((p, i) => html`
           ${i > 0 && html`<div class="arrow">${I('arrow', { s: 14, c: 'var(--faint2)' })}</div>`}
@@ -251,7 +250,7 @@ export function Main({ q, onShell }) {
           </div>
         <//>
 
-        <${Card} title=${L('活动', 'Activity')} sub="events.jsonl" right=${html`<a href="/events">${L('全部 →', 'All →')}</a>`}>
+        <${Card} title=${L('活动', 'Activity')} right=${html`<a href="/events">${L('全部 →', 'All →')}</a>`}>
           <div class="list">
             ${d.events.map((e) => html`<div class="item" style="cursor:default;padding:8px 0">
               <span class="mono tiny faint" style="width:42px;flex-shrink:0">${hm(e.t)}</span>
@@ -272,7 +271,7 @@ export function Events({ q, onShell }) {
   const KINDS = { all: L('全部', 'All'), collect: L('采集', 'Collection'), experiment: L('实验', 'Experiments'), hypothesis: L('假设', 'Hypotheses'), verdict: L('裁定', 'Verdicts'), idea: 'Idea', paper: L('写作', 'Writing') };
   return html`<${Frame} tools=${html`<div class="seg">
       ${Object.entries(KINDS).map(([k, lab]) => html`<button class=${kind === k ? 'on' : ''} onClick=${() => setKind(k)}>${lab}</button>`)}
-    </div><div class="grow"></div><span class="mono tiny faint">events.jsonl · ${d.list.length} ${L('行', 'lines')}</span>`}>
+    </div><div class="grow"></div><span class="tiny faint">${d.list.length} ${L('条记录', 'entries')}</span>`}>
     <${Card} title=${L('事件流', 'Event stream')} sub=${L('各 agent 仅追加各自的记录，人工操作亦记录于此', 'Each agent appends only its own entries; manual actions are also recorded')}>
       <${Table}><tbody>
         ${d.list.map((e) => html`<tr>
