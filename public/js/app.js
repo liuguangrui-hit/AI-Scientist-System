@@ -20,7 +20,7 @@ addEventListener('popstate', () => subs.forEach((f) => f()));
 addEventListener('click', (e) => {
   const a = e.target.closest?.('a[href]');
   if (!a) return;
-  // In-page anchors: <base href> would resolve '#screens' against the site root and
+  // In-page anchors: <base href> would resolve '#purpose' against the site root and
   // leave the page, so scroll within the current page instead.
   const raw = a.getAttribute('href');
   if (raw[0] === '#') {

@@ -41,7 +41,6 @@ export function Landing({ about }) {
       <a href="#purpose" class="hide-s">${L('设计主旨', 'Purpose')}</a>
       <a href="#features" class="hide-s">${L('特色', 'Features')}</a>
       <a href="#pipeline" class="hide-s">${L('研究流程', 'Pipeline')}</a>
-      <a href="#screens" class="hide-s">${L('全部界面', 'All screens')}</a>
       <a href="/panorama" class="hide-s">${L('假设图', 'Graph')}</a>
       <a href="/forest3d" class="hide-s">${L('森林', 'Forest')}</a>
       <button class="btn xs" style="background:transparent;color:#98A2B3;border-color:rgba(255,255,255,.18)" onClick=${() => setLang(LANG === 'zh' ? 'en' : 'zh')}>${LANG === 'zh' ? 'EN' : '中文'}</button>
@@ -124,35 +123,6 @@ export function Landing({ about }) {
       </div>
     <//>
 
-    <${Section} id="screens" cls="alt">
-      <div class="eyebrow">${L('全部界面', 'All screens')}</div>
-      <h2>${L('18 个功能界面，均可交互操作', '18 screens, all interactive')}</h2>
-      <p class="lead">${L('每个界面都可以实际操作。实验完成后证据写入假设，裁定会冻结下游节点。',
-        'Every screen is fully interactive. Finished runs write evidence back to hypotheses, and verdicts freeze downstream nodes.')}</p>
-      <div class="screens">
-        ${[['home', '总览', 'Overview', '流程指标与待决事项', 'Live pipeline counts, the last 24 hours and pending decisions'],
-          ['main', '工作台 · 全局', 'Workbench · global', '全局可执行假设与并发实验', 'Global frontier, execution slots and the activity stream'],
-          ['survey', '文献采集', 'Collection pipeline', '来源白名单与三级分级', 'Source whitelist, cursor budget, three grading levels'],
-          ['trends', '趋势分析', 'Trend analysis', '主题聚类与研究空白', 'Monthly depth, clusters, term shifts, gaps and contradictions'],
-          ['sparks', 'idea spark', 'Idea sparks', '四行格式与三道自检', 'Four-line format, three self-checks, state flow'],
-          ['digest', '论文详情', 'Paper detail', '结构化摘要与衍生文本', 'Structured digest and derived texts'],
-          ['ideas', 'Idea 立项', 'Idea intake', '候选主张与立项成本', 'Candidate claims, reuse of hypotheses, cost to start'],
-          ['panorama', '假设全景', 'Hypothesis panorama', '8 个 idea 与 56 条假设的全局网络', 'The global network: 8 ideas, 56 hypotheses'],
-          ['graph', '共享关系', 'Shared hypotheses', '同一假设在不同 idea 中的层级', 'One hypothesis at three levels in three projects'],
-          ['tree', '单 idea 树', 'Single-idea tree', '节点编辑与依赖关系', 'Node editing, dependencies, evidence and verdicts'],
-          ['experiments', '单次实验', 'Single experiment', '运行配置与执行决策', 'Config, live stream, PROCEED / REFINE / PIVOT'],
-          ['exptree', '实验树 · 四阶段', 'Experiment tree', '初探 → 调参 → 主实验 → 消融', 'Probe → tune → main → ablation'],
-          ['sweep', '扫描矩阵', 'Sweep matrix', '方差分析与显著性检验', 'n × seed, variance and significance'],
-          ['runs', '算力与失败', 'Compute & failures', '占用时间线与失败处置', 'Occupancy timeline, failure classes and auto-handling'],
-          ['review', '裁定队列', 'Verdict queue', '失效在各 idea 中的不同后果', 'How one failure plays out differently in three projects'],
-          ['paper', '论文正文', 'Manuscript', '章节由假设树映射', 'Sections map from the tree; gaps are highlighted'],
-          ['claims', '主张 · 证据对照', 'Claims vs evidence', '逐条核查证据不足与过度声称', 'Unsupported and overclaimed sentences, one by one'],
-          ['figures', '图表工作台', 'Figure workbench', '来源可追溯的发表级图表', 'Publication figures, traceable sources, review comments'],
-          ['rebuttal', '审稿与修订', 'Review & rebuttal', '评审意见与投稿清单', 'Three reviewers, a reproducibility self-score, the checklist']].map(([k, zh, en, dzh, den]) => html`
-          <a href=${'/' + k}><div class="t">${L(zh, en)}</div><div class="d">${L(dzh, den)}</div><div class="k">${k.replace(/^\w/, (x) => x.toUpperCase())}</div></a>`)}
-      </div>
-    <//>
-
     <${Section} cls="" style=${{ background: 'var(--dark)' }}>
       <div class="dark" style="text-align:center">
         <div class="eyebrow" style="color:#7DA2FF">${L('整体目标', 'Objective')}</div>
@@ -172,7 +142,7 @@ export function Landing({ about }) {
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('工作流', 'Workflow')}</div>
           <div><a href="/survey">${L('文献调研', 'Literature')}</a></div><div><a href="/panorama">${L('假设网络', 'Hypotheses')}</a></div>
           <div><a href="/experiments">${L('实验', 'Experiments')}</a></div><div><a href="/review">${L('裁定队列', 'Verdicts')}</a></div><div><a href="/paper">${L('论文', 'Paper')}</a></div></div>
-        <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('界面', 'Screens')}</div>
+        <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('常用入口', 'Shortcuts')}</div>
           <div><a href="/home">${L('总览', 'Overview')}</a></div><div><a href="/main">${L('工作台', 'Workbench')}</a></div>
           <div><a href="/runs">${L('算力与失败', 'Compute')}</a></div><div><a href="/claims">${L('主张对照', 'Claims')}</a></div><div><a href="/rebuttal">${L('审稿与修订', 'Rebuttal')}</a></div></div>
         <div><div style="color:#98A2B3;font-weight:600;margin-bottom:6px">${L('关于', 'About')}</div>
